@@ -35,13 +35,13 @@ public class ProofExecutorTests {
 		};
 		ProofParser pp = new ProofParser(shax);
 		String in = "ing ";
-		InputStream dummy = null;
+		InputStream text = null;
 		try {
-			dummy = new ByteArrayInputStream(in.getBytes("US-ASCII"));
+			text = new ByteArrayInputStream(in.getBytes("US-ASCII"));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		ProofExecutor pe = new ProofExecutor(dummy);
+		ProofExecutor pe = new ProofExecutor(text);
 		byte[] res = Utils.reverseBytes(pe.execute(pp));
 		String out = Utils.bytesToHexString(res);
 		assertEquals("3367a47f48cd5948e68ed649f74d6fcc60725a881593543ae646a9b63f55fe19", out);
@@ -54,17 +54,30 @@ public class ProofExecutorTests {
 		};
 		ProofParser pp = new ProofParser(rev);
 		String in = "this is a test";
-		InputStream dummy = null;
+		InputStream text = null;
 		try {
-			dummy = new ByteArrayInputStream(in.getBytes("US-ASCII"));
+			text = new ByteArrayInputStream(in.getBytes("US-ASCII"));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		ProofExecutor pe = new ProofExecutor(dummy);
+		ProofExecutor pe = new ProofExecutor(text);
 		pe.restrictArbitraryStreamBuffer = false;
 		byte[] res = pe.execute(pp);
 		String out = new String(res);
 		assertEquals("tset a si siht", out);
 	}
-
+	
+	@Test
+	public void testFileInput() {
+		Object[] shan = {
+				new Object[] {"op_sha256"},
+		};
+		ProofParser pp = new ProofParser(shan);
+		InputStream file = getClass().getResourceAsStream("btc-logo.png");
+		
+		ProofExecutor pe = new ProofExecutor(file);
+		byte[] res = Utils.reverseBytes(pe.execute(pp));
+		String out = Utils.bytesToHexString(res);
+		assertEquals("11961d79a8fde725e878473bd3497adff1fb6d362c1378e9eb182c870a617a2a", out);
+	}
 }

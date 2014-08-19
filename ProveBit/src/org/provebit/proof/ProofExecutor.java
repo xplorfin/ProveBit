@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Stack;
 
 import org.h2.util.IOUtils;
 import org.provebit.proof.ProofParser.Argument;
-import org.spongycastle.util.Arrays;
 
 import com.google.bitcoin.core.Utils;
 
@@ -20,8 +20,9 @@ public class ProofExecutor {
 	private static final int FRAME_WIDTH = 64;
 	private static final int MEM_SIZE = 1024;
 	private static final int MEM_CELL_SIZE = 1024;
+	private static final int STACK_FRAMES = 128;
 	public static final String MAIN_NAME = "__main";
-	
+		
 	/** Disallow operations that require buffering for an entire stream */
 	public boolean restrictArbitraryStreamBuffer = true;
 	
@@ -115,8 +116,12 @@ public class ProofExecutor {
 			return getString(fname, execidx, i);
 		}
 		
-		public boolean advance() {
-			return (++execidx >= proof.funcLen(fname));
+		public void advance() {
+			++execidx;
+		}
+		
+		public boolean isDone() {
+			return (execidx >= proof.funcLen(fname));
 		}
 	}
 	
@@ -137,6 +142,10 @@ public class ProofExecutor {
 		this(new ByteArrayInputStream(workingInitData));
 	}
 	
+	public ProofExecutor(String workingInitDataString) {
+		this(workingInitDataString.getBytes());
+	}
+	
 	public byte[] execute(ProofParser prg) {
 		if (executed) return mread(WORKING_LOCATION);
 		executed = true;
@@ -144,13 +153,37 @@ public class ProofExecutor {
 		
 		while (executionIsUnfinished()) {
 			PFrame frame = functionFrames.peek();
+			if (frame.isDone()) {
+				functionFrames.pop();
+				continue;
+			}
 			String opname = frame.getCurrentName();
 			int argc = frame.getCurrentArgCount();
+			
+			
+			// function calling
+			if (opname.startsWith("f_")) {
+				if (functionFrames.size() > (STACK_FRAMES - 1))
+					throw new RuntimeException("proof executor stack frame past max");
+				String fname = opname.substring(2);
+
+				//byte[][] nmem = functionFrames.peek().mem;
+				byte[][] stuff = new byte[argc][];
+				for (int i = 0; i < argc; i++) {
+					byte[] cur = frame.getCurrentArg(i+1);
+					stuff[i] = Arrays.copyOf(cur, cur.length);
+				}
+				frame.advance();
+				addFrame(fname, stuff);
+				continue;
+			}
 			
 			byte[] wbytes, out;
 			// TODO Handle each op
 			switch (opname) {
 				case "op_func":
+					if (functionFrames.size() > 1)
+						throw new RuntimeException("can't declare func inside func");
 					break;
 					
 				case "op_sha256":
@@ -186,7 +219,10 @@ public class ProofExecutor {
 						l = frame.getCurrentArg(1);
 						r = frame.getCurrentArg(2);
 					}
-					byte[] res = Arrays.concatenate(l, r);
+					byte[] res = new byte[l.length + r.length];
+					System.arraycopy(l, 0, res, 0, l.length);
+					System.arraycopy(r, 0, res, l.length, r.length);
+					
 					mwrite(WORKING_LOCATION, res);
 					break;
 					
@@ -197,15 +233,32 @@ public class ProofExecutor {
 					mwrite(WORKING_LOCATION, res);
 					break;
 					
+				case "op_store":
+					argcBounds(argc, 1, 1);
+					BigInteger wloc = frame.getCurrentArgInt(1);
+					if (wloc.compareTo(BigInteger.valueOf(MEM_SIZE)) > 0 ||
+							wloc.compareTo(BigInteger.valueOf(WORKING_LOCATION)) < 0 )
+						throw new MemoryCellException("location: " + wloc + " out of bounds");
+					mwrite(wloc.intValue(), mread(WORKING_LOCATION));
+					break;
+					
+				case "op_load":
+					argcBounds(argc, 1, 1);
+					BigInteger rloc = frame.getCurrentArgInt(1);
+					if (rloc.compareTo(BigInteger.valueOf(MEM_SIZE)) > 0 ||
+							rloc.compareTo(BigInteger.valueOf(WORKING_LOCATION)) < 0 )
+						throw new MemoryCellException("location: " + rloc + " out of bounds");
+					mwrite(WORKING_LOCATION, mread(rloc.intValue()));
+					break;
+					
 				default:
 					throw new UnsupportedOperationException(
 							"op not implemented: " + opname);
 			}
-			if (frame.advance())
-				functionFrames.pop();
+			frame.advance();
 		}
 		
-		return mread(-1);
+		return mread(WORKING_LOCATION);
 	}
 	
 	private void helperHash(PFrame p, Digester d, int argn) {
@@ -329,12 +382,15 @@ public class ProofExecutor {
 	private void enteringFrameSetup() {
 		if (functionFrames.size() > 0)
 			throw new RuntimeException("attempting frame setup not during init");
-		addFrame(MAIN_NAME);
+		addFrame(MAIN_NAME, null);
 	}
 	
-	private void addFrame(String name) {
+	private void addFrame(String name, byte[][] initData) {
 		PFrame frame = new PFrame();
 		frame.mem = new byte[FRAME_WIDTH][];
+		if (initData != null)
+			for (int i = 0; i < initData.length; i++)
+				frame.mem[i+1] = initData[i];
 		frame.fname = name;
 		frame.execidx = 0;
 		functionFrames.push(frame);

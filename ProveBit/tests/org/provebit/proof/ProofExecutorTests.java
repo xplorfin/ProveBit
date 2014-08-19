@@ -13,7 +13,7 @@ import com.google.bitcoin.core.Utils;
 public class ProofExecutorTests {
 
 	@Test
-	public void testExectuteCat() {
+	public void testExecuteCat() {
 		Object[] cats = {
 				new Object[] {"op_cat", "s:a", "s:b"},
 				new Object[] {"op_cat", "s:c", "m:-1"},
@@ -29,7 +29,7 @@ public class ProofExecutorTests {
 	}
 	
 	@Test
-	public void testExectuteSHA2() {
+	public void testExecuteSHA2() {
 		Object[] shax = {
 				new Object[] {"op_sha256", "s:test", "m:-1", "s:stuff"},
 		};
@@ -79,5 +79,28 @@ public class ProofExecutorTests {
 		byte[] res = Utils.reverseBytes(pe.execute(pp));
 		String out = Utils.bytesToHexString(res);
 		assertEquals("11961d79a8fde725e878473bd3497adff1fb6d362c1378e9eb182c870a617a2a", out);
+	}
+	
+	@Test
+	public void testFunctions() {
+		Object[] shan = {
+				new Object[] {"op_func", "cats", new Object[] {
+						new Object[] {"op_cat", "m:1", "s:s"}
+				}},
+				new Object[] {"op_func", "words", new Object[] {
+						new Object[] {"f_cats", "m:1"},
+						new Object[] {"op_store", 32},
+						new Object[] {"f_cats", "m:2"},
+						new Object[] {"op_cat", "s: ", "m:-1"},
+						new Object[] {"op_cat", "m:32", "m:-1"},
+						new Object[] {"op_cat", "s:."}
+				}},
+				new Object[] {"f_words", "s:Test", "s:stuff"}
+		};
+		ProofParser pp = new ProofParser(shan);		
+		ProofExecutor pe = new ProofExecutor("");
+		byte[] res = pe.execute(pp);
+		String out = new String(res);
+		assertEquals("Tests stuffs.", out);
 	}
 }

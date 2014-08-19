@@ -88,19 +88,20 @@ public class ProofExecutorTests {
 						new Object[] {"op_cat", "m:1", "s:s"}
 				}},
 				new Object[] {"op_func", "words", new Object[] {
-						new Object[] {"f_cats", "m:1"},
+						new Object[] {"op_cat", "s:This ", "m:1"}, // 'This test'
+						new Object[] {"f_cats", "m:-1"}, // 'This tests'
 						new Object[] {"op_store", 32},
-						new Object[] {"f_cats", "m:2"},
-						new Object[] {"op_cat", "s: ", "m:-1"},
-						new Object[] {"op_cat", "m:32", "m:-1"},
-						new Object[] {"op_cat", "s:."}
+						new Object[] {"f_cats", "m:2"}, // 'things'
+						new Object[] {"op_cat", "s: ", "m:-1"}, // ' things'
+						new Object[] {"op_cat", "m:32", "m:-1"}, // 'This tests things'
+						new Object[] {"op_cat", "s:."} // 'This tests things.'
 				}},
-				new Object[] {"f_words", "s:Test", "s:stuff"}
+				new Object[] {"f_words", "s:test", "s:thing"}
 		};
 		ProofParser pp = new ProofParser(shan);		
 		ProofExecutor pe = new ProofExecutor("");
 		byte[] res = pe.execute(pp);
 		String out = new String(res);
-		assertEquals("Tests stuffs.", out);
+		assertEquals("This tests things.", out);
 	}
 }

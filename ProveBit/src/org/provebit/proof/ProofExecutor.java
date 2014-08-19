@@ -1,0 +1,343 @@
+package org.provebit.proof;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.util.Stack;
+
+import org.h2.util.IOUtils;
+import org.provebit.proof.ProofParser.Argument;
+import org.spongycastle.util.Arrays;
+
+import com.google.bitcoin.core.Utils;
+
+public class ProofExecutor {
+	
+	private static final int WORKING_LOCATION = -1;
+	private static final int FRAME_WIDTH = 64;
+	private static final int MEM_SIZE = 1024;
+	private static final int MEM_CELL_SIZE = 1024;
+	public static final String MAIN_NAME = "__main";
+	
+	/** Disallow operations that require buffering for an entire stream */
+	public boolean restrictArbitraryStreamBuffer = true;
+	
+	/** Byte order **/
+	private boolean littleEndian = true;
+	
+	private final MemoryAccessor intMIO = new MemoryAccessor(true);
+	private final MemoryAccessor basicMIO = new MemoryAccessor(false);
+	
+	public class MemoryAccessor {
+		private boolean ue;
+		private MemoryAccessor(boolean useEndianness) {
+			ue = useEndianness;
+		}
+		public byte[] read(int location) {
+			return itransform(mread(location));
+		}
+		
+		public void write(int location, byte[] bytes) {
+			mwrite(location, otransform(bytes));
+		}
+		public byte[] itransform(byte[] bytes) {
+			return (ue && littleEndian) ? Utils.reverseBytes(bytes) : bytes; 
+		}
+		public byte[] otransform(byte[] bytes) {
+			return itransform(bytes);
+		}
+	}
+	
+	public class NoWorkingBufferException extends RuntimeException {
+		private static final long serialVersionUID = -2036844703401966639L;
+		public NoWorkingBufferException(String msg) {
+			super(msg);
+		}
+	}
+	
+	public class StreamIOException extends RuntimeException {
+		private static final long serialVersionUID = 8221525570347232640L;
+		public StreamIOException(String msg) {
+			super(msg);
+		}
+		public StreamIOException(String msg, Throwable cause) {
+			super(msg, cause);
+		}
+	}
+	
+	public class MemoryCellException extends RuntimeException {
+		private static final long serialVersionUID = 1177412913758019967L;
+		public MemoryCellException(String msg) {
+			super(msg);
+		}
+	}
+	
+	public class UnsupportedOperationException extends RuntimeException {
+		private static final long serialVersionUID = -9059482865721580619L;
+		public UnsupportedOperationException(String msg) {
+			super(msg);
+		}
+	}
+	
+	private enum Wstate {
+		NORM, OVERLOAD_STREAM;
+	}
+	/** Exec state is overloaded or replaced by file */
+	Wstate working;
+	
+	InputStream workingStream;
+	
+	public class PFrame {
+		public String fname;
+		public byte[][] mem;
+		public int execidx;
+		
+		public String getCurrentName() {
+			return proof.opNameGet(fname, execidx);
+		}
+		
+		public int getCurrentArgCount() {
+			return proof.opArgCount(fname, execidx);
+		}
+		
+		public byte[] getCurrentArg(int i) {
+			return get(fname, execidx, i, basicMIO);
+		}
+		
+		public BigInteger getCurrentArgInt(int i) {
+			return getInt(fname, execidx, i);
+		}
+		
+		public String getCurrentArgStr(int i) {
+			return getString(fname, execidx, i);
+		}
+		
+		public boolean advance() {
+			return (++execidx >= proof.funcLen(fname));
+		}
+	}
+	
+	Stack<PFrame> functionFrames = new Stack<PFrame>();
+	
+	byte[][] memory = new byte[MEM_SIZE][];
+	byte[] workingData;
+	
+	ProofParser proof;
+	boolean executed = false;
+	
+	public ProofExecutor(InputStream workingInitStream) {
+		enteringFrameSetup();
+		setWorking(workingInitStream);
+	}
+	
+	public ProofExecutor(byte[] workingInitData) {
+		this(new ByteArrayInputStream(workingInitData));
+	}
+	
+	public byte[] execute(ProofParser prg) {
+		if (executed) return mread(WORKING_LOCATION);
+		executed = true;
+		proof = prg;
+		
+		while (executionIsUnfinished()) {
+			PFrame frame = functionFrames.peek();
+			String opname = frame.getCurrentName();
+			int argc = frame.getCurrentArgCount();
+			
+			byte[] wbytes, out;
+			// TODO Handle each op
+			switch (opname) {
+				case "op_func":
+					break;
+					
+				case "op_sha256":
+					argcBounds(argc, 0, 3);
+					Digester d = new Digester("SHA-256");
+					if (argc == 0) {
+						try {
+							wbytes = getWorking();
+							d.addBytes(wbytes);
+						} catch (NoWorkingBufferException ne) {
+							try {
+								d.addStream(workingStream);
+							} catch (IOException e) {
+								throw new StreamIOException(e.getMessage(), e.getCause());
+							}
+						}
+					}
+					for (int i = 0; i < argc; i++) {
+						helperHash(frame, d, i+1);
+					}
+					out = d.digest();
+					intMIO.write(WORKING_LOCATION, out);
+					break;
+					
+				case "op_cat":
+					argcBounds(argc, 1, 2);
+					byte[] l, r;
+					if (argc == 1) {
+						l = mread(WORKING_LOCATION);
+						r = frame.getCurrentArg(1);
+					}
+					else {
+						l = frame.getCurrentArg(1);
+						r = frame.getCurrentArg(2);
+					}
+					byte[] res = Arrays.concatenate(l, r);
+					mwrite(WORKING_LOCATION, res);
+					break;
+					
+				case "op_rev":
+					argcBounds(argc, 0, 0);
+					wbytes = mread(WORKING_LOCATION);
+					res = Utils.reverseBytes(wbytes);
+					mwrite(WORKING_LOCATION, res);
+					break;
+					
+				default:
+					throw new UnsupportedOperationException(
+							"op not implemented: " + opname);
+			}
+			if (frame.advance())
+				functionFrames.pop();
+		}
+		
+		return mread(-1);
+	}
+	
+	private void helperHash(PFrame p, Digester d, int argn) {
+		try {
+			byte[] bytes =  p.getCurrentArg(argn);
+			d.addBytes(bytes);
+		} catch (NoWorkingBufferException ne) {
+			try {
+				d.addStream(workingStream);
+			} catch (IOException e) {
+				throw new StreamIOException(e.getMessage(), e.getCause());
+			}
+		}
+	}
+	
+	private boolean executionIsUnfinished() {
+		return (functionFrames.size() > 0);
+	}
+	
+	private void argcBounds(int argc, int min, int max) {
+		if (argc < min || argc > max)
+			throw new RuntimeException("too many arguments"); //TODO spec exception
+	}
+	
+	private byte[] getWorking() {
+		if (working == Wstate.NORM)
+			return workingData;
+		else if (working == Wstate.OVERLOAD_STREAM) {
+			if (restrictArbitraryStreamBuffer)
+				throw new NoWorkingBufferException("for working value read");
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			try {
+				IOUtils.copy(workingStream, bos);
+				return bos.toByteArray();
+			} catch (IOException e) {
+				throw new StreamIOException(e.getMessage(), e.getCause());
+			}
+		}
+		throw new RuntimeException("Unhandled Working variable state");
+	}
+	
+	private void setWorking(byte[] data) {
+		workingData = data;
+		working = Wstate.NORM;
+	}
+	
+	private void setWorking(InputStream is) {
+		workingStream = is;
+		working = Wstate.OVERLOAD_STREAM;
+	}
+	
+	private byte[] get(String fname, int op, int arg, MemoryAccessor mr) {
+		Argument a = proof.opArgGet(fname, op, arg);
+		switch (a.type) {
+		case LITERAL:
+			return a.bin;
+		case MEMORY:
+			return mr.read(a.mem);
+		case UNSUPPORTED:
+		default:
+			throw new RuntimeException("unsupported type");
+		}
+	}
+	
+	private byte[] mread(int location) {
+		if (location < WORKING_LOCATION || location > MEM_SIZE)
+			throw new MemoryCellException("location: " + location + " out of bounds");
+		if (location == WORKING_LOCATION)
+			return getWorking();
+		if (location < FRAME_WIDTH)
+			return functionFrames.peek().mem[location];
+		else
+			return memory[location];
+	}
+	
+	private void mwrite(int location, byte[] data) {
+		if (location < WORKING_LOCATION || location > MEM_SIZE)
+			throw new MemoryCellException("location: " + location + " out of bounds");
+		if (data.length > MEM_CELL_SIZE)
+			throw new MemoryCellException("data size: " + data.length
+					+ " can't fit in size: " + MEM_CELL_SIZE);
+		if (location == WORKING_LOCATION)
+			setWorking(data);
+		else if (location < FRAME_WIDTH)
+			functionFrames.peek().mem[location] = data;
+		else
+			memory[location] = data;
+	}
+	
+	private String getString(String fname, int op, int arg) {
+		try {
+			byte[] bytes = get(fname, op, arg, basicMIO);
+			if (bytes == null) bytes = new byte[0]; // default memory
+			return new String(bytes, "US-ASCII");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private void writeString(int location, String str) {
+		try {
+			basicMIO.write(location, str.getBytes("US-ASCII"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private BigInteger getInt(String fname, int op, int arg) {
+		byte[] bytes = get(fname, op, arg, intMIO);
+		if (bytes == null) bytes = new byte[] {0};
+		return new BigInteger(bytes);
+	}
+	
+
+	private void writeInt(int location, BigInteger i) {
+		byte[] intdata = i.toByteArray();
+		intMIO.write(location, intdata);
+	}
+	
+	private void enteringFrameSetup() {
+		if (functionFrames.size() > 0)
+			throw new RuntimeException("attempting frame setup not during init");
+		addFrame(MAIN_NAME);
+	}
+	
+	private void addFrame(String name) {
+		PFrame frame = new PFrame();
+		frame.mem = new byte[FRAME_WIDTH][];
+		frame.fname = name;
+		frame.execidx = 0;
+		functionFrames.push(frame);
+		writeString(0, name);
+	}
+}

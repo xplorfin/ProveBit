@@ -7,12 +7,15 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Stack;
 
 import org.h2.util.IOUtils;
 import org.provebit.proof.ProofParser.Argument;
+import org.provebit.proof.keysys.RootKey;
 
 import com.google.bitcoin.core.Utils;
+import com.google.common.primitives.Bytes;
 
 public class ProofExecutor {
 	
@@ -49,6 +52,13 @@ public class ProofExecutor {
 		}
 		public byte[] otransform(byte[] bytes) {
 			return itransform(bytes);
+		}
+	}
+	
+	public class ProgramDieException extends RuntimeException {
+		private static final long serialVersionUID = -3144242523436248981L;
+		public ProgramDieException(String msg) {
+			super(msg);
 		}
 	}
 	
@@ -102,6 +112,12 @@ public class ProofExecutor {
 		
 		public int getCurrentArgCount() {
 			return proof.opArgCount(fname, execidx);
+		}
+		
+		public void enforceArgcBounds(int min, int max) {
+			int argc = getCurrentArgCount();
+			if (argc < min || argc > max)
+				throw new RuntimeException("too many arguments"); //TODO spec exception
 		}
 		
 		public byte[] getCurrentArg(int i) {
@@ -187,7 +203,7 @@ public class ProofExecutor {
 					break;
 					
 				case "op_sha256":
-					argcBounds(argc, 0, 3);
+					frame.enforceArgcBounds(0, 3);
 					Digester d = new Digester("SHA-256");
 					if (argc == 0) {
 						try {
@@ -209,7 +225,7 @@ public class ProofExecutor {
 					break;
 					
 				case "op_cat":
-					argcBounds(argc, 1, 2);
+					frame.enforceArgcBounds(1, 2);
 					byte[] l, r;
 					if (argc == 1) {
 						l = mread(WORKING_LOCATION);
@@ -226,29 +242,70 @@ public class ProofExecutor {
 					mwrite(WORKING_LOCATION, res);
 					break;
 					
+				case "op_compose":
+				case "op_compose_ext":
+					frame.enforceArgcBounds(1, 1);
+					byte[] subarr = mread(WORKING_LOCATION);
+					byte[] mainarr;
+					if (opname.equals("op_compose"))
+							mainarr = frame.getCurrentArg(1);
+					else // op_compose_ext
+							mainarr = RootKey.keyLookup(frame.getCurrentArgStr(1));
+					int sub = Bytes.indexOf(mainarr, subarr);
+					if (sub == -1)
+						throw new ProgramDieException("Byte subarray fail in op_compose");
+					mwrite(WORKING_LOCATION, mainarr);
+					break;
+					
+				case "op_store":
+					frame.enforceArgcBounds(1, 1);
+					int wloc = helperMemFromBigInt(frame.getCurrentArgInt(1));
+					mwrite(wloc, mread(WORKING_LOCATION));
+					break;
+					
+				case "op_load":
+					frame.enforceArgcBounds(1, 1);
+					int rloc = helperMemFromBigInt(frame.getCurrentArgInt(1));
+					mwrite(WORKING_LOCATION, mread(rloc));
+					break;
+					
+				case "op_set":
+					frame.enforceArgcBounds(1, 1);
+					mwrite(WORKING_LOCATION, frame.getCurrentArg(1));
+					break;
+					
+				case "op_swap":
+					frame.enforceArgcBounds(1, 1);
+					int mloc = helperMemFromBigInt(frame.getCurrentArgInt(1));
+					byte[] mdata = mread(mloc);
+					mwrite(mloc, mread(WORKING_LOCATION));
+					mwrite(WORKING_LOCATION, mdata);
+					break;
+					
 				case "op_rev":
-					argcBounds(argc, 0, 0);
+					frame.enforceArgcBounds(0, 0);
 					wbytes = mread(WORKING_LOCATION);
 					res = Utils.reverseBytes(wbytes);
 					mwrite(WORKING_LOCATION, res);
 					break;
 					
-				case "op_store":
-					argcBounds(argc, 1, 1);
-					BigInteger wloc = frame.getCurrentArgInt(1);
-					if (wloc.compareTo(BigInteger.valueOf(MEM_SIZE)) > 0 ||
-							wloc.compareTo(BigInteger.valueOf(WORKING_LOCATION)) < 0 )
-						throw new MemoryCellException("location: " + wloc + " out of bounds");
-					mwrite(wloc.intValue(), mread(WORKING_LOCATION));
+				case "op_size":
+					frame.enforceArgcBounds(0, 1);
+					if (argc == 0)
+						wbytes = mread(WORKING_LOCATION);
+					else
+						wbytes = mread(frame.getCurrentArgInt(1).intValue());
+					writeInt(WORKING_LOCATION, BigInteger.valueOf(wbytes.length));
 					break;
 					
-				case "op_load":
-					argcBounds(argc, 1, 1);
-					BigInteger rloc = frame.getCurrentArgInt(1);
-					if (rloc.compareTo(BigInteger.valueOf(MEM_SIZE)) > 0 ||
-							rloc.compareTo(BigInteger.valueOf(WORKING_LOCATION)) < 0 )
-						throw new MemoryCellException("location: " + rloc + " out of bounds");
-					mwrite(WORKING_LOCATION, mread(rloc.intValue()));
+				case "op_intbe":
+					frame.enforceArgcBounds(0, 0);
+					littleEndian = false;
+					break;
+					
+				case "op_intle":
+					frame.enforceArgcBounds(0, 0);
+					littleEndian = true;
 					break;
 					
 				default:
@@ -274,13 +331,15 @@ public class ProofExecutor {
 		}
 	}
 	
-	private boolean executionIsUnfinished() {
-		return (functionFrames.size() > 0);
+	private int helperMemFromBigInt(BigInteger i) {
+		if (i.compareTo(BigInteger.valueOf(MEM_SIZE)) > 0 ||
+				i.compareTo(BigInteger.valueOf(WORKING_LOCATION)) < 0 )
+				throw new MemoryCellException("location: " + i + " out of bounds");
+		return i.intValue();
 	}
 	
-	private void argcBounds(int argc, int min, int max) {
-		if (argc < min || argc > max)
-			throw new RuntimeException("too many arguments"); //TODO spec exception
+	private boolean executionIsUnfinished() {
+		return (functionFrames.size() > 0);
 	}
 	
 	private byte[] getWorking() {

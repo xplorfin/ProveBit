@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class Digester {
 
@@ -24,6 +25,7 @@ public class Digester {
 	}
 	
 	public void addBytes(byte[] bytes) {
+		System.out.println("ha:" + Arrays.toString(bytes));
 		md.update(bytes);
 	}
 	

@@ -289,6 +289,19 @@ public class ProofExecutor {
 					mwrite(WORKING_LOCATION, res);
 					break;
 					
+				case "op_subarr":
+					frame.enforceArgcBounds(1, 2);
+					byte[] cur = mread(WORKING_LOCATION);
+					int max = cur.length;
+					int start = helperIntBounds(frame.getCurrentArgInt(1), 0, max);
+					int end;
+					if (argc == 1)
+						end = max;
+					else
+						end = helperIntBounds(frame.getCurrentArgInt(2), 0, max);
+					mwrite(WORKING_LOCATION, Arrays.copyOfRange(cur, start, end));
+					break;
+					
 				case "op_size":
 					frame.enforceArgcBounds(0, 1);
 					if (argc == 0)
@@ -329,6 +342,13 @@ public class ProofExecutor {
 				throw new StreamIOException(e.getMessage(), e.getCause());
 			}
 		}
+	}
+	
+	private int helperIntBounds(BigInteger i, int min, int max) {
+		if (i.compareTo(BigInteger.valueOf(max)) > 0 ||
+				i.compareTo(BigInteger.valueOf(min)) < 0 )
+				throw new RuntimeException("location: " + i + " out of array bounds");
+		return i.intValue();
 	}
 	
 	private int helperMemFromBigInt(BigInteger i) {

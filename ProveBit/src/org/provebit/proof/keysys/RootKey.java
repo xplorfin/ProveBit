@@ -24,8 +24,7 @@ public class RootKey extends AbstractKeyNode {
 		String nameCap = Character.toUpperCase(vals[i].charAt(0)) + vals[i].substring(1); 
 		String subClass = thisPackage + "." + vals[i].toLowerCase() + "." + nameCap;
 		try {
-			Class.forName(subClass).getMethod("keyLookup", String[].class).invoke(null, (Object) vals, i + 1);
-			return null;
+			return (byte[]) Class.forName(subClass).getMethod("keyLookup", String[].class, int.class).invoke(null, (Object) vals, i + 1);
 		} catch (ClassNotFoundException e) {
 			throw new KeyNotFoundException("key " + vals[i] + "not found in root");
 		} catch (NoSuchMethodException e) {
@@ -34,9 +33,16 @@ public class RootKey extends AbstractKeyNode {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 			throw new RuntimeException("method needed in class " + subClass + " not accessible");
-		} catch (IllegalAccessException|IllegalArgumentException|InvocationTargetException e) {
+		} catch (IllegalAccessException|IllegalArgumentException e) {
 			e.printStackTrace();
 			throw new RuntimeException("failure to exec method in class " + subClass);
+		} catch (InvocationTargetException e) {
+			Throwable originator = e.getCause();
+			if (originator instanceof RuntimeException) {
+				throw (RuntimeException) originator;
+			}
+			else
+				throw new RuntimeException(originator);
 		}
 	}
 }

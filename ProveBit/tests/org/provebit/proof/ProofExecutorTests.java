@@ -43,9 +43,41 @@ public class ProofExecutorTests {
 			e.printStackTrace();
 		}
 		ProofExecutor pe = new ProofExecutor(text);
-		byte[] res = Utils.reverseBytes(pe.execute(pp));
+		byte[] res = pe.execute(pp);
 		String out = Utils.bytesToHexString(res);
 		assertEquals("3367a47f48cd5948e68ed649f74d6fcc60725a881593543ae646a9b63f55fe19", out);
+	}
+	
+	@Test
+	public void testExectuteBlockCmp() {
+		Object[] shax = {
+				new Object[] {"op_func", "hash256", new Object[] {
+						new Object[] {"op_sha256"},
+						new Object[] {"op_sha256"},
+				}},
+				new Object[] {"op_func", "lnode", new Object[] {
+						new Object[] {"op_cat", "m:-1", "m:1"},
+						new Object[] {"f_hash256"}
+				}},
+				new Object[] {"op_func", "rnode", new Object[] {
+						new Object[] {"op_cat", "m:1", "m:-1"},
+						new Object[] {"f_hash256"}
+				}},
+				// initial tx hash
+				new Object[] {"op_set", "H:02167a3edeabb6e154c124196b58bd709b7f702af84a484eadb7c379e0593435"},
+				// merkle tree build
+				new Object[] {"f_rnode", "H:e18eaa19633f9cf6a5da71b2037ed8132c6c2f62c95a906489de992fd2f16866"},
+				new Object[] {"f_lnode", "H:71709900808db3ec5ab92cbb359b1e1b0ebbf31194bdeda47f0dd5e7567838ef"},
+				new Object[] {"f_rnode", "H:c161f8edd924cac55c04d39c4e55d5313a00abd6ceb8bb9f6c9e0a79e8879117"}
+		};
+		ProofParser pp = new ProofParser(shax);
+		ProofExecutor pe = new ProofExecutor("");
+		//byte[] res = pe.execute(pp);
+		//System.out.println(new String(res));
+		byte[] res = Utils.reverseBytes(pe.execute(pp));
+		String out = Utils.bytesToHexString(res);
+		//assertEquals("1b49f61a09902a848db5588f4e802763a2e1b8f1b91ff176ade1dcb0cd695ca2", out);
+		assertEquals("22bc66be6c79df92304f85a2b93d561e047e2fee71ce4708443c86d30c84d556", out);
 	}
 	
 	@Test
@@ -77,7 +109,7 @@ public class ProofExecutorTests {
 		InputStream file = getClass().getResourceAsStream("btc-logo.png");
 		
 		ProofExecutor pe = new ProofExecutor(file);
-		byte[] res = Utils.reverseBytes(pe.execute(pp));
+		byte[] res = pe.execute(pp);
 		String out = Utils.bytesToHexString(res);
 		assertEquals("11961d79a8fde725e878473bd3497adff1fb6d362c1378e9eb182c870a617a2a", out);
 		
@@ -88,7 +120,7 @@ public class ProofExecutorTests {
 		InputStream file2 = getClass().getResourceAsStream("btc-logo.png");
 		
 		ProofExecutor pe2 = new ProofExecutor(file2);
-		byte[] res2 = Utils.reverseBytes(pe2.execute(pp2));
+		byte[] res2 = pe2.execute(pp2);
 		String out2 = Utils.bytesToHexString(res2);
 		// (echo -n a; cat btc-logo.png; echo -n b) | sha256sum
 		assertEquals("99788d6eb2d9938ed6d455f9af4e9a8ac7e1fc3b5d146a27ee20dc10b22e9ccb", out2);

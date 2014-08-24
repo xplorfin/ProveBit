@@ -221,7 +221,8 @@ public class ProofExecutor {
 						helperHash(frame, d, i+1);
 					}
 					out = d.digest();
-					intMIO.write(WORKING_LOCATION, out);
+					mwrite(WORKING_LOCATION, out);
+					//intMIO.write(WORKING_LOCATION, out);
 					break;
 					
 				case "op_cat":
@@ -252,7 +253,7 @@ public class ProofExecutor {
 					else // op_compose_ext
 							mainarr = RootKey.keyLookup(frame.getCurrentArgStr(1));
 					int sub = Bytes.indexOf(mainarr, subarr);
-					if (sub == -1)
+					if (sub == -1) 
 						throw new ProgramDieException("Byte subarray fail in op_compose");
 					mwrite(WORKING_LOCATION, mainarr);
 					break;

@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.bitcoin.core.Utils;
+
 public class ProofParser {
 	private Object[][] ops;
 	public Map<String, Integer> funcmap = new HashMap<String, Integer>();
@@ -90,17 +92,24 @@ public class ProofParser {
 		Object arg = opArrayGet(fname, op)[argn];
 		Argument res = new Argument();
 		if (arg instanceof Integer || arg instanceof Long) {
-			res.bin = new BigInteger(arg.toString()).toByteArray(); // TODO le?
+			res.bin = new BigInteger(arg.toString()).toByteArray();
 			res.type = Type.LITERAL;
 		}
 		else if (arg instanceof String) {
 			String s = (String) arg;
-			if (s.startsWith("h:")) {
+			if (s.startsWith("h:") || s.startsWith("H:")) {
 				String hex = s.substring(2);
 				if (hex.length() % 2 != 0)
 					throw new RuntimeException("hex parse on uneven hex string");
 				try {
-					res.bin = new BigInteger(hex, 16).toByteArray(); // TODO le?
+					res.bin = new BigInteger(hex, 16).toByteArray();
+					if (res.bin[0] == 0) { // unsigned as number
+					    byte[] tmp = new byte[res.bin.length - 1];
+					    System.arraycopy(res.bin, 1, tmp, 0, tmp.length);
+					    res.bin = tmp;
+					}
+					if (s.startsWith("H:"))
+						res.bin = Utils.reverseBytes(res.bin);
 				} catch (NumberFormatException e) {
 					throw new RuntimeException("hex data parse failure");
 				}

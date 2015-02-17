@@ -12,7 +12,7 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
-public class GUI {
+public class GUI implements ActionListener{
 	JFrame frame = new JFrame("Calculator");
 	JPanel panel = new JPanel();
 	JLabel screen = new JLabel("0");
@@ -34,18 +34,13 @@ public class GUI {
 	JButton btnDiv = new JButton("/");
 	JButton btnEqn = new JButton("=");
 	
-	
-
 	public GUI() {
-		btnOne.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				screen.setText("1");
-			}
-		});
 		panel.setLayout(new MigLayout());
+		// display screen for the calculator
 		panel.add(screen, "wrap");
+		// numeric buttons
 		panel.add(btnOne);
+		btnOne.addActionListener(this);
 		panel.add(btnTwo);
 		panel.add(btnThree);
 		panel.add(btnAdd, "wrap");
@@ -64,7 +59,21 @@ public class GUI {
 		frame.pack();
 		frame.setVisible(true);
 	}
+	
+	public void actionPerformed(ActionEvent e){
+		switch (e.getActionCommand()){
+		case "1": appendNumToOutputString(1);
+		break;
+		}
+	}
 
+	public void appendNumToOutputString(int inputNum) {
+		StringBuilder outputStringBuilder = new StringBuilder();
+		outputStringBuilder.append(screen.getText());
+		outputStringBuilder.append(inputNum);
+		screen.setText(outputStringBuilder.toString());
+	}
+	
 	public static void main(String[] args) {
 		
 		SwingUtilities.invokeLater(new Runnable() {

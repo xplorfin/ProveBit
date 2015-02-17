@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
@@ -129,8 +131,19 @@ public class Merkle {
 			e.printStackTrace();
 			return null;
 		}
+		
+		Collections.sort(hashList, new FileHashComparator());
 		return hashList;
 	}
+	
+	protected class FileHashComparator implements Comparator<byte[] >{
+		public int compare(byte[] hash1, byte[] hash2) {
+			String hash1Hex = Hex.encodeHexString(hash1);
+			String hash2Hex = Hex.encodeHexString(hash2);
+			return hash1Hex.compareTo(hash2Hex);
+		}
+	}
+	
 	
 	/**
 	 * Calculates the total number of actual nodes in the tree

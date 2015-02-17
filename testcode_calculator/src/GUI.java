@@ -104,6 +104,15 @@ public class GUI implements ActionListener{
 			case "0": 
 				appendNumToOutputString(0);
 				break;
+			case "+":
+				appendOperationToOutputString("+");
+				break;
+			case "-":
+				appendOperationToOutputString("-");
+				break;
+			case "=":
+				computeString();
+				break;
 		}
 	}
 
@@ -120,6 +129,24 @@ public class GUI implements ActionListener{
 			outputStringBuilder.append(inputNum);
 			screen.setText(outputStringBuilder.toString());
 		}
+	}
+	
+	public void appendOperationToOutputString(String inputString) {
+		StringBuilder outputStringBuilder = new StringBuilder();
+			outputStringBuilder.append(screen.getText());
+			outputStringBuilder.append(inputString);
+			screen.setText(outputStringBuilder.toString());
+	}
+	
+	public void computeString() {
+		String currentString = screen.getText();
+		long result = -1;
+		// TODO write function to computer current displaying string and store it in result
+		screen.setText(Long.toString(result));
+	}
+	
+	public void backspace() {
+		// TODO create button and write function for backspace
 	}
 	
 	public static void main(String[] args) {

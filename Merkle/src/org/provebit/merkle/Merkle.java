@@ -11,6 +11,19 @@ import java.util.Comparator;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 
+/**
+ * This class constructs a Merkle tree from files within a given directory
+ * @author Daniel Boehm, Matthew Knox
+ * @organization ProveBit
+ * @version 0.1
+ * 
+ * @TODO: Add method to flip the endian-ness of the hashes (to conform to Bitcoin)
+ * @TODO: Add recursive directory exploration
+ * @TODO: Add saving/loading trees from files
+ * @TODO: Figure out fancy indexing scheme for last two levels so tree doesn't have
+ * 		  to be allocated as if it were complete
+ * 		  Current allocation wastes at most O(3N/4) nodes (N is number files used in construction)
+ */
 public class Merkle {
 	private File dir;
 	private byte[][] tree;

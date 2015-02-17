@@ -11,15 +11,18 @@ public class merkleTests {
 	static String COMPLETEDIR = "/tests/org/provebit/merkle/tests/testCompleteDir";
 	static String INCOMPLETEDIR = "/tests/org/provebit/merkle/tests/testIncompleteDir";
 	static String RECURSIVEDIR = "/tests/org/provebit/merkle/tests/testRecursiveDir";
+	static String RECURSIVEDIR2 = "/tests/org/provebit/merkle/tests/testRecursiveDir2";
 	static String completeDirPath;
 	static String incompleteDirPath;
 	static String recursiveDirPath;
+	static String recursiveDir2Path;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		completeDirPath = new java.io.File( "." ).getCanonicalPath() + COMPLETEDIR;
 		incompleteDirPath = new java.io.File( "." ).getCanonicalPath() + INCOMPLETEDIR;
 		recursiveDirPath = new java.io.File( "." ).getCanonicalPath() + RECURSIVEDIR;
+		recursiveDir2Path = new java.io.File( "." ).getCanonicalPath() + RECURSIVEDIR2;
 	}
 
 	@Test

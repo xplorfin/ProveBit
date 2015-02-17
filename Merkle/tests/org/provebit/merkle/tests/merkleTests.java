@@ -91,4 +91,29 @@ public class merkleTests {
 			last = curr;
 		}
 	}
+	
+	@Test
+	public void testRecursiveSearch() {
+		Merkle mTree = new Merkle(recursiveDirPath);
+		mTree.setRecursive(true);
+		mTree.makeTree();
+		assert(mTree.getNumLeaves() == 5);
+		/** NOT YET IMPLEMENTED **/
+	}
+	
+	@Test
+	public void testRootHashEquivalence() {
+		Merkle mTree1 = new Merkle(recursiveDirPath);
+		Merkle mTree2 = new Merkle(recursiveDir2Path);
+		mTree1.setRecursive(true);
+		mTree2.setRecursive(true);
+		mTree1.makeTree();
+		mTree2.makeTree();
+		String tree1Root = Hex.encodeHexString(mTree1.getRootHash());
+		String tree2Root = Hex.encodeHexString(mTree2.getRootHash());
+		assertTrue(tree1Root.compareTo(tree2Root) == 0);
+		/** NOT YET IMPLEMENTED **/
+	}
+	
+	
 }

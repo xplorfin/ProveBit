@@ -17,6 +17,7 @@ public class Merkle {
 	private int height; // Root is level 0
 	private int numLeaves;
 	private int totalNodes;
+	private boolean recursive; // Default false
 	
 	/**
 	 * Constructor
@@ -25,6 +26,7 @@ public class Merkle {
 	public Merkle(String directoryPath) {
 		dir = new File(directoryPath);
 		tree = null;
+		recursive = false;
 	}
 	
 	/**
@@ -64,6 +66,10 @@ public class Merkle {
 		return numLeaves;
 	}
 	
+	/**
+	 * Get the top level hash of the merkle tree
+	 * @return byte[] of top level hash
+	 */
 	public byte[] getRootHash() {
 		return (tree != null) ? tree[0] : null;
 	}
@@ -82,6 +88,23 @@ public class Merkle {
 	 */
 	public byte[][] getTree() {
 		return tree;
+	}
+	
+	/**
+	 * Set whether or not tree building should recurse into
+	 * sub directories
+	 * @param isRecursive - true to enable sub directory searching, false to disable
+	 */
+	public void setRecursive(boolean isRecursive) {
+		recursive = isRecursive;
+	}
+	
+	/**
+	 * Retrieve whether or not tree building is recursive
+	 * @return true if subdirectories are included, false o/w
+	 */
+	public boolean isRecursive() {
+		return recursive;
 	}
 	
 	/**
@@ -189,7 +212,7 @@ public class Merkle {
 			if (leftHash == null && rightHash == null) { // 'Empty' node
 				tree[i] = null;
 			} else if (leftHash != null && rightHash == null) { // Partial node
-				tree[i] = leftHash;
+				tree[i] = leftHash; /** @TODO: Decide if this should concatenate with itself */
 			} else if (leftHash != null && rightHash != null) { // H(left + right)
 				byte[] newHash = new byte[leftHash.length + rightHash.length];
 				System.arraycopy(leftHash, 0, newHash, 0, leftHash.length);

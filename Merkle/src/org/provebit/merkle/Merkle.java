@@ -136,7 +136,10 @@ public class Merkle {
 		return hashList;
 	}
 	
-	protected class FileHashComparator implements Comparator<byte[] >{
+	/**
+	 * Minimal custom comparator subclass for sorting hashes
+	 */
+	private class FileHashComparator implements Comparator<byte[] >{
 		public int compare(byte[] hash1, byte[] hash2) {
 			String hash1Hex = Hex.encodeHexString(hash1);
 			String hash2Hex = Hex.encodeHexString(hash2);

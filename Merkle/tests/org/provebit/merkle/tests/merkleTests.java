@@ -17,8 +17,6 @@ public class merkleTests {
 	public static void setUpBeforeClass() throws Exception {
 		completeDirPath = new java.io.File( "." ).getCanonicalPath() + COMPLETEDIR;
 		incompleteDirPath = new java.io.File( "." ).getCanonicalPath() + INCOMPLETEDIR;
-		System.out.println(completeDirPath);
-		System.out.println(incompleteDirPath);
 	}
 
 	@Test
@@ -71,6 +69,20 @@ public class merkleTests {
 		int i = (int) Math.pow(2, mTree.getHeight()) - 1;
 		for (; i < Math.pow(2, mTree.getHeight()) - 1 + mTree.getNumLeaves(); i++) {
 			assertTrue(Hex.encodeHexString(tree[i]).length() == 64);
+		}
+	}
+	
+	@Test
+	public void testSortedLeaves() {
+		Merkle mTree = new Merkle(completeDirPath);
+		mTree.makeTree();
+		byte[][] tree = mTree.getTree();
+		int i = (int) Math.pow(2, mTree.getHeight()) - 1;
+		String last = Hex.encodeHexString(tree[i]);
+		for (; i < Math.pow(2, mTree.getHeight()) - 1 + mTree.getNumLeaves(); i++) {
+			String curr = Hex.encodeHexString(tree[i]);
+			assertTrue(curr.compareTo(last) >= 0);
+			last = curr;
 		}
 	}
 }

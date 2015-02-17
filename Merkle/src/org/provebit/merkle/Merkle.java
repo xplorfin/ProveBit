@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
  * @TODO: Add saving/loading trees from files
  * @TODO: Figure out fancy indexing scheme for last two levels so tree doesn't have
  * 		  to be allocated as if it were complete
- * 		  Current allocation wastes at most O(3N/4) nodes (N is number files used in construction)
+ * 		  Current allocation wastes nodes
  */
 public class Merkle {
 	private File dir;

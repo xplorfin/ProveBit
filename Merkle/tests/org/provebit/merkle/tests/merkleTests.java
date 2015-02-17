@@ -10,13 +10,16 @@ import org.provebit.merkle.Merkle;
 public class merkleTests {
 	static String COMPLETEDIR = "/tests/org/provebit/merkle/tests/testCompleteDir";
 	static String INCOMPLETEDIR = "/tests/org/provebit/merkle/tests/testIncompleteDir";
+	static String RECURSIVEDIR = "/tests/org/provebit/merkle/tests/testRecursiveDir";
 	static String completeDirPath;
 	static String incompleteDirPath;
+	static String recursiveDirPath;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		completeDirPath = new java.io.File( "." ).getCanonicalPath() + COMPLETEDIR;
 		incompleteDirPath = new java.io.File( "." ).getCanonicalPath() + INCOMPLETEDIR;
+		recursiveDirPath = new java.io.File( "." ).getCanonicalPath() + RECURSIVEDIR;
 	}
 
 	@Test

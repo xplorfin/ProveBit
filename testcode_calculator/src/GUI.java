@@ -17,6 +17,7 @@ public class GUI implements ActionListener{
 	JPanel panel = new JPanel();
 	JLabel screen = new JLabel("0");
 	
+	// Defining objects for buttons 1 through 9 and 0
 	JButton btnOne = new JButton("1");
 	JButton btnTwo = new JButton("2");
 	JButton btnThree = new JButton("3");
@@ -28,6 +29,7 @@ public class GUI implements ActionListener{
 	JButton btnNine = new JButton("9");
 	JButton btnZero = new JButton("0");
 	
+	// Defining objects for the operators
 	JButton btnAdd = new JButton("+");
 	JButton btnSub = new JButton("-");
 	JButton btnMul = new JButton("*");

@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
  * @TODO: Add saving/loading trees from files
  * @TODO: Figure out fancy indexing scheme for last two levels so tree doesn't have
  * 		  to be allocated as if it were complete
- * 		  Current allocation wastes nodes
+ * 		  Current allocation wastes O(N) tree nodes
  */
 public class Merkle {
 	private File dir;
@@ -131,10 +131,6 @@ public class Merkle {
 	
 	/**
 	 * Get list of all files in directory
-	 * 
-	 * @TODO This list needs to be sorted in an exact way, since the tree will be
-	 * 		 built from the list and the order of the contatenations matters
-	 * @TODO Add recursive directory exploration if desired
 	 * @return ArrayList of files in the directory
 	 */
 	private ArrayList<File> getFiles() {

@@ -66,6 +66,12 @@ public class merkleTests {
         mTree.makeTree();
         assertTrue(mTree.getTreeSize() == 28);
     }
+    
+    @Test
+    public void testNoTree() {
+    	Merkle mTree = new Merkle(incompleteDirPath);
+    	assertNull(mTree.getTree());
+    }
 
     @Test
     public void testLeafPositions() {

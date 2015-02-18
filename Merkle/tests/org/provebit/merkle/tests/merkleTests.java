@@ -107,6 +107,22 @@ public class merkleTests {
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 8);
     }
+    
+    @Test
+    public void testFalseRecursiveSearch() {
+    	Merkle mTree = new Merkle(recursiveDirPath);
+    	mTree.setRecursive(false);
+    	mTree.makeTree();
+    	assertTrue(mTree.getNumLeaves() == 4);
+    }
+    
+    @Test
+    public void testFalseRecursiveSearch2() {
+    	Merkle mTree = new Merkle(recursiveDir2Path);
+    	mTree.setRecursive(false);
+    	mTree.makeTree();
+    	assertTrue(mTree.getNumLeaves() == 2);
+    }
 
     @Test
     public void testRootHashEquivalence() {

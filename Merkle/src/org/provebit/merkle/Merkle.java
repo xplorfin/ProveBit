@@ -130,15 +130,26 @@ public class Merkle {
 	}
 	
 	/**
-	 * Get list of all files in directory
-	 * @return ArrayList of files in the directory
+	 * getFiles wrapper
+	 * @return ArrayList of files in dir
 	 */
 	private ArrayList<File> getFiles() {
+		return getFiles(dir);
+	}
+	
+	/**
+	 * Get list of all files in directory recursively
+	 * @return ArrayList of files in the directory
+	 */
+	private ArrayList<File> getFiles(File directory) {
 		ArrayList<File> fileList = new ArrayList<File>();
-		for (File file : dir.listFiles()) {
+		for (File file : directory.listFiles()) {
 			if (!file.isDirectory()) { // Will need to change when we start recursing into directories
 				fileList.add(file);
+			} else {
+				fileList.addAll(getFiles(file));
 			}
+				
 		}
 		return fileList;
 	}

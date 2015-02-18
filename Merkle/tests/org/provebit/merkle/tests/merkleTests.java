@@ -97,8 +97,15 @@ public class merkleTests {
 		Merkle mTree = new Merkle(recursiveDirPath);
 		mTree.setRecursive(true);
 		mTree.makeTree();
-		assertTrue(mTree.getNumLeaves() == 5);
-		/** NOT YET IMPLEMENTED **/
+		assertTrue(mTree.getNumLeaves() == 8);
+	}
+	
+	@Test
+	public void testRecursiveSearch2() {
+		Merkle mTree = new Merkle(recursiveDir2Path);
+		mTree.setRecursive(true);
+		mTree.makeTree();
+		assertTrue(mTree.getNumLeaves() == 8);
 	}
 	
 	@Test

@@ -14,7 +14,8 @@ import org.junit.Test;
 public class GUI_Test {
 
 	@Test
-	public void test() {
+	public void computeStringTest() {
+		
 		fail("Not yet implemented");
 	}
 

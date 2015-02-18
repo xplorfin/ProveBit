@@ -36,6 +36,10 @@ public class GUI implements ActionListener{
 	JButton btnDiv = new JButton("/");
 	JButton btnEqn = new JButton("=");
 	
+	// Defining backspace button
+	
+	JButton btnClear = new JButton("AC");
+	
 	public GUI() {
 		panel.setLayout(new MigLayout());
 		// display screen for the calculator
@@ -67,6 +71,8 @@ public class GUI implements ActionListener{
 		btnEqn.addActionListener(this);
 		panel.add(btnZero);
 		btnZero.addActionListener(this);
+		panel.add(btnClear);
+		btnClear.addActionListener(this);
 		
 		frame.add(panel);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -115,6 +121,8 @@ public class GUI implements ActionListener{
 			case "=":
 				computeString();
 				break;
+			case "AC":
+				screen.setText("0");
 		}
 	}
 
@@ -142,13 +150,33 @@ public class GUI implements ActionListener{
 	
 	public void computeString() {
 		String currentString = screen.getText();
-		long result = -1;
-		// TODO write function to computer current displaying string and store it in result
-		screen.setText(Long.toString(result));
+		System.out.println("current str = " + currentString );
+		int result = -1;
+		// TODO write function to compute current displaying string and store it in result
+		// Addition and subtraction of two numbers supported yet.
+		String temp = "";
+		for (int i=0 ; i<currentString.length() ; i++)
+		{
+			temp = temp + currentString.charAt(i);
+			if (currentString.charAt(i) == '+')
+			{
+				temp = temp.substring(0,i);
+				System.out.println("temp + = " + temp );
+				result = Integer.parseInt(temp) + Integer.parseInt(currentString.substring(i+1));
+			}
+			else if (currentString.charAt(i) == '-')
+			{
+				temp = temp.substring(0,i);
+				System.out.println("temp - = " + temp );
+				result = Integer.parseInt(temp) - Integer.parseInt(currentString.substring(i+1));
+			}
+		}
+		screen.setText(Integer.toString(result));
 	}
 	
 	public void backspace() {
 		// TODO create button and write function for backspace
+		
 	}
 	
 	public static void main(String[] args) {

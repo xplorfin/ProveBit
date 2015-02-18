@@ -152,7 +152,6 @@ public class GUI implements ActionListener{
 		String currentString = screen.getText();
 		System.out.println("current str = " + currentString );
 		int result = -1;
-		// TODO write function to compute current displaying string and store it in result
 		// Addition and subtraction of two numbers supported yet.
 		String temp = "";
 		for (int i=0 ; i<currentString.length() ; i++)
@@ -172,11 +171,6 @@ public class GUI implements ActionListener{
 			}
 		}
 		screen.setText(Integer.toString(result));
-	}
-	
-	public void backspace() {
-		// TODO create button and write function for backspace
-		
 	}
 	
 	public static void main(String[] args) {

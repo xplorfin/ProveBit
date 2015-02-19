@@ -64,7 +64,7 @@ public class merkleTests {
     public void testTreeSizeOdd() {
         Merkle mTree = new Merkle(incompleteDirPath);
         mTree.makeTree();
-        assertTrue(mTree.getTreeSize() == 28);
+        assertTrue(mTree.getTreeSize() == 29);
     }
     
     @Test
@@ -79,7 +79,7 @@ public class merkleTests {
         mTree.makeTree();
         byte[][] tree = mTree.getTree();
         int i = (int) Math.pow(2, mTree.getHeight()) - 1;
-        for (; i < Math.pow(2, mTree.getHeight()) - 1 + mTree.getNumLeaves(); i++) {
+        for (; i < Math.pow(2, mTree.getHeight()+1) - 1; i++) {
             assertTrue(Hex.encodeHexString(tree[i]).length() == 64);
         }
     }

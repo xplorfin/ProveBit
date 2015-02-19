@@ -49,9 +49,12 @@ public class Merkle {
     public byte[] makeTree() {
         ArrayList<File> fileList = getFiles();
         ArrayList<byte[]> hashList = getFilesHashes(fileList);
-        numLeaves = (fileList.size() % 2 == 0) ? fileList.size() : fileList.size() + 1;
+        if (hashList.size() % 2 == 1) { // If odd number of hashes, duplicate last
+            hashList.add(hashList.get(hashList.size()-1));
+        }
+        numLeaves = hashList.size();
+        
         allocateTree();
-
         makeLeaves(hashList);
         try {
             makeInternalNodes();
@@ -189,7 +192,6 @@ public class Merkle {
         }
     }
 
-
     /**
      * Calculates the total number of actual nodes in the tree
      * @return number of nodes in the tree
@@ -201,8 +203,20 @@ public class Merkle {
         else if (numLeaves == 2 || numLeaves == 1) {
             return 3;
         }
-
-        return (int) (Math.pow(2, height-1) - 1.0 + numLeaves + Math.ceil((double)numLeaves / 2.0));
+        
+        // At this time I cannot determine a closed form for this sum
+        int curr = numLeaves;
+        int total = numLeaves;
+        while (curr != 1) {
+            curr = (curr/2);
+            if (curr % 2 != 0) {
+                if (curr != 1) {
+                    curr += 1;
+                }
+            }
+            total += curr;
+        }
+        return total;
     }
 
     private int getParent(int index) {
@@ -218,30 +232,54 @@ public class Merkle {
     }
 
     /**
-     * Helper function that makes the internal nodes of the tree
+     * Wrapper that builds each level of the tree (except last)
      * @throws NoSuchAlgorithmException 
      */
     private void makeInternalNodes() throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        int i = (int) Math.pow(2, height) - 2; // Rightmost node on 2nd to last level
-        for (; i >= 0; i--) {
-            md.reset();
-            byte[] leftHash = tree[getLeftChild(i)];
-            byte[] rightHash = tree[getRightChild(i)];
-            if (leftHash == null && rightHash == null) { // 'Empty' node
-                tree[i] = null;
-            } else if (leftHash != null && rightHash == null) { // Partial node
-                tree[i] = leftHash; /** @TODO: Decide if this should concatenate with itself */
-            } else if (leftHash != null && rightHash != null) { // H(left + right)
-                byte[] newHash = new byte[leftHash.length + rightHash.length];
-                System.arraycopy(leftHash, 0, newHash, 0, leftHash.length);
-                System.arraycopy(rightHash, 0, newHash, leftHash.length, rightHash.length);
-                md.update(newHash);
-                tree[i] = md.digest();
-            } else { // Tree construction broken
-                throw new RuntimeException("Tree construction failed");
-            }
+        int level = height-1; // Leaf level built already
+        for (; level >= 0; level--) {
+            buildLevel(level);
         }
+    }
+    
+    /**
+     * Helper function to build internal nodes of tree ensuring there are
+     * an even number of nodes on each level
+     * @param level - Level to build nodes of
+     * @throws NoSuchAlgorithmException 
+     */
+    private void buildLevel(int level) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        int nodeIndex = (int) Math.pow(2, level) - 1; // Leftmost node at level 'level'
+        int lastNodeIndex = (int) Math.pow(2, level+1) - 2; // Last (rightmost) node at level 'level'
+        int nodesBuilt = 0;
+        for (; nodeIndex <= lastNodeIndex; nodeIndex++, nodesBuilt++) {
+            md.reset(); 
+            byte[] leftChildHash = tree[getLeftChild(nodeIndex)];
+            byte[] rightChildHash = tree[getRightChild(nodeIndex)];
+            if (leftChildHash == null) { // Implies right child is also null by merkle construction
+                if (nodesBuilt % 2 != 0) { // Odd number of nodes on this level, copy left sibling
+                    tree[nodeIndex] = tree[nodeIndex-1];
+                    return; // Reached last non empty node at this level, we are done
+                }
+            }
+            byte[] newHash = concatHashes(leftChildHash, rightChildHash);
+            md.update(newHash);
+            tree[nodeIndex] = md.digest();
+        }
+    }
+
+    /**
+     * Concatenates argument hashes L + R and returns result
+     * @param leftHash
+     * @param rightHash
+     * @return leftHash + rightHash
+     */
+    private byte[] concatHashes(byte[] leftHash, byte[] rightHash) {
+        byte[] newHash = new byte[leftHash.length + rightHash.length];
+        System.arraycopy(leftHash, 0, newHash, 0, leftHash.length);
+        System.arraycopy(rightHash, 0, newHash, leftHash.length, rightHash.length);
+        return newHash;
     }
 
     /**

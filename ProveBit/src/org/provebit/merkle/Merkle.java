@@ -48,6 +48,11 @@ public class Merkle {
      */
     public byte[] makeTree() {
         ArrayList<File> fileList = getFiles();
+        if (fileList.size() == 0) {
+            numLeaves = 0;
+            return null;
+        }
+        
         ArrayList<byte[]> hashList = getFilesHashes(fileList);
         if (hashList.size() % 2 == 1) { // If odd number of hashes, duplicate last
             hashList.add(hashList.get(hashList.size()-1));
@@ -199,11 +204,7 @@ public class Merkle {
     private int getNumNodes() {
         if (numLeaves == 0) {
             return 0;
-        }
-        else if (numLeaves == 2 || numLeaves == 1) {
-            return 3;
-        }
-        
+        }        
         // At this time I cannot determine a closed form for this sum
         int curr = numLeaves;
         int total = numLeaves;

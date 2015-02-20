@@ -12,10 +12,12 @@ public class MerkleTests {
     static String INCOMPLETEDIR = "/tests/org/provebit/merkle/tests/testIncompleteDir";
     static String RECURSIVEDIR = "/tests/org/provebit/merkle/tests/testRecursiveDir";
     static String RECURSIVEDIR2 = "/tests/org/provebit/merkle/tests/testRecursiveDir2";
+    static String EMPTYDIR = "/tests/org/provebit/merkle/tests/testEmptyDir";
     static String completeDirPath;
     static String incompleteDirPath;
     static String recursiveDirPath;
     static String recursiveDir2Path;
+    static String emptyDirPath;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -23,6 +25,7 @@ public class MerkleTests {
         incompleteDirPath = new java.io.File( "." ).getCanonicalPath() + INCOMPLETEDIR;
         recursiveDirPath = new java.io.File( "." ).getCanonicalPath() + RECURSIVEDIR;
         recursiveDir2Path = new java.io.File( "." ).getCanonicalPath() + RECURSIVEDIR2;
+        emptyDirPath = new java.io.File( "." ).getCanonicalPath() + EMPTYDIR;
     }
 
     @Test
@@ -143,5 +146,9 @@ public class MerkleTests {
         assertTrue(tree1Root.compareTo(tree2Root) == 0);
     }
 
-    
+    @Test
+    public void testEmptyDirectory() {
+        Merkle mTree = new Merkle(emptyDirPath);
+        assertTrue(mTree.makeTree() == null);
+    }
 }

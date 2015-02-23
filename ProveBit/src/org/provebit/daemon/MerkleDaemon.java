@@ -1,33 +1,32 @@
 package org.provebit.daemon;
 
+import java.io.File;
+
+import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.provebit.merkle.Merkle;
 
 public class MerkleDaemon extends Thread {
-    Merkle tree;
     int period;
     FileAlterationObserver dirObserver;
+    FileAlterationListener dirListener;
     FileAlterationMonitor dirMonitor;
     
-    public MerkleDaemon(Merkle tree, int period) {
-        this.tree = tree;
+    public MerkleDaemon(String dir, int period) {
         this.period = period;
-        dirObserver = new FileAlterationObserver(tree.getDir());
-        dirObserver.addListener(new DaemonListener());
-        dirMonitor = new FileAlterationMonitor(period);
+        dirObserver = new FileAlterationObserver(new File(dir));
+        dirListener = new DaemonListener(dir);
+        dirObserver.addListener(dirListener);
+        dirMonitor = new FileAlterationMonitor();
         dirMonitor.addObserver(dirObserver);
     }
     
-    public void run() {
-        if (!Thread.currentThread().isDaemon()) {
-            throw new RuntimeException("MerkleDaemon not running as daemon!");
-        }
-        
+    public void run() {        
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 try {
+                    System.out.println("Stopping monitor");
                     dirMonitor.stop();
                 } catch (Exception e) {
                     e.printStackTrace();

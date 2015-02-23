@@ -126,6 +126,14 @@ public class Merkle {
     public boolean isRecursive() {
         return recursive;
     }
+    
+    /**
+     * Get the directory being used in construction
+     * @return construction directory
+     */
+    public File getDir() {
+        return dir;
+    }
 
     /**
      * Computes log base 2 of the argument value

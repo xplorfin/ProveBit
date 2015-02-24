@@ -11,7 +11,7 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-import com.google.bitcoin.core.Utils;
+import org.bitcoinj.core.Utils;
 
 public class ProofExecutorSlowTests {
 

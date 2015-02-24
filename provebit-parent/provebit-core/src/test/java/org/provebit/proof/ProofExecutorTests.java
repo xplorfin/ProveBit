@@ -9,7 +9,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import com.google.bitcoin.core.Utils;
+import org.bitcoinj.core.Utils;
+import org.apache.commons.codec.binary.Hex;
 
 public class ProofExecutorTests {
 
@@ -44,7 +45,7 @@ public class ProofExecutorTests {
 		}
 		ProofExecutor pe = new ProofExecutor(text);
 		byte[] res = pe.execute(pp);
-		String out = Utils.bytesToHexString(res);
+		String out = Hex.encodeHexString(res);
 		assertEquals("3367a47f48cd5948e68ed649f74d6fcc60725a881593543ae646a9b63f55fe19", out);
 	}
 	
@@ -75,7 +76,7 @@ public class ProofExecutorTests {
 		//byte[] res = pe.execute(pp);
 		//System.out.println(new String(res));
 		byte[] res = Utils.reverseBytes(pe.execute(pp));
-		String out = Utils.bytesToHexString(res);
+		String out = Hex.encodeHexString(res);
 		//assertEquals("1b49f61a09902a848db5588f4e802763a2e1b8f1b91ff176ade1dcb0cd695ca2", out);
 		assertEquals("22bc66be6c79df92304f85a2b93d561e047e2fee71ce4708443c86d30c84d556", out);
 	}
@@ -110,7 +111,7 @@ public class ProofExecutorTests {
 		
 		ProofExecutor pe = new ProofExecutor(file);
 		byte[] res = pe.execute(pp);
-		String out = Utils.bytesToHexString(res);
+		String out = Hex.encodeHexString(res);
 		assertEquals("11961d79a8fde725e878473bd3497adff1fb6d362c1378e9eb182c870a617a2a", out);
 		
 		Object[] shan2 = {
@@ -121,7 +122,7 @@ public class ProofExecutorTests {
 		
 		ProofExecutor pe2 = new ProofExecutor(file2);
 		byte[] res2 = pe2.execute(pp2);
-		String out2 = Utils.bytesToHexString(res2);
+		String out2 = Hex.encodeHexString(res2);
 		// (echo -n a; cat btc-logo.png; echo -n b) | sha256sum
 		assertEquals("99788d6eb2d9938ed6d455f9af4e9a8ac7e1fc3b5d146a27ee20dc10b22e9ccb", out2);
 	}

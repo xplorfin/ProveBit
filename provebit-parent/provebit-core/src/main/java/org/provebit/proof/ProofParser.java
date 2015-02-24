@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.bitcoin.core.Utils;
+import org.bitcoinj.core.Utils;
 
 public class ProofParser {
 	private Object[][] ops;

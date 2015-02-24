@@ -9,16 +9,16 @@ import org.provebit.Config;
 import org.provebit.proof.keysys.AbstractKeyNode;
 import org.provebit.proof.keysys.KeyNotFoundException;
 
-import com.google.bitcoin.core.Block;
-import com.google.bitcoin.core.BlockChain;
-import com.google.bitcoin.core.NetworkParameters;
-import com.google.bitcoin.core.PeerGroup;
-import com.google.bitcoin.core.Sha256Hash;
-import com.google.bitcoin.core.StoredBlock;
-import com.google.bitcoin.core.Utils;
-import com.google.bitcoin.net.discovery.DnsDiscovery;
-import com.google.bitcoin.store.BlockStoreException;
-import com.google.bitcoin.store.SPVBlockStore;
+import org.bitcoinj.core.Block;
+import org.bitcoinj.core.BlockChain;
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.PeerGroup;
+import org.bitcoinj.core.Sha256Hash;
+import org.bitcoinj.core.StoredBlock;
+import org.bitcoinj.core.Utils;
+import org.bitcoinj.net.discovery.DnsDiscovery;
+import org.bitcoinj.store.BlockStoreException;
+import org.bitcoinj.store.SPVBlockStore;
 
 public class Blockchain extends AbstractKeyNode {
 	private static Blockchain instance = getInstance();

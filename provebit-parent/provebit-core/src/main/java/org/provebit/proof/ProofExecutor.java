@@ -10,11 +10,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Stack;
 
-import org.h2.util.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.provebit.proof.ProofParser.Argument;
 import org.provebit.proof.keysys.RootKey;
 
-import com.google.bitcoin.core.Utils;
+import org.bitcoinj.core.Utils;
 import com.google.common.primitives.Bytes;
 
 public class ProofExecutor {

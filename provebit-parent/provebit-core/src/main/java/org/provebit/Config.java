@@ -2,8 +2,8 @@ package org.provebit;
 
 import java.io.File;
 
-import com.google.bitcoin.core.NetworkParameters;
-import com.google.bitcoin.params.MainNetParams;
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.params.MainNetParams;
 
 public class Config {
 

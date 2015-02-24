@@ -1,7 +1,11 @@
 bin/
 *.wallet
+*.chain
 *.spvchain
 .metadata
 *.old
 *.tmp
-*.settings
+.settings
+.project
+.classpath
+target

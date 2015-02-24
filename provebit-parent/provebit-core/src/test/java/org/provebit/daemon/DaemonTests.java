@@ -11,16 +11,20 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class DaemonTests {
-    static String DAEMONDIR = "/tests/org/provebit/daemon/testDaemonDir";
+    static String DAEMONDIR = "/src/test/java/org/provebit/daemon/testDaemonDir";
     static String daemonDirPath;
     static File tempFile1;
     static File tempFile2;
+    static final int TESTSLEEP = 200;
+    static final int DAEMONPERIOD = 50;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         daemonDirPath = new java.io.File( "." ).getCanonicalPath() + DAEMONDIR;
         tempFile1 = new File(daemonDirPath + "/tempfile1");
         tempFile2 = new File(daemonDirPath + "/tempfile2");
+        System.out.println(new java.io.File( "." ).getCanonicalPath());
+        System.out.println(daemonDirPath);
     }
     
     @Test
@@ -62,7 +66,7 @@ public class DaemonTests {
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
         FileUtils.deleteQuietly(tempFile1);
         assertTrue(startingHash.compareTo(endingHash) != 0);
-        assertTrue(daemon.getChanges() == 2);
+        assertTrue(daemon.getChanges() == 1);
         daemon.interrupt();
     }
     

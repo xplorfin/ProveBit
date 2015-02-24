@@ -8,11 +8,11 @@ import org.junit.Test;
 import org.provebit.merkle.Merkle;
 
 public class MerkleTests {
-    static String COMPLETEDIR = "/tests/org/provebit/merkle/tests/testCompleteDir";
-    static String INCOMPLETEDIR = "/tests/org/provebit/merkle/tests/testIncompleteDir";
-    static String RECURSIVEDIR = "/tests/org/provebit/merkle/tests/testRecursiveDir";
-    static String RECURSIVEDIR2 = "/tests/org/provebit/merkle/tests/testRecursiveDir2";
-    static String EMPTYDIR = "/tests/org/provebit/merkle/tests/testEmptyDir";
+    static String COMPLETEDIR = "/src/test/java/org/provebit/merkle/tests/testCompleteDir";
+    static String INCOMPLETEDIR = "/src/test/java/org/provebit/merkle/tests/testIncompleteDir";
+    static String RECURSIVEDIR = "/src/test/java/org/provebit/merkle/tests/testRecursiveDir";
+    static String RECURSIVEDIR2 = "/src/test/java/org/provebit/merkle/tests/testRecursiveDir2";
+    static String EMPTYDIR = "/src/test/java/org/provebit/merkle/tests/testEmptyDir";
     static String completeDirPath;
     static String incompleteDirPath;
     static String recursiveDirPath;

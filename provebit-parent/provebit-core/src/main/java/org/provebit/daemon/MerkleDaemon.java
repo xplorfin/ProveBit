@@ -53,20 +53,22 @@ public class MerkleDaemon extends Thread {
             }   
         });
         
-        try(WatchService wService = fs.newWatchService()) {
+        monitorDirectory();
+    }
+
+	private void monitorDirectory() {
+		try(WatchService wService = fs.newWatchService()) {
             path.register(wService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
             WatchKey key = null;
             
             while(true) {
                 Thread.sleep(period);
                 key = wService.take();
-                Kind<?> kind = null;
                 
-                for (WatchEvent<?> event : key.pollEvents()) {
-                    kind = event.kind();
-                    System.out.println("Got " + kind.name() + " event");
-                    changes++;
-                    reconstructTree();
+                if (!key.pollEvents().isEmpty()) { // Event occurred
+                	changes++;
+                	reconstructTree();
+                	key.pollEvents().clear();
                 }
                 
                 key.reset();
@@ -74,7 +76,7 @@ public class MerkleDaemon extends Thread {
         } catch (IOException | InterruptedException e2) {
             // Ignore
         }
-    }
+	}
     
     /**
      * Helper function called when modification to directory is detected

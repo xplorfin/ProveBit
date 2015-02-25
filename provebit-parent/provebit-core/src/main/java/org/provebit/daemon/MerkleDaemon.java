@@ -42,16 +42,6 @@ public class MerkleDaemon extends Thread {
             Thread.currentThread().interrupt();
             return;
         }
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    System.out.println("Stopping daemon");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }   
-        });
         
         monitorDirectory();
     }
@@ -74,7 +64,10 @@ public class MerkleDaemon extends Thread {
                 key.reset();
             }
         } catch (IOException | InterruptedException e2) {
-            // Ignore
+            if (e2 instanceof InterruptedException) {
+            	System.out.println("Daemon interrupted, ending...");
+            	Thread.currentThread().interrupt();
+            }
         }
 	}
     

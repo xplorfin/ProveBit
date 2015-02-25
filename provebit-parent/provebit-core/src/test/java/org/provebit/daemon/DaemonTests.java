@@ -15,7 +15,7 @@ public class DaemonTests {
     static String daemonDirPath;
     static File tempFile1;
     static File tempFile2;
-    static final int TESTSLEEP = 200;
+    static final int TESTSLEEP = 100;
     static final int DAEMONPERIOD = 50;
 
     @BeforeClass

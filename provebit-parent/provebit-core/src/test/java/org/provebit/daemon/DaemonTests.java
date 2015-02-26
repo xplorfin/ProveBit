@@ -1,33 +1,69 @@
 package org.provebit.daemon;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.provebit.merkle.Merkle;
 
 public class DaemonTests {
     static String DAEMONDIR = "/src/test/java/org/provebit/daemon/testDaemonDir";
+    static String DAEMONSUBDIR = "/src/test/java/org/provebit/daemon/testDaemonDir/subDir";
     static String daemonDirPath;
-    static File tempFile1;
-    static File tempFile2;
+    static String daemonSubDirPath;
+    static File file1;
+    static File file2;
+    static File tempFile;
+    static File subDirFile;
     static final int TESTSLEEP = 100;
     static final int DAEMONPERIOD = 50;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         daemonDirPath = new java.io.File( "." ).getCanonicalPath() + DAEMONDIR;
-        tempFile1 = new File(daemonDirPath + "/tempfile1");
-        tempFile2 = new File(daemonDirPath + "/tempfile2");
+        daemonSubDirPath = new java.io.File( "." ).getCanonicalPath() + DAEMONSUBDIR;
+        file1 = new File(daemonDirPath + "/file1");
+        file2 = new File(daemonDirPath + "/file2");
+        tempFile = new File(daemonDirPath + "/tempfile");
+        subDirFile = new File(daemonSubDirPath + "/subDirTempFile");
+        resetTestDirectory();
     }
+    
+    /**
+     * Resets test directory to default state (two files with known file contents)
+     * @throws IOException
+     */
+    public static void resetTestDirectory() throws IOException {
+    	for (File file : new File(daemonDirPath).listFiles()) {
+    		if (!(file.getName().compareTo(file1.getName()) == 0) || !(file.getName().compareTo(file2.getName()) == 0)) {
+    			if (file.isDirectory()) {
+    				FileUtils.deleteDirectory(file);
+    			} else {
+    				FileUtils.deleteQuietly(file);
+    			}
+    		}
+    	}
+    	
+    	FileUtils.write(file1, "file 1");
+    	FileUtils.write(file2, "file 2");
+    }
+    
+    @Before
+	public void tearDown() throws Exception {
+    	resetTestDirectory();
+	}
     
     @Test
     public void testLaunchDaemon() {
-        MerkleDaemon daemon = new MerkleDaemon(daemonDirPath, DAEMONPERIOD);
+        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
         assertTrue(daemon.isDaemon());
         assertTrue(!daemon.isInterrupted());
         daemon.interrupt();
@@ -35,7 +71,7 @@ public class DaemonTests {
     
     @Test
     public void testLaunchNotDaemon() throws InterruptedException {
-        MerkleDaemon daemon = new MerkleDaemon(daemonDirPath, DAEMONPERIOD);
+    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
         daemon.setDaemon(false);
         daemon.start();
         Thread.sleep(TESTSLEEP);
@@ -45,7 +81,7 @@ public class DaemonTests {
     
     @Test
     public void testDetectNoChanges() throws InterruptedException {
-        MerkleDaemon daemon = new MerkleDaemon(daemonDirPath, DAEMONPERIOD);
+    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         assertTrue(daemon.getChanges() == 0);
@@ -54,56 +90,53 @@ public class DaemonTests {
     
     @Test
     public void testDetectFileAdd() throws InterruptedException, IOException {
-        MerkleDaemon daemon = new MerkleDaemon(daemonDirPath, DAEMONPERIOD);
+    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        FileUtils.write(tempFile1, "testData");
+        FileUtils.write(tempFile, "temp data");
         Thread.sleep(TESTSLEEP);
         assertTrue(daemon.getTree().getNumLeaves() == 4);
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        FileUtils.deleteQuietly(tempFile1);
+        FileUtils.deleteQuietly(tempFile);
+        Thread.sleep(TESTSLEEP);
         assertTrue(startingHash.compareTo(endingHash) != 0);
-        assertTrue(daemon.getChanges() == 1);
+        assertTrue(daemon.getChanges() == 2);
         daemon.interrupt();
     }
     
     @Test
     public void testDetectFileDelete() throws InterruptedException, IOException {
-        MerkleDaemon daemon = new MerkleDaemon(daemonDirPath, DAEMONPERIOD);
+    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        FileUtils.write(tempFile1, "testData");
-        Thread.sleep(TESTSLEEP);
-        String intermediateHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        FileUtils.deleteQuietly(tempFile1);
+        FileUtils.deleteQuietly(file1);
         Thread.sleep(TESTSLEEP);
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        assertTrue(startingHash.compareTo(endingHash) == 0);
-        assertTrue(endingHash.compareTo(intermediateHash) != 0);
+        assertTrue(startingHash.compareTo(endingHash) != 0);
         daemon.interrupt();
     }
     
     @Test
     public void testDetectFileChange() throws InterruptedException, IOException {
-        FileUtils.write(tempFile1, "testData");
-        MerkleDaemon daemon = new MerkleDaemon(daemonDirPath, DAEMONPERIOD);
+        FileUtils.write(file1, "testData");
+        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        FileUtils.write(tempFile1, "testData modified");
+        FileUtils.write(file1, "file 1 modified");
         Thread.sleep(TESTSLEEP);
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
         assertTrue(startingHash.compareTo(endingHash) != 0);
-        FileUtils.deleteQuietly(tempFile1);
+        FileUtils.deleteQuietly(file1);
         daemon.interrupt();
     }
     
     @Test
     public void testDetectDirectoryAdd() throws IOException, InterruptedException {
         String subDir = daemonDirPath + "/subdir";
-        MerkleDaemon daemon = new MerkleDaemon(daemonDirPath, DAEMONPERIOD);
+        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
@@ -118,17 +151,46 @@ public class DaemonTests {
     
     @Test
     public void testDetectDirectoryDelete() throws InterruptedException, IOException {
-        String subDir = daemonDirPath + "/subdir";
-        FileUtils.forceMkdir(new File(subDir));
-        MerkleDaemon daemon = new MerkleDaemon(daemonDirPath, DAEMONPERIOD);
+        FileUtils.forceMkdir(new File(daemonSubDirPath));
+        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        FileUtils.deleteQuietly(new File(subDir));
+        FileUtils.deleteQuietly(new File(daemonSubDirPath));
         Thread.sleep(TESTSLEEP);
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
         assertTrue(startingHash.compareTo(endingHash) == 0);
         assertTrue(daemon.getChanges() == 1);
+        daemon.interrupt();
+    }
+    
+    @Test
+    public void testSubDirectoryRecursive() throws IOException, InterruptedException {
+        FileUtils.forceMkdir(new File(daemonSubDirPath));
+        FileUtils.write(subDirFile, "sub dir file data");
+        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, true), DAEMONPERIOD);
+        daemon.start();
+        Thread.sleep(TESTSLEEP);
+        String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
+        FileUtils.write(subDirFile, "sub dir file modified data");
+        Thread.sleep(TESTSLEEP);
+        String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
+        assertTrue(startingHash.compareTo(endingHash) != 0);
+        daemon.interrupt();
+    }
+    
+    @Test
+    public void testSubDirectoryNonRecursive() throws IOException, InterruptedException {
+    	FileUtils.forceMkdir(new File(daemonSubDirPath));
+        FileUtils.write(subDirFile, "sub dir file data");
+        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
+        daemon.start();
+        Thread.sleep(TESTSLEEP);
+        String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
+        FileUtils.write(subDirFile, "sub dir file modified data");
+        Thread.sleep(TESTSLEEP);
+        String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
+        assertTrue(startingHash.compareTo(endingHash) == 0);
         daemon.interrupt();
     }
 }

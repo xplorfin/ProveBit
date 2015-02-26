@@ -16,8 +16,8 @@ public class DirectoryMonitor implements FileAlterationListener {
 	 * @param dir - directory to watch
 	 * @param recursive - whether or not to enable recursive directory changes
 	 */
-	public DirectoryMonitor(File dir, boolean recursive) {
-		tree = new Merkle(dir.getAbsolutePath(), recursive);
+	public DirectoryMonitor(Merkle mTree) {
+		tree = mTree;
 		changes = 0;
 	}
 	

@@ -1,7 +1,5 @@
 package org.provebit.daemon;
 
-import java.io.File;
-
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.merkle.Merkle;
 public class MerkleDaemon extends Thread {
@@ -14,10 +12,9 @@ public class MerkleDaemon extends Thread {
      * @param dir - Directory to run daemon on
      * @param period - Daemon polling period (msec)
      */
-    public MerkleDaemon(String dir, int period) {
-    	File toWatch = new File(dir);
-        observer = new FileAlterationObserver(toWatch);
-        listener = new DirectoryMonitor(toWatch, false);
+    public MerkleDaemon(Merkle mTree, int period) {
+        observer = new FileAlterationObserver(mTree.getDir().getAbsolutePath());
+        listener = new DirectoryMonitor(mTree);
         observer.addListener(listener);
         this.period = period;
         setDaemon(true);
@@ -28,9 +25,9 @@ public class MerkleDaemon extends Thread {
      */
     public void run() {       
         if (!Thread.currentThread().isDaemon()) {
-            Thread.currentThread().interrupt();
             return;
         }
+        
         try {
 			observer.initialize();
 		} catch (Exception e) {

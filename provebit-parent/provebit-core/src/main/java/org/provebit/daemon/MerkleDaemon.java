@@ -11,8 +11,8 @@ public class MerkleDaemon extends Thread {
     
     /**
      * Daemon constructor, 
-     * @param dir - Dir to run daemon on
-     * @param period - Daemon polling period
+     * @param dir - Directory to run daemon on
+     * @param period - Daemon polling period (msec)
      */
     public MerkleDaemon(String dir, int period) {
     	File toWatch = new File(dir);
@@ -23,6 +23,9 @@ public class MerkleDaemon extends Thread {
         setDaemon(true);
     }
     
+    /**
+     * Initializeds the observer and starts monitoring the directory
+     */
     public void run() {       
         if (!Thread.currentThread().isDaemon()) {
             Thread.currentThread().interrupt();
@@ -37,6 +40,10 @@ public class MerkleDaemon extends Thread {
         monitorDirectory();
     }
 
+    /**
+     * Main periodic method that checks for modifications in the
+     * desired directory
+     */
 	private void monitorDirectory() {
 		try {
 			while (true) {

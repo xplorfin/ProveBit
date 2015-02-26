@@ -11,6 +11,11 @@ public class DirectoryMonitor implements FileAlterationListener {
 	private Merkle tree;
 	int changes;
 	
+	/**
+	 * Constructor, configures the tree that will represent the argument file/directory
+	 * @param dir - directory to watch
+	 * @param recursive - whether or not to enable recursive directory changes
+	 */
 	public DirectoryMonitor(File dir, boolean recursive) {
 		tree = new Merkle(dir.getAbsolutePath(), recursive);
 		changes = 0;
@@ -31,7 +36,7 @@ public class DirectoryMonitor implements FileAlterationListener {
 
 	@Override
 	public void onDirectoryChange(File directory) {
-		System.out.println("Cirectory: " + directory.getPath() + " changed");
+		System.out.println("Directory: " + directory.getPath() + " changed");
 		updateTree();
 	}
 
@@ -80,6 +85,9 @@ public class DirectoryMonitor implements FileAlterationListener {
         return changes;
     }
 
+    /**
+     * Update the tree and number of detected changes
+     */
 	private void updateTree() {
 		changes++;
 		System.out.println("Old root: " + Hex.encodeHexString(tree.getRootHash()));

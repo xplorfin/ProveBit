@@ -21,7 +21,7 @@ public class MerkleDaemon extends Thread {
     }
     
     /**
-     * Initializeds the observer and starts monitoring the directory
+     * Initializes the observer and starts monitoring the directory
      */
     public void run() {       
         if (!Thread.currentThread().isDaemon()) {

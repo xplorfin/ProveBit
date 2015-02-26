@@ -196,4 +196,21 @@ public class DaemonTests {
         assertTrue(daemon.getChanges() == 0);
         daemon.interrupt();
     }
+    
+    @Test
+    public void testTwoSubDirectoriesRecursive() throws IOException, InterruptedException {
+    	FileUtils.forceMkdir(new File(daemonSubDirPath));
+        FileUtils.write(subDirFile, "sub dir file data");
+        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, true), DAEMONPERIOD);
+        FileUtils.forceMkdir(new File(daemonSubDirPath + "/subSubDir"));
+        daemon.start();
+        Thread.sleep(TESTSLEEP);
+        String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
+        FileUtils.write(new File(daemonSubDirPath + "/subSubDir/subSubFile"), "sub sub dir file data");
+        Thread.sleep(TESTSLEEP);
+        String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
+        assertTrue(startingHash.compareTo(endingHash) != 0);
+        assertTrue(daemon.getChanges() == 1);
+        daemon.interrupt();
+    }
 }

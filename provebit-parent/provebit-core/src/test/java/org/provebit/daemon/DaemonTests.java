@@ -1,7 +1,6 @@
 package org.provebit.daemon;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +36,11 @@ public class DaemonTests {
         resetTestDirectory();
     }
     
+    @AfterClass
+    public static void tearDownAfterClass() throws IOException {
+    	resetTestDirectory();
+    }
+    
     /**
      * Resets test directory to default state (two files with known file contents)
      * @throws IOException
@@ -57,7 +61,7 @@ public class DaemonTests {
     }
     
     @Before
-	public void tearDown() throws Exception {
+	public void setUp() throws Exception {
     	resetTestDirectory();
 	}
     

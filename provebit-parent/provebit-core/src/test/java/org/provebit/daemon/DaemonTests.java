@@ -180,6 +180,7 @@ public class DaemonTests {
         Thread.sleep(TESTSLEEP);
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
         assertTrue(startingHash.compareTo(endingHash) != 0);
+        assertTrue(daemon.getChanges() == 1);
         daemon.interrupt();
     }
     
@@ -190,11 +191,9 @@ public class DaemonTests {
         MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
-        String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
         FileUtils.write(subDirFile, "sub dir file modified data");
         Thread.sleep(TESTSLEEP);
-        String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        assertTrue(startingHash.compareTo(endingHash) == 0);
+        assertTrue(daemon.getChanges() == 0);
         daemon.interrupt();
     }
 }

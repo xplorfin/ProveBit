@@ -31,37 +31,37 @@ public class DirectoryMonitor implements FileAlterationListener {
 	@Override
 	public void onDirectoryCreate(File directory) {
 		System.out.println("New directory: " + directory.getPath() + " created");
-		updateTree();
+		updateTree(directory);
 	}
 
 	@Override
 	public void onDirectoryChange(File directory) {
 		System.out.println("Directory: " + directory.getPath() + " changed");
-		updateTree();
+		updateTree(directory);
 	}
 
 	@Override
 	public void onDirectoryDelete(File directory) {
 		System.out.println("Directory: " + directory.getPath() + " deleted");
-		updateTree();
+		updateTree(directory);
 	}
 
 	@Override
 	public void onFileCreate(File file) {
 		System.out.println("File: " + file.getPath() + " created");
-		updateTree();
+		updateTree(file);
 	}
 
 	@Override
 	public void onFileChange(File file) {
 		System.out.println("File " + file.getPath() + " changed");
-		updateTree();
+		updateTree(file);
 	}
 
 	@Override
 	public void onFileDelete(File file) {
 		System.out.println("File: " + file.getPath() + " deleted");
-		updateTree();
+		updateTree(file);
 	}
 
 	@Override
@@ -86,9 +86,19 @@ public class DirectoryMonitor implements FileAlterationListener {
     }
 
     /**
-     * Update the tree and number of detected changes
+     * Update wrapper that makes sure the detected change is relevant before
+     * spending the time to reconstruct the merkle tree
      */
-	private void updateTree() {
+	private void updateTree(File file) {
+		if (tree.isRecursive() || file.getParent().compareTo(tree.getDir().getAbsolutePath()) == 0) {
+			reconstructTree();
+		}
+	}
+	
+	/**
+	 * Reconstructs the merkle tree and increments the change counter
+	 */
+	private void reconstructTree() {
 		changes++;
 		System.out.println("Old root: " + Hex.encodeHexString(tree.getRootHash()));
 		tree.makeTree();

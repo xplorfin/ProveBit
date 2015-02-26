@@ -30,15 +30,29 @@ public class Merkle {
     private int numLeaves;
     private int totalNodes;
     private boolean recursive; // Default false
+    private boolean exists;
 
     /**
-     * Constructor
+     * Default constructor, non recursive by default
      * @param directoryPath - String path to directory to build tree from
      */
     public Merkle(String directoryPath) {
         dir = new File(directoryPath);
         tree = null;
         recursive = false;
+        exists = false;
+    }
+    
+    /**
+     * Constructor that sets recursive state
+     * @param directoryPath - String path to directory to build tree from
+     * @param recursive - String path to directory to build tree from
+     */
+    public Merkle(String directoryPath, boolean recursive) {
+    	dir = new File(directoryPath);
+    	tree = null;
+    	this.recursive = recursive;
+    	this.exists = false;
     }
 
     /**
@@ -66,7 +80,8 @@ public class Merkle {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-
+        
+        exists = true;
         return getRootHash();
     }
 
@@ -133,6 +148,14 @@ public class Merkle {
      */
     public File getDir() {
         return dir;
+    }
+    
+    /**
+     * Returns whether or not a tree is currently being stored
+     * @return - true if a tree has been created, false otherwise
+     */
+    public boolean exists() {
+    	return exists;
     }
 
     /**

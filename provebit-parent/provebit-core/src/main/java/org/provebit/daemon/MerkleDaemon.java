@@ -1,26 +1,13 @@
 package org.provebit.daemon;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import java.io.File;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-
-import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.merkle.Merkle;
 public class MerkleDaemon extends Thread {
     int period;
-    Path path;
-    FileSystem fs;
-    Merkle tree;
-    int changes;
+    FileAlterationObserver observer;
+    DirectoryMonitor listener;
     
     /**
      * Daemon constructor, 
@@ -28,13 +15,12 @@ public class MerkleDaemon extends Thread {
      * @param period - Daemon polling period
      */
     public MerkleDaemon(String dir, int period) {
-        setDaemon(true);
+    	File toWatch = new File(dir);
+        observer = new FileAlterationObserver(toWatch);
+        listener = new DirectoryMonitor(toWatch, false);
+        observer.addListener(listener);
         this.period = period;
-        path = Paths.get(dir);
-        fs = path.getFileSystem();
-        tree = new Merkle(dir);
-        tree.makeTree();
-        changes = 0;
+        setDaemon(true);
     }
     
     public void run() {       
@@ -42,52 +28,40 @@ public class MerkleDaemon extends Thread {
             Thread.currentThread().interrupt();
             return;
         }
-        
+        try {
+			observer.initialize();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Thread.currentThread().interrupt();
+		}
         monitorDirectory();
     }
 
 	private void monitorDirectory() {
-		try(WatchService wService = fs.newWatchService()) {
-            path.register(wService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-            WatchKey key = null;
-            
-            while(true) {
-                Thread.sleep(period);
-                key = wService.take();
-                
-                if (!key.pollEvents().isEmpty()) { // Event occurred
-                	changes++;
-                	reconstructTree();
-                	key.pollEvents().clear();
-                }
-                
-                key.reset();
-            }
-        } catch (IOException | InterruptedException e2) {
-            if (e2 instanceof InterruptedException) {
-            	System.out.println("Daemon interrupted, ending...");
-            	Thread.currentThread().interrupt();
-            }
-        }
+		try {
+			while (true) {
+				observer.checkAndNotify();
+				Thread.sleep(period);
+			}
+		} catch (InterruptedException ie) {
+			System.out.println("Monitor interrupted, exiting...");
+			try {
+				observer.destroy();
+			} catch (Exception e) {
+				System.out.println("Observer destruction failed, messy exit...");
+				e.printStackTrace();
+			}
+		} finally {
+			Thread.currentThread().interrupt();
+		}
 	}
-    
-    /**
-     * Helper function called when modification to directory is detected
-     * Reconstructs merkle tree
-     */
-    private void reconstructTree() {
-        System.out.println("Reconstructing tree...");
-        System.out.println("Old root: " + Hex.encodeHexString(tree.getRootHash()));
-        byte[] newHash = tree.makeTree();
-        System.out.println("New root: " + Hex.encodeHexString(newHash));
-    }
     
     /**
      * Get the current merkle tree
      * @return Currently constructed merkle tree
      */
     public Merkle getTree() {
-        return tree;
+        return listener.getTree();
     }
     
     /**
@@ -95,6 +69,6 @@ public class MerkleDaemon extends Thread {
      * @return number of changes since launch
      */
     public int getChanges() {
-        return changes;
+        return listener.getChanges();
     }
 }

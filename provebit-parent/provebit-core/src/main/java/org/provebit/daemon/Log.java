@@ -1,7 +1,9 @@
 package org.provebit.daemon;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,12 +15,16 @@ import java.util.Date;
 
 /**
  * Logging helper class that handles all log-based operations
+ * 
+ * Add log entires using addEntry
+ * Flush log to file using writeLog
+ * Close log using endLog
  */
 public class Log {
 	/**
-	 * Simple log entry object
+	 * Simple log entry class
 	 */
-	public class LogEntry implements Serializable {
+	public static class LogEntry implements Serializable {
 		private static final long serialVersionUID = 6144933582181634881L;
 		String message;
 		String timeString;
@@ -45,8 +51,11 @@ public class Log {
 		}
 	}
 	
-	ArrayList<LogEntry> entries;
-	File output;
+	private ArrayList<LogEntry> entries;
+	private File output;
+	private FileOutputStream fOut;
+	private ObjectOutputStream oOut;
+	private int nextPending;
 	
 	/**
 	 * Simple log constructor that performs no I/O
@@ -59,21 +68,52 @@ public class Log {
 	/**
 	 * Constructor for log that outputs to a file
 	 * @param outputFile - File to write log to
+	 * @throws IOException 
 	 */
-	public Log(File outputFile) {
+	public Log(File outputFile) throws IOException {
 		entries = new ArrayList<LogEntry>();
-		output = outputFile;
+		setLogFile(outputFile);
+		nextPending = 0;
+	}
+	
+	/**
+	 * Specify a file to write log to 
+	 * @param output - Log output file
+	 * @throws IOException
+	 */
+	public void setLogFile(File output) throws IOException {
+		if (output != null) {
+			this.endLog();
+		}
+		this.output = output;
+		fOut = new FileOutputStream(output);
+		oOut = new ObjectOutputStream(fOut);
+		nextPending = 0;
 	}
 	
 	/**
 	 * Write new log entry to log
 	 * @Note: Timestamps are automatically included for each log entry
 	 * 
-	 * @param message - Message to write to log
+	 * @param message - Message to write to log, does not flush to file
 	 */
-	public void writeLog(String message) {
+	public void addEntry(String message) {
 		LogEntry entry = new LogEntry(message, new Timestamp(new Date().getTime()));
-		doWrite(entry);
+		entries.add(entry);
+	}
+	
+	/**
+	 * Writes all pending log entries to file
+	 */
+	public void writeToFile() {
+		if (output != null) {
+			while (nextPending < entries.size()) {
+				doWrite(entries.get(nextPending));
+				nextPending++;
+			}
+		} else {
+			throw new RuntimeException("No file set for logging");
+		}
 	}
 	
 	/**
@@ -82,6 +122,22 @@ public class Log {
 	 */
 	public ArrayList<LogEntry> getLog() {
 		return entries;
+	}
+	
+	/**
+	 * Ends logging, only necessary if logging to a file
+	 * Flushes any remaining log entries to file if file logging is being used
+	 * @throws IOException
+	 */
+	public void endLog() throws IOException {
+		if (output != null) {
+			if (nextPending != entries.size() - 1) {
+				this.writeToFile();
+			}
+			oOut.close();
+			fOut.close();
+		}
+		output = null;
 	}
 	
 	/**
@@ -100,9 +156,13 @@ public class Log {
 			}
 			ois.close();
 		} catch (IOException | ClassNotFoundException e) {
-			System.out.println("Log recovery failed");
-			e.printStackTrace();
-			return false;
+			if (e instanceof EOFException) {
+				// Ignore, we finished reading all objects
+			} else {
+				System.out.println("Log recovery failed");
+				e.printStackTrace();
+				return false;
+			}
 		}
 		return true;
 	}
@@ -112,12 +172,9 @@ public class Log {
 	 * @param entry - Entry to write to file
 	 */
 	private void doWrite(LogEntry entry) {
-		entries.add(entry);
 		if (output != null) {
 			try {
-				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(output));
-				oos.writeObject(entry);
-				oos.close();
+				oOut.writeObject(entry);
 			} catch (IOException e) {
 				System.out.println("Log write failed");
 				e.printStackTrace();

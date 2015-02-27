@@ -1,6 +1,7 @@
 package org.provebit.daemon;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +11,6 @@ import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.provebit.daemon.Log.LogEntry;
@@ -43,7 +42,7 @@ public class LogTests {
 	@Test
 	public void testLogAddSimple() {
 		Log log = new Log();
-		log.writeLog("simple test");
+		log.addEntry("simple test");
 		ArrayList<LogEntry> entries = log.getLog();
 		assertTrue(entries.get(0).getMessage().compareTo("simple test") == 0);
 	}
@@ -52,7 +51,7 @@ public class LogTests {
 	public void testLogAddMultiple() {
 		Log log = new Log();
 		for (String msg : messages) {
-			log.writeLog(msg);
+			log.addEntry(msg);
 		}
 		
 		ArrayList<LogEntry> entries = log.getLog();
@@ -62,20 +61,24 @@ public class LogTests {
 	}
 	
 	@Test
-	public void testLogToFileSimple() {
-		Log log = new Log(logFile);
-		log.writeLog("simple test");
+	public void testLogToFileSimple() throws IOException {
+		Log log = new Log();
+		log.addEntry("simple test");
+		log.setLogFile(logFile);
+		log.writeToFile();
+		log.endLog();
 		ArrayList<LogEntry> entries = log.getLog();
 		assertTrue(entries.get(0).getMessage().compareTo("simple test") == 0);
 	}
 
 	@Test
-	public void testLogToFileMultiple() {
+	public void testLogToFileMultiple() throws IOException {
 		Log log = new Log(logFile);
 		for (String msg : messages) {
-			log.writeLog(msg);
+			log.addEntry(msg);
 		}
-		
+		log.writeToFile();
+		log.endLog();
 		ArrayList<LogEntry> entries = log.getLog();
 		for (int i = 0; i < messages.length; i++) {
 			assertTrue(entries.get(i).getMessage().compareTo(messages[i]) == 0);
@@ -83,12 +86,14 @@ public class LogTests {
 	}
 	
 	@Test
-	public void testLogRecovery() {
+	public void testLogRecovery() throws IOException {
 		Log logOriginal = new Log(logFile);
 		Log logRecovery;
 		for (String msg : messages) {
-			logOriginal.writeLog(msg);
+			logOriginal.addEntry(msg);
 		}
+		logOriginal.writeToFile();
+		logOriginal.endLog();
 		
 		logRecovery = new Log();
 		if (!logRecovery.recoverLog(logFile)) {
@@ -104,35 +109,33 @@ public class LogTests {
 	public void testLogTimestamp() {
 		Log log = new Log();
 		Timestamp current = new Timestamp(new Date().getTime());
-		log.writeLog("simple test");
+		log.addEntry("simple test");
 		
 		LogEntry entry = log.getLog().get(0);
-		assertTrue(current.before(entry.getTime()));
+		assertTrue(current.equals(entry.getTime()));
 	}
 	
 	@Test
-	public void testLogTimestampRecovery() {
+	public void testLogTimestampRecovery() throws IOException {
 		Log logOriginal = new Log(logFile);
 		Log logRecovery;
 		Timestamp startTime = new Timestamp(new Date().getTime());
 		ArrayList<Timestamp> messageTimes = new ArrayList<Timestamp>();
 		for (String msg : messages) {
 			messageTimes.add(new Timestamp(new Date().getTime()));
-			logOriginal.writeLog(msg);
+			logOriginal.addEntry(msg);
 		}
+		logOriginal.writeToFile();
+		logOriginal.endLog();
 		
 		logRecovery = new Log();
 		if (!logRecovery.recoverLog(logFile)) {
 			fail();
 		}
 		
-		LogEntry last = logRecovery.getLog().get(0);
-		assertTrue(startTime.before(last.getTime()) && messageTimes.get(0).before(last.getTime()));
-		for (int i = 1; i < messageTimes.size(); i++) {
+		for (int i = 0; i < messageTimes.size(); i++) {
 			LogEntry entry = logRecovery.getLog().get(i);
-			assertTrue(startTime.before(entry.getTime()));
-			assertTrue(messageTimes.get(i).before(entry.getTime()));
-			last = entry;
+			assertTrue(startTime.before(entry.getTime()) || startTime.equals(entry.getTime()));
 		}
 	}
 }

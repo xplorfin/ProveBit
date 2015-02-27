@@ -25,7 +25,7 @@ public class LogTests {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		testDirPath = new java.io.File( "." ).getCanonicalPath() + TESTDIR;
-		logFile = new File(testDirPath + "file.log");
+		logFile = new File(testDirPath + "/file.log");
 		clearDirectory();
 	}
 	

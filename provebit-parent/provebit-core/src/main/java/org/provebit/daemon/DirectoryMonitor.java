@@ -8,8 +8,11 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.merkle.Merkle;
 
 public class DirectoryMonitor implements FileAlterationListener {
+	public enum LogVerbosity{NONE, LOW, HIGH};
 	private Merkle tree;
-	int changes;
+	private int changes;
+	private LogVerbosity logLevel;
+	private Log log;
 	
 	/**
 	 * Constructor, configures the tree that will represent the argument file/directory
@@ -19,6 +22,11 @@ public class DirectoryMonitor implements FileAlterationListener {
 	public DirectoryMonitor(Merkle mTree) {
 		tree = mTree;
 		changes = 0;
+		logLevel = LogVerbosity.NONE;
+	}
+	
+	public void setLogLevel(LogVerbosity level) {
+		logLevel = level;
 	}
 	
 	@Override

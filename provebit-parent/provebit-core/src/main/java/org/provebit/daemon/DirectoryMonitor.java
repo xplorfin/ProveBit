@@ -8,11 +8,10 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.merkle.Merkle;
 
 public class DirectoryMonitor implements FileAlterationListener {
-	public enum LogVerbosity{NONE, LOW, HIGH};
+	public enum MonitorEvent{FCREATE, FDELETE, FCHANGE, DCREATE, DDELETE, DCHANGE};
 	private Merkle tree;
 	private int changes;
-	private LogVerbosity logLevel;
-	private Log log;
+	protected Log log;
 	
 	/**
 	 * Constructor, configures the tree that will represent the argument file/directory
@@ -22,11 +21,7 @@ public class DirectoryMonitor implements FileAlterationListener {
 	public DirectoryMonitor(Merkle mTree) {
 		tree = mTree;
 		changes = 0;
-		logLevel = LogVerbosity.NONE;
-	}
-	
-	public void setLogLevel(LogVerbosity level) {
-		logLevel = level;
+		log = new Log();
 	}
 	
 	@Override
@@ -38,37 +33,37 @@ public class DirectoryMonitor implements FileAlterationListener {
 
 	@Override
 	public void onDirectoryCreate(File directory) {
-		System.out.println("New directory: " + directory.getPath() + " created");
+		this.logEvent(MonitorEvent.DCREATE, directory);
 		updateTree(directory);
 	}
 
 	@Override
 	public void onDirectoryChange(File directory) {
-		System.out.println("Directory: " + directory.getPath() + " changed");
+		this.logEvent(MonitorEvent.DCHANGE, directory);
 		updateTree(directory);
 	}
 
 	@Override
 	public void onDirectoryDelete(File directory) {
-		System.out.println("Directory: " + directory.getPath() + " deleted");
+		this.logEvent(MonitorEvent.DDELETE, directory);
 		updateTree(directory);
 	}
 
 	@Override
 	public void onFileCreate(File file) {
-		System.out.println("File: " + file.getPath() + " created");
+		this.logEvent(MonitorEvent.FCREATE, file);
 		updateTree(file);
 	}
 
 	@Override
 	public void onFileChange(File file) {
-		System.out.println("File " + file.getPath() + " changed");
+		this.logEvent(MonitorEvent.FCHANGE, file);
 		updateTree(file);
 	}
 
 	@Override
 	public void onFileDelete(File file) {
-		System.out.println("File: " + file.getPath() + " deleted");
+		this.logEvent(MonitorEvent.FDELETE, file);
 		updateTree(file);
 	}
 
@@ -101,6 +96,15 @@ public class DirectoryMonitor implements FileAlterationListener {
 		if (tree.isRecursive() || file.getParent().compareTo(tree.getDir().getAbsolutePath()) == 0) {
 			reconstructTree();
 		}
+	}
+	
+	/**
+	 * Helper function that adds the event to the local log
+	 * @param event - Event that occurred
+	 * @param file - File related to event
+	 */
+	private void logEvent(MonitorEvent event, File file) {
+		log.addEntry(event.toString() + " : " + file.getAbsolutePath());
 	}
 	
 	/**

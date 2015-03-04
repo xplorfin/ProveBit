@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
@@ -11,6 +12,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.provebit.daemon.DirectoryMonitor.MonitorEvent;
+import org.provebit.daemon.Log.LogEntry;
 import org.provebit.merkle.Merkle;
 
 public class DaemonTests {
@@ -212,5 +215,21 @@ public class DaemonTests {
         assertTrue(startingHash.compareTo(endingHash) != 0);
         assertTrue(daemon.getChanges() == 1);
         daemon.interrupt();
+    }
+    
+    @Test
+    public void testDaemonFileLogging() throws InterruptedException, IOException {
+    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(tempFile, "temp data");
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.deleteQuietly(tempFile);
+    	Thread.sleep(TESTSLEEP);
+    	Log log = daemon.getLog();
+    	ArrayList<LogEntry> entries = log.getLog();
+    	assertTrue(entries.size() == 2);
+    	assertTrue(entries.get(0).message.contains(MonitorEvent.FCREATE.toString()));
+    	assertTrue(entries.get(1).message.contains(MonitorEvent.FDELETE.toString()));
     }
 }

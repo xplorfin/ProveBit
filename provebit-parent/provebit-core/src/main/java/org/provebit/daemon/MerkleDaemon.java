@@ -1,7 +1,6 @@
 package org.provebit.daemon;
 
 import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.provebit.daemon.DirectoryMonitor.LogVerbosity;
 import org.provebit.merkle.Merkle;
 public class MerkleDaemon extends Thread {
     private int period;
@@ -19,12 +18,7 @@ public class MerkleDaemon extends Thread {
         listener = new DirectoryMonitor(mTree);
         observer.addListener(listener);
         this.period = period;
-        listener.setLogLevel(LogVerbosity.NONE);
         setDaemon(true);
-    }
-    
-    public void setLogLevel(LogVerbosity level) {
-    	listener.setLogLevel(level);
     }
     
     /**
@@ -81,5 +75,9 @@ public class MerkleDaemon extends Thread {
      */
     public int getChanges() {
         return listener.getChanges();
+    }
+    
+    public Log getLog() {
+    	return listener.log;
     }
 }

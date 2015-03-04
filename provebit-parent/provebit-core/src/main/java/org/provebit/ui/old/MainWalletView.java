@@ -1,4 +1,4 @@
-package org.provebit.ui;
+package org.provebit.ui.old;
 
 import java.awt.Color;
 import java.awt.Component;

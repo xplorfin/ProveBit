@@ -7,10 +7,11 @@ package org.provebit.ui;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
-public class DaemonConfigFrame extends JFrame {
+public class DaemonConfigFrame extends JPanel {
 	
 	
 	private static final String ADDFILESTRING = "Add Files to Monitor...";

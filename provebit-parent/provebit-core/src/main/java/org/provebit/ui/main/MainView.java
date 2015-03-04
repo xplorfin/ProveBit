@@ -8,10 +8,14 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.provebit.ui.AdvancedTab;
 import org.provebit.ui.DaemonTab;
@@ -21,12 +25,14 @@ import org.provebit.ui.WalletTab;
 public class MainView extends JFrame implements Observer {
 	private MainModel model;
 	private JTabbedPane tabbedPane; 
-	public JMenuBar menuBar;
-	public JMenu menuFile;
-	public JMenuItem menuItemFileQuit;
-	public JMenu menuAbout;
-	public JMenuItem menuItemAboutUs;
-	public ArrayList<JMenuItem> menuItems;
+	private JMenuBar menuBar;
+	private JMenu menuFile;
+	private JMenuItem menuItemFileQuit;
+	private JMenu menuAbout;
+	private JMenuItem menuItemAboutUs;
+	private JFrame aboutUsFrame;
+	private JPanel aboutUsPanel;
+	private ArrayList<JMenuItem> menuItems;
 	
 	public MainView(MainModel model) {
 		this.model = model;
@@ -36,16 +42,31 @@ public class MainView extends JFrame implements Observer {
 		// set up menu and tabs
 		addMenuBar();
 		addTabs();
+		setupAboutUsPanel();
 		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
 	}
 	
-	public void addMenuBar() {
+	private void setupAboutUsPanel() {
+		aboutUsFrame = new JFrame();
+		aboutUsPanel = new JPanel(new MigLayout());
+		aboutUsPanel.setSize(300,200);
+		aboutUsPanel.add(new JLabel("ProveBit Iteration 3 About Us"));
+		aboutUsPanel.setVisible(true);
+		aboutUsFrame.add(aboutUsPanel);
+		aboutUsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		aboutUsFrame.pack();
+		aboutUsFrame.setVisible(false);
+	}
+	
+	private void addMenuBar() {
 		menuBar = new JMenuBar();
+		
 		menuFile = new JMenu("File");
 		menuItemFileQuit = new JMenuItem("Quit");
 		menuItemFileQuit.setActionCommand("File-Quit");
+		
 		menuAbout = new JMenu("About");
 		menuItemAboutUs = new JMenuItem("About Us");
 		menuItemAboutUs.setActionCommand("About-About Us");
@@ -60,7 +81,7 @@ public class MainView extends JFrame implements Observer {
 		setJMenuBar(menuBar);
 	}
 	
-	public void addTabs() {
+	private void addTabs() {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.addTab("General", new GeneralTab().getPanel());
 		tabbedPane.addTab("Wallet", new WalletTab().getPanel());
@@ -71,7 +92,11 @@ public class MainView extends JFrame implements Observer {
 	
 	@Override
 	public void update(Observable o, Object arg) {
-		// Update stuff
+		if (arg instanceof String) {
+			if ("showAbout".compareTo((String) arg) == 0) {
+				aboutUsFrame.setVisible(true);
+			}
+		}
 	}
 	
 	public void addController(ActionListener controller) {

@@ -19,7 +19,7 @@ public class MainController implements ActionListener {
 				System.exit(0);
 				break;
 			case("About-About Us"):
-				// Bring up about us pane
+				view.update(model, new String("showAbout"));
 				break;
 			default:
 				break;

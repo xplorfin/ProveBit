@@ -11,9 +11,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
-public class DaemonConfigFrame extends JPanel {
+
+
+public class DaemonConfigTab extends JPanel {
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5876970360392816111L;
 	private static final String ADDFILESTRING = "Add Files to Monitor...";
 	private static final String REMOVEFILESTRING = "Remove Files...";
 	
@@ -24,7 +30,10 @@ public class DaemonConfigFrame extends JPanel {
 	
 	private JTextField runPeriodInput;
 	
-	public DaemonConfigFrame() {
+	/** Frame Constructor
+	 *
+	 */
+	public DaemonConfigTab() {
 		super();
 		
 		addFileButton = new JButton(ADDFILESTRING);
@@ -33,12 +42,21 @@ public class DaemonConfigFrame extends JPanel {
 		removeFileButton = new JButton(REMOVEFILESTRING);
 		removeFileButton.setEnabled(true);
 		
+		setUpList();
+		
+		runPeriodInput = new JTextField();
+		
+		
+	}
+
+	/**
+	 * Private helper for setting up the List
+	 */
+	@SuppressWarnings("rawtypes")
+	private void setUpList() {
 		fileList = new JList();
 		fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		fileList.setLayoutOrientation(JList.VERTICAL);
 		fileList.setVisibleRowCount(7);
-		
-		runPeriodInput = new JTextField();
-		
 	}
 }

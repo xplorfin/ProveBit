@@ -224,12 +224,59 @@ public class DaemonTests {
     	Thread.sleep(TESTSLEEP);
     	FileUtils.write(tempFile, "temp data");
     	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(tempFile, "new data");
+    	Thread.sleep(TESTSLEEP);
     	FileUtils.deleteQuietly(tempFile);
     	Thread.sleep(TESTSLEEP);
     	Log log = daemon.getLog();
     	ArrayList<LogEntry> entries = log.getLog();
-    	assertTrue(entries.size() == 2);
+    	assertTrue(entries.size() == 3);
     	assertTrue(entries.get(0).message.contains(MonitorEvent.FCREATE.toString()));
-    	assertTrue(entries.get(1).message.contains(MonitorEvent.FDELETE.toString()));
+    	assertTrue(entries.get(1).message.contains(MonitorEvent.FCHANGE.toString()));
+    	assertTrue(entries.get(2).message.contains(MonitorEvent.FDELETE.toString()));
+    	daemon.interrupt();
+    }
+    
+    @Test
+    public void testDaemonDirLoggingRecursive() throws InterruptedException, IOException {
+    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, true), DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.forceMkdir(new File(daemonSubDirPath));
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(subDirFile, "data");
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.deleteQuietly(new File(daemonSubDirPath));
+    	Thread.sleep(TESTSLEEP);
+    	Log log = daemon.getLog();
+    	ArrayList<LogEntry> entries = log.getLog();
+    	assertTrue(entries.size() == 4);
+    	assertTrue(entries.get(0).message.contains(MonitorEvent.DCREATE.toString()));
+    	assertTrue(entries.get(1).message.contains(MonitorEvent.FCREATE.toString()));
+    	assertTrue(entries.get(2).message.contains(MonitorEvent.FDELETE.toString()));
+    	assertTrue(entries.get(3).message.contains(MonitorEvent.DDELETE.toString()));
+    	daemon.interrupt();
+    }
+    
+    @Test
+    public void testDaemonDirLoggingNonRecursive() throws InterruptedException, IOException {
+    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.forceMkdir(new File(daemonSubDirPath));
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(subDirFile, "data");
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.deleteQuietly(new File(daemonSubDirPath));
+    	Thread.sleep(TESTSLEEP);
+    	Log log = daemon.getLog();
+    	ArrayList<LogEntry> entries = log.getLog();
+    	for (LogEntry entry : entries) {
+    		System.out.println(entry.toString());
+    	}
+    	assertTrue(entries.size() == 2);
+    	assertTrue(entries.get(0).message.contains(MonitorEvent.DCREATE.toString()));
+    	assertTrue(entries.get(1).message.contains(MonitorEvent.DDELETE.toString()));
+    	daemon.interrupt();
     }
 }

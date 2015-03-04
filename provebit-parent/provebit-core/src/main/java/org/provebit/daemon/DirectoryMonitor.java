@@ -33,38 +33,32 @@ public class DirectoryMonitor implements FileAlterationListener {
 
 	@Override
 	public void onDirectoryCreate(File directory) {
-		this.logEvent(MonitorEvent.DCREATE, directory);
-		updateTree(directory);
+		updateTree(MonitorEvent.DCREATE, directory);
 	}
 
 	@Override
 	public void onDirectoryChange(File directory) {
-		this.logEvent(MonitorEvent.DCHANGE, directory);
-		updateTree(directory);
+		updateTree(MonitorEvent.DCHANGE, directory);
 	}
 
 	@Override
 	public void onDirectoryDelete(File directory) {
-		this.logEvent(MonitorEvent.DDELETE, directory);
-		updateTree(directory);
+		updateTree(MonitorEvent.DDELETE, directory);
 	}
 
 	@Override
 	public void onFileCreate(File file) {
-		this.logEvent(MonitorEvent.FCREATE, file);
-		updateTree(file);
+		updateTree(MonitorEvent.FCREATE, file);
 	}
 
 	@Override
 	public void onFileChange(File file) {
-		this.logEvent(MonitorEvent.FCHANGE, file);
-		updateTree(file);
+		updateTree(MonitorEvent.FCHANGE, file);
 	}
 
 	@Override
 	public void onFileDelete(File file) {
-		this.logEvent(MonitorEvent.FDELETE, file);
-		updateTree(file);
+		updateTree(MonitorEvent.FDELETE, file);
 	}
 
 	@Override
@@ -92,8 +86,9 @@ public class DirectoryMonitor implements FileAlterationListener {
      * Update wrapper that makes sure the detected change is relevant before
      * spending the time to reconstruct the merkle tree
      */
-	private void updateTree(File file) {
+	private void updateTree(MonitorEvent event, File file) {
 		if (tree.isRecursive() || file.getParent().compareTo(tree.getDir().getAbsolutePath()) == 0) {
+			logEvent(event, file);
 			reconstructTree();
 		}
 	}

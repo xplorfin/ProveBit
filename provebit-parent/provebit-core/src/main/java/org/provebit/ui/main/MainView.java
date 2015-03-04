@@ -55,7 +55,7 @@ public class MainView extends JFrame implements Observer {
 		aboutUsPanel.add(new JLabel("ProveBit Iteration 3 About Us"));
 		aboutUsPanel.setVisible(true);
 		aboutUsFrame.add(aboutUsPanel);
-		aboutUsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		aboutUsFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		aboutUsFrame.pack();
 		aboutUsFrame.setVisible(false);
 	}

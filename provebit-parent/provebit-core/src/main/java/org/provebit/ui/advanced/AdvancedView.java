@@ -4,16 +4,54 @@ import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+
+import net.miginfocom.swing.MigLayout;
 
 public class AdvancedView extends JPanel implements Observer {
 	AdvancedModel model;
+	private static final String[] TESTDROPDOWNDATA = {"Hash1", "Hash2", "Hash3"};
+	private static final String warning = "Warning: Do not edit these settings if you don't know what to do.";
+	private JComboBox advancedDropDown;
+	private JRadioButton advancedFirst;
+	private JRadioButton advancedSecond;
+	private JButton configButton;
+	private JLabel warningLabel;
+	private ButtonGroup radioGroup;
 	
 	public AdvancedView(AdvancedModel model) {
 		this.model = model;
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		//this.setLayout(new MigLayout("", "[]", "[]"));
 		
 		// Put view controls here
 		// Buttons, labels, textboxes, lists, etc...
+		warningLabel = new JLabel(warning);
+		add(warningLabel);
+		
+		
+		advancedDropDown = new JComboBox(TESTDROPDOWNDATA);
+		advancedDropDown.setSelectedIndex(1);
+		add(advancedDropDown);
+		
+		advancedFirst = new JRadioButton("Option 1");
+		advancedSecond = new JRadioButton("Option 2");
+		
+		radioGroup = new ButtonGroup();
+		radioGroup.add(advancedFirst);
+		radioGroup.add(advancedSecond);
+		
+		add(advancedFirst);
+		add(advancedSecond);
+		
+		configButton = new JButton("Open config.yaml");
+		add(configButton);
 		
 		setVisible(true);
 	}

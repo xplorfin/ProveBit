@@ -4,7 +4,6 @@ import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -36,7 +35,7 @@ public class DaemonView extends JPanel implements Observer {
 	private DaemonModel model;
 	private JButton addFileButton;
 	private JButton removeFileButton;
-	private JList fileList;
+	private JList<String> fileList;
 	private JTextField runPeriodInput;
 	private JScrollPane listScrollPane;
 	
@@ -62,9 +61,8 @@ public class DaemonView extends JPanel implements Observer {
 	/**
 	 * Private helper for setting up the List
 	 */
-	@SuppressWarnings("rawtypes")
 	private void setUpList() {
-		fileList = new JList(TESTLISTDATA);
+		fileList = new JList<String>(TESTLISTDATA);
 		fileList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		fileList.setLayoutOrientation(JList.VERTICAL);
 		fileList.setVisibleRowCount(10);

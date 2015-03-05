@@ -1,0 +1,7 @@
+# Travis CI config for https://travis-ci.org/thereal1024/ProveBit
+language: java
+jdk: oraclejdk8
+
+script:
+  - cd provebit-parent
+  - mvn test

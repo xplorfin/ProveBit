@@ -105,7 +105,7 @@ public class Merkle {
 
     /**
      * Get the top level hash of the merkle tree
-     * @return byte[] of top level hash
+     * @return byte[] of top level hash, or all 0's if emtry tree
      */
     public byte[] getRootHash() {
     	byte[] root = null;

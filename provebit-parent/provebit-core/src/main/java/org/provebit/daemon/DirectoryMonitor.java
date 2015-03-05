@@ -33,9 +33,7 @@ public class DirectoryMonitor implements FileAlterationListener {
 
 	@Override
 	public void onStart(FileAlterationObserver observer) {
-		if (!tree.exists()) {
-			tree.makeTree();
-		}
+		// Do nothing
 	}
 
 	@Override

@@ -125,7 +125,7 @@ public class DaemonTest {
         FileUtils.forceMkdir(daemonSubDir);
         Thread.sleep(TESTSLEEP);
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        assertEquals(startingHash, endingHash);
+        assertNotEquals(startingHash, endingHash);
         assertEquals(1, daemon.getChanges());
         FileUtils.deleteQuietly(daemonSubDir); // TODO maybe don't need
         daemon.interrupt();
@@ -141,7 +141,7 @@ public class DaemonTest {
         FileUtils.deleteQuietly(daemonSubDir);
         Thread.sleep(TESTSLEEP);
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        assertEquals(startingHash, endingHash);
+        assertNotEquals(startingHash, endingHash);
         assertEquals(1, daemon.getChanges());
         daemon.interrupt();
     }
@@ -222,7 +222,7 @@ public class DaemonTest {
     	FileUtils.write(subDirFile, "data");
     	Thread.sleep(TESTSLEEP);
     	FileUtils.deleteQuietly(daemonSubDir);
-    	Thread.sleep(TESTSLEEP);
+    	//Thread.sleep(TESTSLEEP);
     	Log log = daemon.getLog();
     	ArrayList<LogEntry> entries = log.getLog();
     	assertEquals(4, entries.size());

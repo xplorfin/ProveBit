@@ -19,8 +19,6 @@ import org.provebit.daemon.Log.LogEntry;
 import org.provebit.merkle.Merkle;
 
 public class DaemonTest {
-    //static String DAEMONDIR = "/src/test/java/org/provebit/daemon/testDaemonDir";
-    //static String DAEMONSUBDIR = "/src/test/java/org/provebit/daemon/testDaemonDir/subDir";
     public File daemonDir;
     public File daemonSubDir;
     public File file1;
@@ -35,8 +33,6 @@ public class DaemonTest {
 
     @Before
     public void setUpBeforeClass() throws Exception {
-        //daemonDirPath = new java.io.File( "." ).getCanonicalPath() + DAEMONDIR;
-        //daemonSubDirPath = new java.io.File( "." ).getCanonicalPath() + DAEMONSUBDIR;
         daemonDir = daemonTemp.getRoot();
         daemonSubDir = new File(daemonDir, "subDir");
     	file1 = new File(daemonDir, "file1");

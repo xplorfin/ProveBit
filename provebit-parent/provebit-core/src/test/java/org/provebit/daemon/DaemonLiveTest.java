@@ -6,12 +6,10 @@ import java.io.IOException;
 import org.provebit.merkle.Merkle;
 
 public class DaemonLiveTest {
-	static String DAEMONDIR = "/src/test/java/org/provebit/daemon/testDaemonDir";
-	static File daemonDirFile;
-	// Use jps -v to thread information
+	// Change to some path on your local computer
+    private static File liveDir = new File("/home/dan/school/cs429/liveDemos");
 	public static void main(String[] args) throws InterruptedException, IOException {
-		daemonDirFile = new File(new java.io.File( "." ).getCanonicalPath() + DAEMONDIR);
-		MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirFile, false), 100);
+		MerkleDaemon daemon = new MerkleDaemon(new Merkle(liveDir, false), 100);
 		daemon.start();
 		Thread.sleep(2000);
 		new DaemonLiveReconnect().start();

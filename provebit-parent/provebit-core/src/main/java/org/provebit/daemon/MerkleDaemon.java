@@ -7,7 +7,6 @@ public class MerkleDaemon extends Thread {
     private FileAlterationObserver observer;
     private DirectoryMonitor listener;
     
-    
     /**
      * Daemon constructor, 
      * @param dir - Directory to run daemon on
@@ -18,14 +17,15 @@ public class MerkleDaemon extends Thread {
         listener = new DirectoryMonitor(mTree);
         observer.addListener(listener);
         this.period = period;
-        setDaemon(true);
+        setDaemon(false);
+        setName("MerkleDaemon");
     }
     
     /**
      * Initializes the observer and starts monitoring the directory
      */
     public void run() {       
-        if (!Thread.currentThread().isDaemon()) {
+        if (Thread.currentThread().isDaemon()) {
             return;
         }
         

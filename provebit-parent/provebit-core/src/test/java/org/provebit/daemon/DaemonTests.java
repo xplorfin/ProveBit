@@ -69,17 +69,17 @@ public class DaemonTests {
 	}
     
     @Test
-    public void testLaunchDaemon() {
+    public void testLaunch() {
         MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
-        assertTrue(daemon.isDaemon());
+        assertTrue(!daemon.isDaemon());
         assertTrue(!daemon.isInterrupted());
         daemon.interrupt();
     }
     
     @Test
-    public void testLaunchNotDaemon() throws InterruptedException {
+    public void testLaunchDaemon() throws InterruptedException {
     	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDirPath, false), DAEMONPERIOD);
-        daemon.setDaemon(false);
+        daemon.setDaemon(true);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         assertTrue(!daemon.isAlive());

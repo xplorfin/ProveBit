@@ -181,4 +181,12 @@ public class Log {
 			}
 		}
 	}
+	
+	public String toString() {
+		String logAsString = "";
+		for (LogEntry entry : entries) {
+			logAsString += entry.toString() + "\n";
+		}
+		return logAsString;
+	}
 }

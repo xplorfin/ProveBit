@@ -18,43 +18,34 @@ public class DaemonView extends JPanel implements Observer {
 	private static final long serialVersionUID = 5876970360392816111L;
 	private static final String ADDFILESTRING = "Add Files to Monitor...";
 	private static final String REMOVEFILESTRING = "Remove Files...";
-	private static final String[] TESTLISTDATA = {
-		"alphabet.png",
-		"juice.txt",
-		"secrets.txt",
-		"insurenceInfo.txt",
-		"ipsumlorum.png",
-		"funds.wallet",
-		"escapePlan.tiff",
-		"cowlevel.wav",
-		"ZAP.app",
-		"file1.txt",
-		"file34.txt",
-		"thatotherfile.txt"
-		};
+	private static final String[] TESTLISTDATA = { "alphabet.png", "juice.txt",
+			"secrets.txt", "insurenceInfo.txt", "ipsumlorum.png",
+			"funds.wallet", "escapePlan.tiff", "cowlevel.wav", "ZAP.app",
+			"file1.txt", "file34.txt", "thatotherfile.txt" };
 	private DaemonModel model;
 	private JButton addFileButton;
 	private JButton removeFileButton;
 	private JList<String> fileList;
 	private JTextField runPeriodInput;
 	private JScrollPane listScrollPane;
-	
+
 	public DaemonView(DaemonModel model) {
 		this.model = model;
-		this.setLayout(new MigLayout("","[][][]","[]5[]5[][]"));
-		
+		this.setLayout(new MigLayout("", "[][][]", "[]5[]5[][]"));
+
 		addFileButton = new JButton(ADDFILESTRING);
 		removeFileButton = new JButton(REMOVEFILESTRING);
-		
+
 		setUpList();
-		
+
 		runPeriodInput = new JTextField("");
-		
+
 		add(addFileButton);
 		add(removeFileButton, "wrap");
 		add(listScrollPane, "wrap");
 		add(new JLabel("Daemon Run Period: "));
-		add(runPeriodInput, "wrap, width :480");
+		add(runPeriodInput, "width :480");
+		add(new JLabel("minutes"));
 		setVisible(true);
 	}
 
@@ -68,14 +59,15 @@ public class DaemonView extends JPanel implements Observer {
 		fileList.setVisibleRowCount(10);
 		listScrollPane = new JScrollPane(fileList);
 	}
-	
+
 	public void addController(ActionListener controller) {
-		
+
 	}
+
 	@Override
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

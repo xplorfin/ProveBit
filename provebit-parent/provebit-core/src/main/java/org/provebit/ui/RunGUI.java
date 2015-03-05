@@ -15,7 +15,7 @@ public class RunGUI {
 			}
 		});
 	}
-	
+
 	public static void startGUI() {
 		MainModel model = new MainModel();
 		MainView view = new MainView(model);

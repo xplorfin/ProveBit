@@ -1,18 +1,17 @@
 package org.provebit.proof;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
+import org.apache.commons.codec.binary.Hex;
+import org.bitcoinj.core.Utils;
 import org.junit.Test;
 
-import org.bitcoinj.core.Utils;
-import org.apache.commons.codec.binary.Hex;
-
-public class ProofExecutorTests {
+public class ProofExecutorTest {
 
 	@Test
 	public void testExecuteCat() {
@@ -197,6 +196,7 @@ public class ProofExecutorTests {
 			ProofParser pp2 = new ProofParser(cats2);
 			ProofExecutor pe2 = new ProofExecutor("test");
 			pe2.restrictArbitraryStreamBuffer = false;
+			@SuppressWarnings("unused")
 			byte[] res2 = pe2.execute(pp2);
 			fail("We should not have a successful execution");
 		} catch (ProofExecutor.ProgramDieException e) {

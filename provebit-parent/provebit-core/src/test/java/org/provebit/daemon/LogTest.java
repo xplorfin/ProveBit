@@ -15,7 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.provebit.daemon.Log.LogEntry;
 
-public class LogTests {
+public class LogTest {
 	static String TESTDIR = "/src/test/java/org/provebit/daemon/testLogDir";
 	static String testDirPath;
 	static String[] messages = {"msg0", "msg1", "msg2", "msg3"};

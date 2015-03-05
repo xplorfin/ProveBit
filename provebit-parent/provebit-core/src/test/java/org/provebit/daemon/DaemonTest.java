@@ -16,7 +16,7 @@ import org.provebit.daemon.DirectoryMonitor.MonitorEvent;
 import org.provebit.daemon.Log.LogEntry;
 import org.provebit.merkle.Merkle;
 
-public class DaemonTests {
+public class DaemonTest {
     static String DAEMONDIR = "/src/test/java/org/provebit/daemon/testDaemonDir";
     static String DAEMONSUBDIR = "/src/test/java/org/provebit/daemon/testDaemonDir/subDir";
     static String daemonDirPath;

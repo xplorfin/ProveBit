@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import org.bitcoinj.core.Utils;
 
-public class ProofExecutorSlowTests {
+public class ProofExecutorSlowTest {
 
 	@Test
 	public void testComposeExt() {

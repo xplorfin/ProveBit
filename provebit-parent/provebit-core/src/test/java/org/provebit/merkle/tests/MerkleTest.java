@@ -7,7 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.provebit.merkle.Merkle;
 
-public class MerkleTests {
+public class MerkleTest {
     static String COMPLETEDIR = "/src/test/java/org/provebit/merkle/tests/testCompleteDir";
     static String INCOMPLETEDIR = "/src/test/java/org/provebit/merkle/tests/testIncompleteDir";
     static String RECURSIVEDIR = "/src/test/java/org/provebit/merkle/tests/testRecursiveDir";

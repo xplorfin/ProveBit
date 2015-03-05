@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class ProofParserTests {
+public class ProofParserTest {
 
 	@Test
 	public void testProcess() {
@@ -24,6 +24,7 @@ public class ProofParserTests {
 	
 		ks[3] = new Object[] {"op_func", "test4", "op_cat"};
 		try {
+			@SuppressWarnings("unused")
 			ProofParser pp2 = new ProofParser(ks);
 		} catch (RuntimeException e) {
 			assertEquals("func ops not in array", e.getMessage());

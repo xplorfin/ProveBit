@@ -45,13 +45,13 @@ public class MainView extends JFrame implements Observer {
 		// set up menu and tabs
 		addMenuBar();
 		addTabs();
-		setupAboutUsPanel();
+		setupAboutUsFrame();
 		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
 	}
 	
-	private void setupAboutUsPanel() {
+	private void setupAboutUsFrame() {
 		aboutUsFrame = new JFrame("About Us");
 		aboutUsPanel = new JPanel(new MigLayout());
 		aboutUsPanel.setSize(300,200);

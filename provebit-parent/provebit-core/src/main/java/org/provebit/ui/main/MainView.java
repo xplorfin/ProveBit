@@ -56,7 +56,6 @@ public class MainView extends JFrame implements Observer {
 		aboutUsPanel = new JPanel(new MigLayout());
 		aboutUsPanel.setSize(300,200);
 		aboutUsPanel.add(new JLabel("ProveBit Iteration 3 About Us"));
-		aboutUsPanel.setVisible(true);
 		aboutUsFrame.add(aboutUsPanel);
 		aboutUsFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		aboutUsFrame.pack();
@@ -97,6 +96,7 @@ public class MainView extends JFrame implements Observer {
 	public void update(Observable o, Object arg) {
 		if (arg instanceof String) {
 			if ("showAbout".compareTo((String) arg) == 0) {
+				aboutUsFrame.setLocationRelativeTo(this);
 				aboutUsFrame.setVisible(true);
 			}
 		}

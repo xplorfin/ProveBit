@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 
@@ -64,7 +65,8 @@ public class Merkle {
         ArrayList<File> fileList = getFiles();
         if (fileList.size() == 0) {
             numLeaves = 0;
-            return null;
+            tree = null;
+            return getRootHash();
         }
         
         ArrayList<byte[]> hashList = getFilesHashes(fileList);
@@ -106,7 +108,15 @@ public class Merkle {
      * @return byte[] of top level hash
      */
     public byte[] getRootHash() {
-        return (tree != null) ? tree[0] : null;
+    	byte[] root = null;
+        try {
+			root = (tree != null) ? tree[0] : Hex.decodeHex("0000000000000000000000000000000000000000000000000000000000000000".toCharArray());
+		} catch (DecoderException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+ 
+        return root;
     }
 
     /**

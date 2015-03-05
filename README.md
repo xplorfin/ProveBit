@@ -1,3 +1,5 @@
+Build Status: [![Build Status](https://travis-ci.org/thereal1024/ProveBit.png?branch=master)](https://travis-ci.org/thereal1024/ProveBit)
+
 ProveBit
 ========
 

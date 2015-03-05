@@ -10,7 +10,7 @@ public class GeneralTab {
 	private GeneralModel model;
 	private GeneralView view;
 	private GeneralController controller;
-	
+
 	public GeneralTab() {
 		model = new GeneralModel();
 		view = new GeneralView(model);
@@ -18,7 +18,7 @@ public class GeneralTab {
 		controller = new GeneralController(model, view);
 		view.addController(controller);
 	}
-	
+
 	public JPanel getPanel() {
 		return view;
 	}

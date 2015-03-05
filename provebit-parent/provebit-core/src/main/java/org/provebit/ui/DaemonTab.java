@@ -10,7 +10,7 @@ public class DaemonTab {
 	private DaemonModel model;
 	private DaemonView view;
 	private DaemonController controller;
-	
+
 	public DaemonTab() {
 		model = new DaemonModel();
 		view = new DaemonView(model);
@@ -18,7 +18,7 @@ public class DaemonTab {
 		controller = new DaemonController(model, view);
 		view.addController(controller);
 	}
-	
+
 	public JPanel getPanel() {
 		return view;
 	}

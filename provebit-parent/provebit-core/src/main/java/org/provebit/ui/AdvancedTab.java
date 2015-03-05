@@ -10,7 +10,7 @@ public class AdvancedTab {
 	private AdvancedModel model;
 	private AdvancedView view;
 	private AdvancedController controller;
-	
+
 	public AdvancedTab() {
 		model = new AdvancedModel();
 		view = new AdvancedView(model);
@@ -18,7 +18,7 @@ public class AdvancedTab {
 		controller = new AdvancedController(model, view);
 		view.addController(controller);
 	}
-	
+
 	public JPanel getPanel() {
 		return view;
 	}

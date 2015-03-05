@@ -10,7 +10,7 @@ public class WalletTab {
 	private WalletModel model;
 	private WalletView view;
 	private WalletController controller;
-	
+
 	public WalletTab() {
 		model = new WalletModel();
 		view = new WalletView(model);
@@ -18,7 +18,7 @@ public class WalletTab {
 		controller = new WalletController(model, view);
 		view.addController(controller);
 	}
-	
+
 	public JPanel getPanel() {
 		return view;
 	}

@@ -8,7 +8,6 @@ import java.util.Date;
 import org.provebit.Config;
 import org.provebit.proof.keysys.AbstractKeyNode;
 import org.provebit.proof.keysys.KeyNotFoundException;
-
 import org.bitcoinj.core.Block;
 import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.NetworkParameters;
@@ -17,6 +16,7 @@ import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.net.discovery.DnsDiscovery;
+import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
 
@@ -30,18 +30,18 @@ public class Blockchain extends AbstractKeyNode {
 	}
 	
 	public boolean initialized = false;
-	public SPVBlockStore store;
+	public BlockStore store;
 	public BlockChain chain;
 	public PeerGroup peers;
 	public NetworkParameters params = Config.getBitcoinNet();
 	
 	public void init() {
 		File folder = Config.getDirectory();
-		File chainFile = new File(folder, "bitcoin.spvchain");
+		File chainFile = new File(folder, "bitcoin.headerchain"); ///"bitcoin.spvchain");
 
 		
 		try {
-			store = new SPVBlockStore(params, chainFile);
+			store = new CompleteHeaderStore(params, chainFile); //new SPVBlockStore(params, chainFile);
 			chain = new BlockChain(params, store);
 			peers = new PeerGroup(params, chain);
 			// TODO set peers / user agent

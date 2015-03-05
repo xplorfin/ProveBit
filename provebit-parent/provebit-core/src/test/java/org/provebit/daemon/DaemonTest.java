@@ -32,7 +32,7 @@ public class DaemonTest {
     public TemporaryFolder daemonTemp = new TemporaryFolder();
 
     @Before
-    public void setUpBeforeClass() throws Exception {
+    public void setUp() throws Exception {
         daemonDir = daemonTemp.getRoot();
         daemonSubDir = new File(daemonDir, "subDir");
     	file1 = new File(daemonDir, "file1");

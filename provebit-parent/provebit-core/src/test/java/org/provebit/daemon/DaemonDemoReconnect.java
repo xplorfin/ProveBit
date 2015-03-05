@@ -4,7 +4,7 @@ import java.io.Console;
 import java.io.IOException;
 import java.util.Set;
 
-public class DaemonLiveReconnect extends Thread {
+public class DaemonDemoReconnect extends Thread {
 	public void run() {  
 		MerkleDaemon daemon = null;
         System.out.println("Reconnect thread running...");

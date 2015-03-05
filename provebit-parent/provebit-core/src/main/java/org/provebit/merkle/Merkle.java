@@ -34,10 +34,10 @@ public class Merkle {
 
     /**
      * Default constructor, non recursive by default
-     * @param directoryPath - String path to directory to build tree from
+     * @param directory - Directory to build tree from
      */
-    public Merkle(String directoryPath) {
-        dir = new File(directoryPath);
+    public Merkle(File directory) {
+        dir = directory;
         tree = null;
         recursive = false;
         exists = false;
@@ -45,11 +45,11 @@ public class Merkle {
     
     /**
      * Constructor that sets recursive state
-     * @param directoryPath - String path to directory to build tree from
+     * @param directory - Directory to build tree from
      * @param recursive - String path to directory to build tree from
      */
-    public Merkle(String directoryPath, boolean recursive) {
-    	dir = new File(directoryPath);
+    public Merkle(File directory, boolean recursive) {
+    	dir = directory;
     	tree = null;
     	this.recursive = recursive;
     	this.exists = false;

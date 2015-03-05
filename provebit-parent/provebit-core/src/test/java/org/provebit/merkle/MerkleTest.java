@@ -1,31 +1,38 @@
-package org.provebit.merkle.tests;
+package org.provebit.merkle;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+
 import org.apache.commons.codec.binary.Hex;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.provebit.merkle.Merkle;
 
 public class MerkleTest {
-    static String COMPLETEDIR = "/src/test/java/org/provebit/merkle/tests/testCompleteDir";
-    static String INCOMPLETEDIR = "/src/test/java/org/provebit/merkle/tests/testIncompleteDir";
-    static String RECURSIVEDIR = "/src/test/java/org/provebit/merkle/tests/testRecursiveDir";
-    static String RECURSIVEDIR2 = "/src/test/java/org/provebit/merkle/tests/testRecursiveDir2";
-    static String EMPTYDIR = "/src/test/java/org/provebit/merkle/tests/testEmptyDir";
-    static String completeDirPath;
-    static String incompleteDirPath;
-    static String recursiveDirPath;
-    static String recursiveDir2Path;
-    static String emptyDirPath;
+    final public static String COMPLETEDIR = "testCompleteDir";
+    final public static String INCOMPLETEDIR = "testIncompleteDir";
+    final public static String RECURSIVEDIR = "testRecursiveDir";
+    final public static String RECURSIVEDIR2 = "testRecursiveDir2";
+    
+    @ClassRule
+    public static TemporaryFolder emptyFolder = new TemporaryFolder();
+    
+    public static File completeDirPath;
+    public static File incompleteDirPath;
+    public static File recursiveDirPath;
+    public static File recursiveDir2Path;
+    public static File emptyDirPath;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        completeDirPath = new java.io.File( "." ).getCanonicalPath() + COMPLETEDIR;
-        incompleteDirPath = new java.io.File( "." ).getCanonicalPath() + INCOMPLETEDIR;
-        recursiveDirPath = new java.io.File( "." ).getCanonicalPath() + RECURSIVEDIR;
-        recursiveDir2Path = new java.io.File( "." ).getCanonicalPath() + RECURSIVEDIR2;
-        emptyDirPath = new java.io.File( "." ).getCanonicalPath() + EMPTYDIR;
+        completeDirPath = new File(MerkleTest.class.getResource(COMPLETEDIR).getPath());
+        incompleteDirPath = new File(MerkleTest.class.getResource(INCOMPLETEDIR).getPath());
+        recursiveDirPath = new File(MerkleTest.class.getResource(RECURSIVEDIR).getPath());
+        recursiveDir2Path = new File(MerkleTest.class.getResource(RECURSIVEDIR2).getPath());
+        emptyDirPath = emptyFolder.getRoot();
     }
 
     @Test

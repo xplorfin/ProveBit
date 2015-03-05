@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -32,7 +33,7 @@ public class MainView extends JFrame implements Observer {
 	private JMenuItem menuItemAboutUs;
 	private JFrame aboutUsFrame;
 	private JPanel aboutUsPanel;
-	private ArrayList<JMenuItem> menuItems;
+	private List<JMenuItem> menuItems;
 	
 	public MainView(MainModel model) {
 		this.model = model;

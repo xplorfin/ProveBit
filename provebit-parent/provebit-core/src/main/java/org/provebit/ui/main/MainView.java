@@ -39,6 +39,8 @@ public class MainView extends JFrame implements Observer {
 		menuItems = new ArrayList<JMenuItem>();
 		setSize(500,400); // Temporary until we get sizes of tabs set
 		
+		setTitle("ProveBit");
+		
 		// set up menu and tabs
 		addMenuBar();
 		addTabs();
@@ -49,7 +51,7 @@ public class MainView extends JFrame implements Observer {
 	}
 	
 	private void setupAboutUsPanel() {
-		aboutUsFrame = new JFrame();
+		aboutUsFrame = new JFrame("About Us");
 		aboutUsPanel = new JPanel(new MigLayout());
 		aboutUsPanel.setSize(300,200);
 		aboutUsPanel.add(new JLabel("ProveBit Iteration 3 About Us"));

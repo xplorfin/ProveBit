@@ -110,6 +110,9 @@ public class Blockchain extends AbstractKeyNode {
 
 			Sha256Hash blockHash = new Sha256Hash(blockHashStr);
 			StoredBlock blk = store.get(blockHash);
+			if (blk == null) {
+				throw new BlockStoreException("block not found");
+			}
 			return examineBlock(vals, i+1, blk);
 		} catch (NumberFormatException e) {
 			throw new KeyNotFoundException("invalid block hash " + blockHashStr + " in " + Arrays.toString(vals));

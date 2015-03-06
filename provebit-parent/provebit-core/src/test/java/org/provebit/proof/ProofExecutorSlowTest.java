@@ -17,8 +17,6 @@ public class ProofExecutorSlowTest {
 
 	@Test
 	public void testComposeExt() {
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// Because of ring buffer of SPV block storage currently being used, this test will expire about Sep 16 2014
 		Object[] cats = {
 				new Object[] {"op_set", "h:dd3b373e76d8b46e164017526e459c2d17b0255614398dcf6bd76605b42fe9db"},
 				new Object[] {"op_rev"},

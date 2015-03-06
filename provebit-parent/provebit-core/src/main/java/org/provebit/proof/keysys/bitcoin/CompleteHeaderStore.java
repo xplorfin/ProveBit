@@ -121,7 +121,6 @@ public class CompleteHeaderStore implements BlockStore {
         StoredBlock storedGenesis = new StoredBlock(genesis, genesis.getWork(), 0);
 		put(storedGenesis);
 		setChainHead(storedGenesis);
-		log.info("Set chain head");
 	}
 
 	/**

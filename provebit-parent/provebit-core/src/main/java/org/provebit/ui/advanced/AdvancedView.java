@@ -23,22 +23,15 @@ public class AdvancedView extends JPanel implements Observer {
 	private JRadioButton advancedSecond;
 	private JButton configButton;
 	private JLabel warningLabel;
+	private JLabel chooseHashLabel;
 	private ButtonGroup radioGroup;
 	
 	public AdvancedView(AdvancedModel model) {
 		this.model = model;
-		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		//this.setLayout(new MigLayout("", "[]", "[]"));
+		setLayout(new MigLayout());
 		
-		// Put view controls here
-		// Buttons, labels, textboxes, lists, etc...
 		warningLabel = new JLabel(warning);
-		add(warningLabel);
-		
-		
-		advancedDropDown = new JComboBox(TESTDROPDOWNDATA);
-		advancedDropDown.setSelectedIndex(1);
-		add(advancedDropDown);
+		add(warningLabel, "dock north");
 		
 		advancedFirst = new JRadioButton("Option 1");
 		advancedSecond = new JRadioButton("Option 2");
@@ -47,8 +40,14 @@ public class AdvancedView extends JPanel implements Observer {
 		radioGroup.add(advancedFirst);
 		radioGroup.add(advancedSecond);
 		
-		add(advancedFirst);
-		add(advancedSecond);
+		add(advancedFirst,"wrap");
+		add(advancedSecond, "wrap");
+		
+		advancedDropDown = new JComboBox(TESTDROPDOWNDATA);
+		advancedDropDown.setSelectedIndex(1);
+		chooseHashLabel = new JLabel("Change crypto hash");
+		add(chooseHashLabel);
+		add(advancedDropDown, "wrap");
 		
 		configButton = new JButton("Open config.yaml");
 		add(configButton);

@@ -8,9 +8,6 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.provebit.ui.old.DepositFrame;
-
-
 public class WalletView extends JPanel implements Observer {
 	private WalletModel model;
 	private ArrayList<WalletListing> wallets;

@@ -16,7 +16,6 @@ public class WalletTab {
 		view = new WalletView(model);
 		model.addObserver(view);
 		controller = new WalletController(model, view);
-		view.addController(controller);
 	}
 
 	public JPanel getPanel() {

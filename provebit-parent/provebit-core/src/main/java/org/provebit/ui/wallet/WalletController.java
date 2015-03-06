@@ -14,7 +14,14 @@ public class WalletController implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		switch(e.getActionCommand()) {
-			default:
+			case "Send":
+				view.update(model, "OpenSend");
+				break;
+			case "CancelWithdraw":
+				view.update(model, "CloseWithdraw");
+				break;
+			case "SendWithdraw":
+				view.update(model, "CloseWithdraw");
 				break;
 		}
 	}

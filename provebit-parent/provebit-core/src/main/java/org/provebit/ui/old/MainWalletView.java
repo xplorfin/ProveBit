@@ -1,18 +1,20 @@
 package org.provebit.ui.old;
 
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import net.miginfocom.swing.MigLayout;
+
+import org.provebit.ui.AddWalletFrame;
+import org.provebit.ui.wallet.WalletListing;
+
 public class MainWalletView extends JPanel{
 	
-	JFrame addWalletFrame;
+	AddWalletFrame addFrame;;
 
 	/**
 	 * 
@@ -20,13 +22,12 @@ public class MainWalletView extends JPanel{
 	private static final long serialVersionUID = 1L;
 	
 	public MainWalletView(WalletListing[] wallets){
-		addWalletFrame = new JFrame("Hello ");
-		addWalletFrame.add(new JButton("Hello"));
-		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		addFrame = new AddWalletFrame();
+		this.setLayout(new MigLayout());
 		
 		// Add all of the current wallets
 		for(WalletListing listing: wallets){
-			this.add(listing);
+			this.add(listing, "wrap");
 		}
 		
 		// Add the "add wallet" button
@@ -35,25 +36,11 @@ public class MainWalletView extends JPanel{
 			public void actionPerformed(ActionEvent e)
             {
                 //Execute when button is pressed
-                addWalletFrame.pack();
-                addWalletFrame.setVisible(true);
+                addFrame.setVisible(true);
             }
 		});
-		addWalletButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		this.add(addWalletButton);
+		this.add(addWalletButton, "align center");
 	}
-	
-	/**
-	 * Test code to see the frame displayed
-	 * @param args
-	 */
-	public static void main(String[] args){
-		WalletListing [] w = {new WalletListing("Bitcoin Wallet", 10, "BTC"), new WalletListing("Litecoin Wallet", 10, "LTC")};
-		MainWalletView m = new MainWalletView(w);
-		JFrame frame = new JFrame();
-		frame.add(m);
-		frame.pack();
-		frame.setVisible(true);
-	}
+
 
 }

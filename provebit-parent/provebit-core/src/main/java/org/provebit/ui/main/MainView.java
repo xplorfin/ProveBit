@@ -1,5 +1,6 @@
 package org.provebit.ui.main;
 
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -38,8 +39,8 @@ public class MainView extends JFrame implements Observer {
 	public MainView(MainModel model) {
 		this.model = model;
 		menuItems = new ArrayList<JMenuItem>();
-		setSize(500,400); // Temporary until we get sizes of tabs set
 		
+		setMinimumSize(new Dimension(500, 400));
 		setTitle("ProveBit");
 		
 		// set up menu and tabs

@@ -39,6 +39,7 @@ public class WalletView extends JPanel implements Observer {
 		if(arg instanceof String){
 			if (arg.equals("OpenSend")){
 				withdraw.setVisible(true);
+				withdraw.setLocationRelativeTo(this);
 			} else if(arg.equals("CloseWithdraw")){
 				withdraw.setVisible(false);
 			}

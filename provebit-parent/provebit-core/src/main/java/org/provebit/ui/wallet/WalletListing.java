@@ -13,7 +13,7 @@ public class WalletListing extends JPanel{
 
 	
 	public WalletListing(String name, int amount, String type, WalletController controller){
-		setLayout(new MigLayout("", "[]70[]", "[][]20[]"));
+		setLayout(new MigLayout("", "[]70[]", "[][]10[]"));
 		setBorder(BorderFactory.createLineBorder(Color.black));
 		
 		// Add the name of the wallet
@@ -27,7 +27,7 @@ public class WalletListing extends JPanel{
 		add(balanceField, "wrap");
 		
 		// Show the Address of the Wallet
-		JTextArea addressArea = new JTextArea("Address: ASKJN7823NDJ3KJNKN5");
+		JTextArea addressArea = new JTextArea("Address: 19VStDyNS5QdMTtV8juQ5sDZcGPyyoLrvi");
 		addressArea.setOpaque(false);
 		add(addressArea, "wrap");
 		

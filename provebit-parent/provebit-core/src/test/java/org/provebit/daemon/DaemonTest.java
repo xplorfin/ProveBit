@@ -188,7 +188,7 @@ public class DaemonTest {
         Thread.sleep(TESTSLEEP);
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
         assertNotEquals(startingHash, endingHash);
-        assertEquals(1, daemon.getChanges());
+        assertTrue(daemon.getChanges() >= 1);
         daemon.interrupt();
     }
     

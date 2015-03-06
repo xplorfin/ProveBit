@@ -1,6 +1,5 @@
 package org.provebit.daemon;
 
-import java.io.Console;
 import java.io.IOException;
 import java.util.Set;
 
@@ -11,6 +10,7 @@ public class DaemonDemoReconnect extends Thread {
 		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
 		Thread[] threadArray = threadSet.toArray(new Thread[threadSet.size()]);
 		for (Thread thread : threadArray) {
+			System.out.println(thread.getName());
 			if (thread.getName().equals("MerkleDaemon")) {
 				System.out.println("Found daemon as thread: " + thread.getId());
 				daemon = (MerkleDaemon) thread;

@@ -23,7 +23,10 @@ public class MerkleDaemon extends Thread {
 	public MerkleDaemon(Merkle mTree, int period) {
 		observers = new ArrayList<FileAlterationObserver>();
 		for (File directory : mTree.getTrackedDirs()) {
-			observers.add(new FileAlterationObserver(directory.getAbsoluteFile()));
+			observers.add(new FileAlterationObserver(directory.getAbsolutePath()));
+		}
+		for (File file : mTree.getTrackedFiles()) {
+			observers.add(new FileAlterationObserver(file.getAbsolutePath()));
 		}
 		listener = new DirectoryMonitor(mTree);
 		

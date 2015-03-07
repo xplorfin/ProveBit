@@ -58,13 +58,15 @@ public class Merkle {
     	} else if ((file.isDirectory() && !isTracking(file)) || trackedDirectories.containsKey(file)) {
     		trackedDirectories.put(file, recursive);
     		// If we add a directory, we want to make sure that any files that were in that directory but are also
-    		// in the trackedFiles list are removed from the tracked files list since it is duplicated by the coverage
+    		// in the trackedFiles list are removed from the trackedFiles list since they are duplicated by the coverage
     		// provided by the trackedDirectories list
+    		List<File> duplicates = new ArrayList<File>();
     		for (File existingFile : trackedFiles) {
     			if (isTrackedRecursively(existingFile)) {
-    				trackedFiles.remove(existingFile);
+    				duplicates.add(existingFile);
     			}
     		}
+    		trackedFiles.removeAll(duplicates);
     	}
     }
     
@@ -369,8 +371,9 @@ public class Merkle {
             if (leftChildHash == null) { // Implies right child is also null by merkle construction
                 if (nodesBuilt % 2 != 0) { // Odd number of nodes on this level, copy left sibling
                     tree[nodeIndex] = tree[nodeIndex-1];
-                    return; // Reached last non empty node at this level, we are done
+                    nodesBuilt++;
                 }
+                return; // Reached last non empty node at this level, we are done
             }
             byte[] newHash = concatHashes(leftChildHash, rightChildHash);
             md.update(newHash);

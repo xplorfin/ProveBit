@@ -3,8 +3,10 @@ package org.provebit.merkle;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -162,9 +164,81 @@ public class MerkleTest {
         assertTrue(tree1Root.compareTo(tree2Root) == 0);
     }
 
+    @Test
     public void testEmptyDirectory() {
         Merkle mTree = new Merkle();
         mTree.addTracking(emptyDirPath, false);
         assertTrue(mTree.makeTree() != null);
+    }
+    
+    @Test
+    public void testTrackSpecificFile() throws IOException {
+    	File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
+    	FileUtils.write(tempFile, "temp data");
+    	Merkle mTree = new Merkle();
+    	mTree.addTracking(tempFile, false);
+    	mTree.makeTree();
+    	assertTrue(mTree.getRootHash() != null);
+    }
+    
+    @Test
+    public void testTrackMultipleFiles() throws IOException {
+    	File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
+    	File tempFile2 = new File(emptyDirPath.getAbsolutePath() + "/tempFile2");
+    	FileUtils.write(tempFile, "temp data");
+    	FileUtils.write(tempFile2, "temp data 2");
+    	Merkle mTree = new Merkle();
+    	Merkle mTreeNoTemp2 = new Merkle();
+    	mTree.addTracking(tempFile, false);
+    	mTree.addTracking(tempFile2, false);
+    	mTreeNoTemp2.addTracking(tempFile, false);
+    	assertTrue(!Hex.encodeHex(mTree.getRootHash()).equals(Hex.encodeHex(mTreeNoTemp2.getRootHash())));
+    }
+    
+    @Test
+    public void testNoDuplicateTrack() throws IOException {
+    	File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
+    	File tempFile2 = new File(emptyDirPath.getAbsolutePath() + "/tempFile2");
+    	FileUtils.write(tempFile, "temp data");
+    	FileUtils.write(tempFile2, "temp data 2");
+    	Merkle mTree = new Merkle();
+    	mTree.addTracking(tempFile, false);
+    	mTree.addTracking(emptyDirPath, false);
+    	assertEquals(0, mTree.getTrackedFiles().size());
+    	assertEquals(1, mTree.getTrackedDirs().size());
+    }
+    
+    @Test
+    public void testNoDuplicateTrackRecursive() {
+    	File testLevel2 = new File(MerkleTest.class.getResource(RECURSIVEDIR2).getPath() + "/testLevel1/testLevel2");
+    	Merkle mTree = new Merkle();
+    	mTree.addTracking(testLevel2, false);
+    	mTree.addTracking(recursiveDir2Path, true);
+    	assertEquals(1, mTree.getTrackedDirs().size());
+    }
+    
+    @Test
+    public void testMultipleDirTracking() {
+    	Merkle mTree = new Merkle();
+    	mTree.addTracking(completeDirPath, false);
+    	mTree.addTracking(incompleteDirPath, false);
+    	mTree.makeTree();
+    	assertEquals(22, mTree.getNumLeaves());
+    	assertEquals(5, mTree.getHeight());
+    }
+    
+    @Test
+    public void testRemoveTracking() throws IOException {
+    	Merkle mTree = new Merkle();
+    	File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
+    	File tempFile2 = new File(emptyDirPath.getAbsolutePath() + "/tempFile2");
+    	FileUtils.write(tempFile, "temp data");
+    	FileUtils.write(tempFile2, "temp data 2");
+    	mTree.addTracking(tempFile, false);
+    	mTree.addTracking(tempFile2, false);
+    	String twoFileRoot = Hex.encodeHexString(mTree.makeTree());
+    	mTree.removeTracking(tempFile2);
+    	String oneFileRoot = Hex.encodeHexString(mTree.makeTree());
+    	assertNotEquals(null, oneFileRoot, twoFileRoot);
     }
 }

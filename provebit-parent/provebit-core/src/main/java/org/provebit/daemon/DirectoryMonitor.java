@@ -100,8 +100,6 @@ public class DirectoryMonitor implements FileAlterationListener {
 	 * spending the time to reconstruct the merkle tree
 	 */
 	private void updateTree(MonitorEvent event, File file) {
-		System.out.println("GOT " + event.toString());
-		System.out.println("Checking if " + file + " or " + file.getParentFile() + " are being tracked");
 		if (tree.isTracking(file) || tree.isTracking(file.getParentFile())) {
 			logEvent(event, file);
 			reconstructTree();

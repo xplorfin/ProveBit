@@ -48,17 +48,15 @@ public class Merkle {
     }
     
     /**
-     * Add a file or directory to the list of tracked files in this tree
+     * Add a file or directory to the list of tracked files in this tree if the file is not already tracked
      * @param file - File/Directory to track
      * @param recursive - If file is a directory, specify whether or not the directory should be recursively searched
      */
     public void addTracking(File file, boolean recursive) {
-    	if (file.isDirectory()) {
+    	if (!file.isDirectory() && !isTracking(file)) {
+    		trackedFiles.add(file);
+    	} else if ((file.isDirectory() && !isTracking(file)) || trackedDirectories.containsKey(file)) {
     		trackedDirectories.put(file, recursive);
-    	} else {
-    		if (!trackedFiles.contains(file)) {
-        		trackedFiles.add(file);
-    		}
     	}
     }
     
@@ -130,7 +128,6 @@ public class Merkle {
         try {
 			root = (tree != null) ? tree[0] : Hex.decodeHex("0000000000000000000000000000000000000000000000000000000000000000".toCharArray());
 		} catch (DecoderException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
  
@@ -208,10 +205,8 @@ public class Merkle {
      */
     public Boolean isTracking(File file) {
     	if (trackedFiles.contains(file) || trackedDirectories.containsKey(file) || isTrackedRecursively(file)) {
-    		System.out.println(file + " is tracked");
     		return true;
     	}
-    	System.out.println(file + " not tracked");
     	return false;
     }
     

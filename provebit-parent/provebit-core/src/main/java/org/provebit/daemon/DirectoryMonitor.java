@@ -1,8 +1,12 @@
 package org.provebit.daemon;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.merkle.Merkle;
@@ -48,6 +52,7 @@ public class DirectoryMonitor implements FileAlterationListener {
 
 	@Override
 	public void onDirectoryDelete(File directory) {
+		tree.removeTracking(directory);
 		updateTree(MonitorEvent.DDELETE, directory);
 	}
 
@@ -63,6 +68,7 @@ public class DirectoryMonitor implements FileAlterationListener {
 
 	@Override
 	public void onFileDelete(File file) {
+		tree.removeTracking(file);
 		updateTree(MonitorEvent.FDELETE, file);
 	}
 
@@ -94,7 +100,9 @@ public class DirectoryMonitor implements FileAlterationListener {
 	 * spending the time to reconstruct the merkle tree
 	 */
 	private void updateTree(MonitorEvent event, File file) {
-		if (tree.isTracking(file)) {
+		System.out.println("GOT " + event.toString());
+		System.out.println("Checking if " + file + " or " + file.getParentFile() + " are being tracked");
+		if (tree.isTracking(file) || tree.isTracking(file.getParentFile())) {
 			logEvent(event, file);
 			reconstructTree();
 		}

@@ -56,7 +56,21 @@ public class Merkle {
     	if (file.isDirectory()) {
     		trackedDirectories.put(file, recursive);
     	} else {
-    		trackedFiles.add(file);
+    		if (!trackedFiles.contains(file)) {
+        		trackedFiles.add(file);
+    		}
+    	}
+    }
+    
+    /**
+     * Remove file/directory from tracking
+     * @param file - file/directory to remove from tracking
+     */
+    public void removeTracking(File file) {
+    	if (file.isDirectory()) {
+    		trackedDirectories.remove(file);
+    	} else {
+    		trackedFiles.remove(file);
     	}
     }
 
@@ -193,8 +207,33 @@ public class Merkle {
      * @return true if file is being tracked, false o/w
      */
     public Boolean isTracking(File file) {
-    	if (trackedDirectories.containsKey(file) || getFiles().contains(file)) {
+    	if (trackedFiles.contains(file) || trackedDirectories.containsKey(file) || isTrackedRecursively(file)) {
+    		System.out.println(file + " is tracked");
     		return true;
+    	}
+    	System.out.println(file + " not tracked");
+    	return false;
+    }
+    
+    /**
+     * A file is being tracked recursively if it is contained within a directory
+     * that is being recursively tracked
+     * 
+     * This helper method checks for that condition
+     * @param file - File to check for recursive tracking
+     * @return true if file is recursively tracked, false o/w
+     */
+    private Boolean isTrackedRecursively(File file) {
+    	for (File directory : trackedDirectories.keySet()) {
+    		try {
+				if ((!file.isDirectory() && file.getParentFile().equals(directory)) || 
+					(trackedDirectories.get(directory) && FileUtils.directoryContains(directory, file))) {
+					return true;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				break;
+			}
     	}
     	return false;
     }

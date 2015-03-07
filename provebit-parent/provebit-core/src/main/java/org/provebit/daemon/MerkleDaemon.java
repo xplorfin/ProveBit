@@ -1,11 +1,15 @@
 package org.provebit.daemon;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.merkle.Merkle;
 
 public class MerkleDaemon extends Thread {
 	private int period;
-	private FileAlterationObserver observer;
+	private List<FileAlterationObserver> observers;
 	private DirectoryMonitor listener;
 
 	/**
@@ -17,9 +21,15 @@ public class MerkleDaemon extends Thread {
 	 *            - Daemon polling period (msec)
 	 */
 	public MerkleDaemon(Merkle mTree, int period) {
-		observer = new FileAlterationObserver(mTree.getTrackedDirs().getAbsolutePath());
+		observers = new ArrayList<FileAlterationObserver>();
+		for (File directory : mTree.getTrackedDirs()) {
+			observers.add(new FileAlterationObserver(directory.getAbsoluteFile()));
+		}
 		listener = new DirectoryMonitor(mTree);
-		observer.addListener(listener);
+		
+		for (FileAlterationObserver observer : observers) {
+			observer.addListener(listener);
+		}
 		this.period = period;
 		setDaemon(false);
 		setName("MerkleDaemon");
@@ -34,7 +44,9 @@ public class MerkleDaemon extends Thread {
 		}
 
 		try {
-			observer.initialize();
+			for (FileAlterationObserver observer : observers) {
+				observer.initialize();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			Thread.currentThread().interrupt();
@@ -49,13 +61,17 @@ public class MerkleDaemon extends Thread {
 	private void monitorDirectory() {
 		try {
 			while (true) {
-				observer.checkAndNotify();
+				for (FileAlterationObserver observer : observers) {
+					observer.checkAndNotify();
+				}
 				Thread.sleep(period);
 			}
 		} catch (InterruptedException ie) {
 			System.out.println("Monitor interrupted, exiting...");
 			try {
-				observer.destroy();
+				for (FileAlterationObserver observer : observers) {
+					observer.destroy();
+				}
 			} catch (Exception e) {
 				System.out
 						.println("Observer destruction failed, messy exit...");

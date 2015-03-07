@@ -45,7 +45,9 @@ public class DaemonTest {
     
     @Test
     public void testLaunch() {
-        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
+        MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         assertTrue(!daemon.isDaemon());
         assertTrue(!daemon.isInterrupted());
         daemon.interrupt();
@@ -53,7 +55,9 @@ public class DaemonTest {
     
     @Test
     public void testLaunchDaemon() throws InterruptedException {
-    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.setDaemon(true);
         daemon.start();
         Thread.sleep(TESTSLEEP);
@@ -63,7 +67,9 @@ public class DaemonTest {
     
     @Test
     public void testDetectNoChanges() throws InterruptedException {
-    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         assertEquals(0, daemon.getChanges());
@@ -72,7 +78,9 @@ public class DaemonTest {
     
     @Test
     public void testDetectFileAdd() throws InterruptedException, IOException {
-    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
@@ -89,7 +97,9 @@ public class DaemonTest {
     
     @Test
     public void testDetectFileDelete() throws InterruptedException, IOException {
-    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
@@ -102,8 +112,10 @@ public class DaemonTest {
     
     @Test
     public void testDetectFileChange() throws InterruptedException, IOException {
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
         FileUtils.write(file1, "testData");
-        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+        MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
@@ -117,8 +129,9 @@ public class DaemonTest {
     
     @Test
     public void testDetectDirectoryAdd() throws IOException, InterruptedException {
-        //String subDir = daemonDirPath + "/subdir";
-        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
+        MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
@@ -133,8 +146,10 @@ public class DaemonTest {
     
     @Test
     public void testDetectDirectoryDelete() throws InterruptedException, IOException {
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
         FileUtils.forceMkdir(daemonSubDir);
-        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+        MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
@@ -149,8 +164,10 @@ public class DaemonTest {
     @Test
     public void testSubDirectoryRecursive() throws IOException, InterruptedException {
         FileUtils.forceMkdir(daemonSubDir);
+        Merkle m = new Merkle();
+    	m.addTracking(daemonDir, true);
         FileUtils.write(subDirFile, "sub dir file data");
-        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, true), DAEMONPERIOD);
+        MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
@@ -164,9 +181,11 @@ public class DaemonTest {
     
     @Test
     public void testSubDirectoryNonRecursive() throws IOException, InterruptedException {
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
     	FileUtils.forceMkdir(daemonSubDir);
         FileUtils.write(subDirFile, "sub dir file data");
-        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+        MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
         FileUtils.write(subDirFile, "sub dir file modified data");
@@ -177,9 +196,11 @@ public class DaemonTest {
     
     @Test
     public void testTwoSubDirectoriesRecursive() throws IOException, InterruptedException {
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, true);
     	FileUtils.forceMkdir(daemonSubDir);
         FileUtils.write(subDirFile, "sub dir file data");
-        MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, true), DAEMONPERIOD);
+        MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         FileUtils.forceMkdir(new File(daemonSubDir, "subSubDir"));
         daemon.start();
         Thread.sleep(TESTSLEEP);
@@ -194,7 +215,9 @@ public class DaemonTest {
     
     @Test
     public void testDaemonFileLogging() throws InterruptedException, IOException {
-    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
     	FileUtils.write(tempFile, "temp data");
@@ -214,12 +237,16 @@ public class DaemonTest {
     
     @Test
     public void testDaemonDirLoggingRecursive() throws InterruptedException, IOException {
-    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, true), DAEMONPERIOD);
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, true);
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
     	FileUtils.forceMkdir(daemonSubDir);
     	Thread.sleep(TESTSLEEP);
     	FileUtils.write(subDirFile, "data");
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.deleteQuietly(subDirFile);
     	Thread.sleep(TESTSLEEP);
     	FileUtils.deleteQuietly(daemonSubDir);
     	Thread.sleep(TESTSLEEP);
@@ -236,7 +263,9 @@ public class DaemonTest {
     
     @Test
     public void testDaemonDirLoggingNonRecursive() throws InterruptedException, IOException {
-    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(daemonDir, false), DAEMONPERIOD);
+    	Merkle m = new Merkle();
+    	m.addTracking(daemonDir, false);
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
     	FileUtils.forceMkdir(daemonSubDir);

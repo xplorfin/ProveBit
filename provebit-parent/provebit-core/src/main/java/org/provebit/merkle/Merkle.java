@@ -186,6 +186,27 @@ public class Merkle {
         }
         return fileList;
     }
+    
+    /**
+     * Check to see whether the specific file is being tracked by the tree
+     * @param file - File to check for tracking
+     * @return true if file is being tracked, false o/w
+     */
+    public Boolean isTracking(File file) {
+    	if (trackedDirectories.containsKey(file) || getFiles().contains(file)) {
+    		return true;
+    	}
+    	return false;
+    }
+    
+    /**
+     * Check to see whether directory is being recursively tracked
+     * @param dir -Tracked directory 
+     * @return true if directory is recursively tracked, false if not a directory or not recursively tracked
+     */
+    public Boolean isTrackingRecursive(File dir) {
+    	return (dir.isDirectory() && trackedDirectories.get(dir));
+    }
 
     /**
      * Get list of all files in directory, recursively if need be

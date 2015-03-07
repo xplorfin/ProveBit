@@ -37,55 +37,63 @@ public class MerkleTest {
 
     @Test
     public void testTreeHeightEvenLeaves() {
-        Merkle mTree = new Merkle(completeDirPath);
+        Merkle mTree = new Merkle();
+        mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getHeight() == 3);
     }
 
     @Test
     public void testTreeHeightOddLeaves() {
-        Merkle mTree = new Merkle(incompleteDirPath);
+        Merkle mTree = new Merkle();
+        mTree.addTracking(incompleteDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getHeight() == 4);
     }
 
     @Test
     public void testNumLeavesEven() {
-        Merkle mTree = new Merkle(completeDirPath);
+        Merkle mTree = new Merkle();
+        mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 8);
     }
 
     @Test
     public void testNumLeavesOdd() {
-        Merkle mTree = new Merkle(incompleteDirPath);
+    	Merkle mTree = new Merkle();
+        mTree.addTracking(incompleteDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 14);
     }
 
     @Test
     public void testTreeSizeEven() {
-        Merkle mTree = new Merkle(completeDirPath);
+    	Merkle mTree = new Merkle();
+        mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getTreeSize() == 15);
     }
 
     @Test
     public void testTreeSizeOdd() {
-        Merkle mTree = new Merkle(incompleteDirPath);
+    	Merkle mTree = new Merkle();
+        mTree.addTracking(incompleteDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getTreeSize() == 29);
     }
     
     @Test
     public void testNoTree() {
-    	Merkle mTree = new Merkle(incompleteDirPath);
+    	Merkle mTree = new Merkle();
+        mTree.addTracking(incompleteDirPath, false);
     	assertNull(mTree.getTree());
     }
 
     @Test
     public void testLeafPositions() {
-        Merkle mTree = new Merkle(completeDirPath);
+    	Merkle mTree = new Merkle();
+        mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         byte[][] tree = mTree.getTree();
         int i = (int) Math.pow(2, mTree.getHeight()) - 1;
@@ -96,7 +104,8 @@ public class MerkleTest {
 
     @Test
     public void testSortedLeaves() {
-        Merkle mTree = new Merkle(completeDirPath);
+    	Merkle mTree = new Merkle();
+        mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         byte[][] tree = mTree.getTree();
         int i = (int) Math.pow(2, mTree.getHeight()) - 1;
@@ -110,42 +119,42 @@ public class MerkleTest {
 
     @Test
     public void testRecursiveSearch() {
-        Merkle mTree = new Merkle(recursiveDirPath);
-        mTree.setRecursive(true);
+        Merkle mTree = new Merkle();
+        mTree.addTracking(recursiveDirPath, true);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 8);
     }
 
     @Test
     public void testRecursiveSearch2() {
-        Merkle mTree = new Merkle(recursiveDir2Path);
-        mTree.setRecursive(true);
+    	Merkle mTree = new Merkle();
+        mTree.addTracking(recursiveDir2Path, true);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 8);
     }
     
     @Test
     public void testFalseRecursiveSearch() {
-    	Merkle mTree = new Merkle(recursiveDirPath);
-    	mTree.setRecursive(false);
+    	Merkle mTree = new Merkle();
+        mTree.addTracking(recursiveDirPath, false);
     	mTree.makeTree();
     	assertTrue(mTree.getNumLeaves() == 4);
     }
     
     @Test
     public void testFalseRecursiveSearch2() {
-    	Merkle mTree = new Merkle(recursiveDir2Path);
-    	mTree.setRecursive(false);
+    	Merkle mTree = new Merkle();
+        mTree.addTracking(recursiveDir2Path, false);
     	mTree.makeTree();
     	assertTrue(mTree.getNumLeaves() == 2);
     }
 
     @Test
     public void testRootHashEquivalence() {
-        Merkle mTree1 = new Merkle(recursiveDirPath);
-        Merkle mTree2 = new Merkle(recursiveDir2Path);
-        mTree1.setRecursive(true);
-        mTree2.setRecursive(true);
+    	Merkle mTree1 = new Merkle();
+        mTree1.addTracking(recursiveDirPath, true);
+        Merkle mTree2 = new Merkle();
+        mTree2.addTracking(recursiveDir2Path, true);
         mTree1.makeTree();
         mTree2.makeTree();
         String tree1Root = Hex.encodeHexString(mTree1.getRootHash());
@@ -154,7 +163,8 @@ public class MerkleTest {
     }
 
     public void testEmptyDirectory() {
-        Merkle mTree = new Merkle(emptyDirPath);
+        Merkle mTree = new Merkle();
+        mTree.addTracking(emptyDirPath, false);
         assertTrue(mTree.makeTree() != null);
     }
 }

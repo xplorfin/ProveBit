@@ -94,8 +94,7 @@ public class DirectoryMonitor implements FileAlterationListener {
 	 * spending the time to reconstruct the merkle tree
 	 */
 	private void updateTree(MonitorEvent event, File file) {
-		if (tree.isRecursive()
-				|| file.getParent().compareTo(tree.getTrackedDirs().getAbsolutePath()) == 0) {
+		if (tree.isTracking(file)) {
 			logEvent(event, file);
 			reconstructTree();
 		}

@@ -57,6 +57,14 @@ public class Merkle {
     		trackedFiles.add(file);
     	} else if ((file.isDirectory() && !isTracking(file)) || trackedDirectories.containsKey(file)) {
     		trackedDirectories.put(file, recursive);
+    		// If we add a directory, we want to make sure that any files that were in that directory but are also
+    		// in the trackedFiles list are removed from the tracked files list since it is duplicated by the coverage
+    		// provided by the trackedDirectories list
+    		for (File existingFile : trackedFiles) {
+    			if (isTrackedRecursively(existingFile)) {
+    				trackedFiles.remove(existingFile);
+    			}
+    		}
     	}
     }
     

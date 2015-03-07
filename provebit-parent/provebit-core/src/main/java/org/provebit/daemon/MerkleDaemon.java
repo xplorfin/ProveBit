@@ -17,7 +17,7 @@ public class MerkleDaemon extends Thread {
 	 *            - Daemon polling period (msec)
 	 */
 	public MerkleDaemon(Merkle mTree, int period) {
-		observer = new FileAlterationObserver(mTree.getDir().getAbsolutePath());
+		observer = new FileAlterationObserver(mTree.getTrackedDirs().getAbsolutePath());
 		listener = new DirectoryMonitor(mTree);
 		observer.addListener(listener);
 		this.period = period;

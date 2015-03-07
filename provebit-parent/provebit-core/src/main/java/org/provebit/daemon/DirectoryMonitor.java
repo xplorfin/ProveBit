@@ -95,7 +95,7 @@ public class DirectoryMonitor implements FileAlterationListener {
 	 */
 	private void updateTree(MonitorEvent event, File file) {
 		if (tree.isRecursive()
-				|| file.getParent().compareTo(tree.getDir().getAbsolutePath()) == 0) {
+				|| file.getParent().compareTo(tree.getTrackedDirs().getAbsolutePath()) == 0) {
 			logEvent(event, file);
 			reconstructTree();
 		}

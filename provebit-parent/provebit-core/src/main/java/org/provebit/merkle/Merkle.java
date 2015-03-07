@@ -7,6 +7,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -25,35 +28,36 @@ import org.apache.commons.io.FileUtils;
  *        Current allocation wastes O(N) tree nodes
  */
 public class Merkle {
-    private File dir;
     private byte[][] tree;
     private int height; // Root is level 0
     private int numLeaves;
     private int totalNodes;
-    private boolean recursive; // Default false
     private boolean exists;
+    private List<File> trackedFiles; // List of files being tracked
+    private Map<File, Boolean> trackedDirectories; // List of directories being tracked and whether
+    											   // or not they are recursively tracked
 
     /**
-     * Default constructor, non recursive by default
-     * @param directory - Directory to build tree from
+     * Default constructor
      */
-    public Merkle(File directory) {
-        dir = directory;
+    public Merkle() {
+    	trackedFiles = new ArrayList<File>();
+    	trackedDirectories = new HashMap<File, Boolean>();
         tree = null;
-        recursive = false;
         exists = false;
     }
     
     /**
-     * Constructor that sets recursive state
-     * @param directory - Directory to build tree from
-     * @param recursive - String path to directory to build tree from
+     * Add a file or directory to the list of tracked files in this tree
+     * @param file - File/Directory to track
+     * @param recursive - If file is a directory, specify whether or not the directory should be recursively searched
      */
-    public Merkle(File directory, boolean recursive) {
-    	dir = directory;
-    	tree = null;
-    	this.recursive = recursive;
-    	this.exists = false;
+    public void addTracking(File file, boolean recursive) {
+    	if (file.isDirectory()) {
+    		trackedDirectories.put(file, recursive);
+    	} else {
+    		trackedFiles.add(file);
+    	}
     }
 
     /**
@@ -62,14 +66,14 @@ public class Merkle {
      * @return byte[] root hash of constructed tree
      */
     public byte[] makeTree() {
-        ArrayList<File> fileList = getFiles();
+        List<File> fileList = getFiles();
         if (fileList.size() == 0) {
             numLeaves = 0;
             tree = null;
             return getRootHash();
         }
         
-        ArrayList<byte[]> hashList = getFilesHashes(fileList);
+        List<byte[]> hashList = getFilesHashes(fileList);
         if (hashList.size() % 2 == 1) { // If odd number of hashes, duplicate last
             hashList.add(hashList.get(hashList.size()-1));
         }
@@ -134,30 +138,23 @@ public class Merkle {
     public byte[][] getTree() {
         return tree;
     }
-
+    
     /**
-     * Set whether or not tree building should recurse into
-     * sub directories
-     * @param isRecursive - true to enable sub directory searching, false to disable
+     * Get the list of directories being tracked
+     * @return List<File> of directories being tracked, may be empty
      */
-    public void setRecursive(boolean isRecursive) {
-        recursive = isRecursive;
-    }
-
-    /**
-     * Retrieve whether or not tree building is recursive
-     * @return true if subdirectories are included, false o/w
-     */
-    public boolean isRecursive() {
-        return recursive;
+    public List<File> getTrackedDirs() {
+        List<File> directoryList = new ArrayList<File>();
+        directoryList.addAll(trackedDirectories.keySet());
+        return directoryList;
     }
     
     /**
-     * Get the directory being used in construction
-     * @return construction directory
+     * Get the list of files being tracked
+     * @return List<File> of specific files being tracked, may be empty
      */
-    public File getDir() {
-        return dir;
+    public List<File> getTrackedFiles() {
+    	return trackedFiles;
     }
     
     /**
@@ -178,24 +175,31 @@ public class Merkle {
     }
 
     /**
-     * getFiles wrapper
-     * @return ArrayList of files in dir
+     * Wrapper that gets all files being tracked in all tracked directories
+     * @return List<File> of all files in tracking
      */
-    private ArrayList<File> getFiles() {
-        return getFiles(dir);
+    private List<File> getFiles() {
+    	List<File> fileList = new ArrayList<File>();
+        fileList.addAll(trackedFiles);
+        for (File directory : trackedDirectories.keySet()) {
+        	fileList.addAll(getFiles(directory, trackedDirectories.get(directory)));
+        }
+        return fileList;
     }
 
     /**
-     * Get list of all files in directory recursively
-     * @return ArrayList of files in the directory
+     * Get list of all files in directory, recursively if need be
+     * @param directory - Directory to check for files
+     * @param recursive - true if sub-directories should be searched, false o/w
+     * @return List<File> of all files in directory
      */
-    private ArrayList<File> getFiles(File directory) {
-        ArrayList<File> fileList = new ArrayList<File>();
+    private List<File> getFiles(File directory, boolean recursive) {
+        List<File> fileList = new ArrayList<File>();
         for (File file : directory.listFiles()) {
             if (!file.isDirectory()) {
                 fileList.add(file);
             } else if (recursive){
-                fileList.addAll(getFiles(file));
+                fileList.addAll(getFiles(file, recursive));
             }
 
         }
@@ -207,8 +211,8 @@ public class Merkle {
      * @param fileList - ArrayList<File> of files to get hashes of
      * @return ArrayList<byte[]> of corresponding SHA-256 file hashes or null if error occurred
      */
-    private ArrayList<byte[]> getFilesHashes(ArrayList<File> fileList) {
-        ArrayList<byte[]> hashList = new ArrayList<byte[]>();
+    private List<byte[]> getFilesHashes(List<File> fileList) {
+        List<byte[]> hashList = new ArrayList<byte[]>();
         MessageDigest md;
         try {
             md = MessageDigest.getInstance("SHA-256");
@@ -230,7 +234,7 @@ public class Merkle {
     /**
      * Minimal custom comparator subclass for sorting hashes
      */
-    private class FileHashComparator implements Comparator<byte[] >{
+    private class FileHashComparator implements Comparator<byte[]> {
         public int compare(byte[] hash1, byte[] hash2) {
             String hash1Hex = Hex.encodeHexString(hash1);
             String hash2Hex = Hex.encodeHexString(hash2);
@@ -328,7 +332,7 @@ public class Merkle {
      * Helper function that makes the leaf nodes of the tree
      * @param hashList - Hashes of files that make up the leaf nodes
      */
-    private void makeLeaves(ArrayList<byte[]> hashList) {
+    private void makeLeaves(List<byte[]> hashList) {
         int i = (int) Math.pow(2, height) - 1; // Leftmost leaf node
         for (byte[] hash : hashList) {
             tree[i] = hash;

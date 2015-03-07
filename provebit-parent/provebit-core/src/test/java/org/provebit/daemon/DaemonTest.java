@@ -14,7 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.provebit.daemon.DirectoryMonitor.MonitorEvent;
+import org.provebit.daemon.FileMonitor.MonitorEvent;
 import org.provebit.daemon.Log.LogEntry;
 import org.provebit.merkle.Merkle;
 
@@ -282,6 +282,54 @@ public class DaemonTest {
     	assertTrue(entries.size() >= 2);
     	assertTrue(log.toString().contains(MonitorEvent.DCREATE.toString()));
     	assertTrue(log.toString().contains(MonitorEvent.DDELETE.toString()));
+    	daemon.interrupt();
+    }
+    
+    @Test
+    public void testDaemonMultipleFileLogging() throws InterruptedException, IOException {
+    	Merkle m = new Merkle();
+    	m.addTracking(file1, false);
+    	m.addTracking(file2, false);
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(file1, "new data");
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(file2, "new data 2");
+    	Thread.sleep(TESTSLEEP);
+    	assertEquals(2, daemon.getChanges());
+    	daemon.interrupt();
+    }
+    
+    @Test
+    public void testDaemonMultipleDirLogging() throws InterruptedException, IOException {
+    	Merkle m = new Merkle();
+    	FileUtils.forceMkdir(daemonSubDir);
+    	m.addTracking(daemonDir, false);
+    	m.addTracking(daemonSubDir, false);
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(file1, "data");
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(subDirFile, "data 2");
+    	Thread.sleep(TESTSLEEP);
+    	assertEquals(3, daemon.getChanges());
+    	daemon.interrupt();
+    }
+    
+    @Test
+    public void testDaemonDisjointFileDirLogging() throws IOException, InterruptedException {
+    	Merkle m = new Merkle();
+    	FileUtils.forceMkdir(daemonSubDir);
+    	m.addTracking(file1, false);
+    	m.addTracking(daemonSubDir, false);
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(file2, "new data");
+    	Thread.sleep(TESTSLEEP);
+    	assertEquals(0, daemon.getChanges());
     	daemon.interrupt();
     }
 }

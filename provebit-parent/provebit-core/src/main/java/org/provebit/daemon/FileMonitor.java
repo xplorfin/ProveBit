@@ -11,7 +11,7 @@ import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.merkle.Merkle;
 
-public class DirectoryMonitor implements FileAlterationListener {
+public class FileMonitor implements FileAlterationListener {
 	public enum MonitorEvent {
 		FCREATE, FDELETE, FCHANGE, DCREATE, DDELETE, DCHANGE
 	};
@@ -21,15 +21,9 @@ public class DirectoryMonitor implements FileAlterationListener {
 	protected Log log;
 
 	/**
-	 * Constructor, configures the tree that will represent the argument
-	 * file/directory
-	 * 
-	 * @param dir
-	 *            - directory to watch
-	 * @param recursive
-	 *            - whether or not to enable recursive directory changes
+	 * Initializes file monitor
 	 */
-	public DirectoryMonitor(Merkle mTree) {
+	public FileMonitor(Merkle mTree) {
 		tree = mTree;
 		changes = 0;
 		log = new Log();

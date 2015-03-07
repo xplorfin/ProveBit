@@ -2,15 +2,21 @@ package org.provebit.daemon;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.merkle.Merkle;
 
 public class MerkleDaemon extends Thread {
 	private int period;
 	private List<FileAlterationObserver> observers;
-	private DirectoryMonitor listener;
+	private FileMonitor listener;
 
 	/**
 	 * Daemon constructor,
@@ -22,17 +28,7 @@ public class MerkleDaemon extends Thread {
 	 */
 	public MerkleDaemon(Merkle mTree, int period) {
 		observers = new ArrayList<FileAlterationObserver>();
-		for (File directory : mTree.getTrackedDirs()) {
-			observers.add(new FileAlterationObserver(directory.getAbsolutePath()));
-		}
-		for (File file : mTree.getTrackedFiles()) {
-			observers.add(new FileAlterationObserver(file.getAbsolutePath()));
-		}
-		listener = new DirectoryMonitor(mTree);
-		
-		for (FileAlterationObserver observer : observers) {
-			observer.addListener(listener);
-		}
+		listener = new FileMonitor(mTree);
 		this.period = period;
 		setDaemon(false);
 		setName("MerkleDaemon");
@@ -45,6 +41,12 @@ public class MerkleDaemon extends Thread {
 		if (Thread.currentThread().isDaemon()) {
 			return;
 		}
+		
+		createObservers();
+		
+		for (FileAlterationObserver observer : observers) {
+			observer.addListener(listener);
+		}
 
 		try {
 			for (FileAlterationObserver observer : observers) {
@@ -55,6 +57,30 @@ public class MerkleDaemon extends Thread {
 			Thread.currentThread().interrupt();
 		}
 		monitorDirectory();
+	}
+
+	private void createObservers() {
+		for (File directory : listener.getTree().getTrackedDirs()) {
+			observers.add(new FileAlterationObserver(directory.getAbsolutePath()));
+		}
+		
+		Map<File, List<File>> uniqueFilesDirs = new HashMap<File, List<File>>();
+		for (File file : listener.getTree().getTrackedFiles()) {
+			File parentKey = file.getParentFile();
+			if (!uniqueFilesDirs.containsKey(parentKey)) {
+				uniqueFilesDirs.put(parentKey, new ArrayList<File>());
+			}
+			uniqueFilesDirs.get(parentKey).add(file);
+		}
+		
+		for (File uniqueFileDirectory : uniqueFilesDirs.keySet()) {
+			List<File> files = uniqueFilesDirs.get(uniqueFileDirectory);
+			IOFileFilter filter = FileFileFilter.FILE;
+			for (File file : files) {
+				filter = FileFilterUtils.or(new NameFileFilter(file.getName()), filter);
+			}
+			observers.add(new FileAlterationObserver(uniqueFileDirectory, filter));
+		}
 	}
 
 	/**
@@ -76,8 +102,7 @@ public class MerkleDaemon extends Thread {
 					observer.destroy();
 				}
 			} catch (Exception e) {
-				System.out
-						.println("Observer destruction failed, messy exit...");
+				System.out.println("Observer destruction failed, messy exit...");
 				e.printStackTrace();
 			}
 		} finally {

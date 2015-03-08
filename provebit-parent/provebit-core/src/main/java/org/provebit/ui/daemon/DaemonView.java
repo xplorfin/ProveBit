@@ -7,6 +7,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -30,13 +31,14 @@ public class DaemonView extends JPanel implements Observer {
 			"file1.txt", "file34.txt", "thatotherfile.txt" };
 	private DaemonModel model;
 	private JButton addFileButton, removeFileButton, startDaemonButton, stopDaemonButton, showLogButton, refreshLogButton;
+	private JLabel trackedFiles, daemonStatusLabel;
 	private JList<String> fileList;
 	private JTextField runPeriodInput;
 	private JScrollPane listScrollPane;
-	private JLabel daemonStatusLabel;
 	private JFrame logFrame;
 	private JPanel logPanel;
 	private JTextPane logTextPane;
+	private JFileChooser fileSelector;
 	
 	private List<JButton> buttons;
 	public DaemonView(DaemonModel model) {
@@ -47,7 +49,9 @@ public class DaemonView extends JPanel implements Observer {
 		setupButtons();
 		setupList();
 		setupLogFrame();
-
+		
+		fileSelector = new JFileChooser();
+		fileSelector.setMultiSelectionEnabled(true);
 		runPeriodInput = new JTextField("");
 		daemonStatusLabel = new JLabel("Daemon status: " + model.getDaemonStatus());
 		
@@ -116,7 +120,6 @@ public class DaemonView extends JPanel implements Observer {
 		logPanel.add(logTextPane);
 		logFrame.add(logPanel);
 		logFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		logFrame.pack();
 		logFrame.setVisible(false);
 	}
 
@@ -124,6 +127,7 @@ public class DaemonView extends JPanel implements Observer {
 		for (JButton button : buttons) {
 			button.addActionListener(controller);
 		}
+		fileSelector.addActionListener(controller);
 	}
 
 	@Override
@@ -137,6 +141,10 @@ public class DaemonView extends JPanel implements Observer {
 				case SHOWLOG:
 					logFrame.setLocationRelativeTo(this);
 					logFrame.setVisible(true);
+					break;
+				case SHOWFILESELECT:
+					System.out.println("SHOWING FILE SELECTOR");
+					fileSelector.showOpenDialog(null);
 					break;
 				default:
 					break;

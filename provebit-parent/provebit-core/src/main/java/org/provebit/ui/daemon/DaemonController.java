@@ -2,14 +2,17 @@ package org.provebit.ui.daemon;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.List;
 
+import javax.swing.JFileChooser;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.provebit.daemon.Log;
 
 public class DaemonController implements ActionListener, ListSelectionListener {
-	public enum DaemonNotification{DAEMONSTATUS, SHOWLOG}; // Enum to hold notification types for observers
+	public enum DaemonNotification{DAEMONSTATUS, SHOWLOG, SHOWFILESELECT}; // Enum to hold notification types for observers
 	DaemonModel model;
 	DaemonView view;
 
@@ -30,8 +33,8 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 			case "showLog":
 				view.update(model, DaemonNotification.SHOWLOG);
 				break;
-			case "addFiles":
-				// Add files
+			case "addFile":
+				view.update(model, DaemonNotification.SHOWFILESELECT);
 				break;
 			case "removeFiles":
 				// Remove files
@@ -44,7 +47,14 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 			default:
 				break;
 		}
-
+		
+		if (e.getSource() instanceof JFileChooser) {
+			JFileChooser fileSelector = (JFileChooser) e.getSource();
+			File[] files = fileSelector.getSelectedFiles();
+			/** @TODO Add all files to model tracking */
+			System.out.println("Chosen files...");
+			System.out.println(files.toString());
+		}
 	}
 
 	@Override

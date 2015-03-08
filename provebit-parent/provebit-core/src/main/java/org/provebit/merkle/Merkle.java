@@ -36,6 +36,7 @@ public class Merkle {
     private List<File> trackedFiles; // List of files being tracked
     private Map<File, Boolean> trackedDirectories; // List of directories being tracked and whether
     											   // or not they are recursively tracked
+    private List<byte[]> recentLeaves; // -Sorted- list of leaves in most recent tree construction
 
     /**
      * Default constructor
@@ -43,6 +44,7 @@ public class Merkle {
     public Merkle() {
     	trackedFiles = new ArrayList<File>();
     	trackedDirectories = new HashMap<File, Boolean>();
+    	recentLeaves = new ArrayList<byte[]>();
         tree = null;
         exists = false;
     }
@@ -62,7 +64,7 @@ public class Merkle {
     		// provided by the trackedDirectories list
     		List<File> duplicates = new ArrayList<File>();
     		for (File existingFile : trackedFiles) {
-    			if (isTrackedRecursively(existingFile)) {
+    			if (MerkleUtils.isTrackedRecursively(existingFile, trackedDirectories)) {
     				duplicates.add(existingFile);
     			}
     		}
@@ -88,14 +90,14 @@ public class Merkle {
      * @return byte[] root hash of constructed tree
      */
     public byte[] makeTree() {
-        List<File> fileList = getFiles();
+        List<File> fileList = MerkleUtils.getFiles(trackedFiles, trackedDirectories);
         if (fileList.size() == 0) {
             numLeaves = 0;
             tree = null;
             return getRootHash();
         }
         
-        List<byte[]> hashList = getFilesHashes(fileList);
+        List<byte[]> hashList = MerkleUtils.getFilesHashes(fileList);
         if (hashList.size() % 2 == 1) { // If odd number of hashes, duplicate last
             hashList.add(hashList.get(hashList.size()-1));
         }
@@ -194,19 +196,6 @@ public class Merkle {
     private double logBase2(double value) {
         return (Math.log(value)/Math.log(2.0));
     }
-
-    /**
-     * Wrapper that gets all files being tracked in all tracked directories
-     * @return List<File> of all files in tracking
-     */
-    private List<File> getFiles() {
-    	List<File> fileList = new ArrayList<File>();
-        fileList.addAll(trackedFiles);
-        for (File directory : trackedDirectories.keySet()) {
-        	fileList.addAll(getFiles(directory, trackedDirectories.get(directory)));
-        }
-        return fileList;
-    }
     
     /**
      * Check to see whether the specific file is being tracked by the tree
@@ -214,31 +203,8 @@ public class Merkle {
      * @return true if file is being tracked, false o/w
      */
     public Boolean isTracking(File file) {
-    	if (trackedFiles.contains(file) || trackedDirectories.containsKey(file) || isTrackedRecursively(file)) {
+    	if (trackedFiles.contains(file) || trackedDirectories.containsKey(file) || MerkleUtils.isTrackedRecursively(file, trackedDirectories)) {
     		return true;
-    	}
-    	return false;
-    }
-    
-    /**
-     * A file is being tracked recursively if it is contained within a directory
-     * that is being recursively tracked
-     * 
-     * This helper method checks for that condition
-     * @param file - File to check for recursive tracking
-     * @return true if file is recursively tracked, false o/w
-     */
-    private Boolean isTrackedRecursively(File file) {
-    	for (File directory : trackedDirectories.keySet()) {
-    		try {
-				if ((!file.isDirectory() && file.getParentFile().equals(directory)) || 
-					(trackedDirectories.get(directory) && FileUtils.directoryContains(directory, file))) {
-					return true;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				break;
-			}
     	}
     	return false;
     }
@@ -250,61 +216,6 @@ public class Merkle {
      */
     public Boolean isTrackingRecursive(File dir) {
     	return (dir.isDirectory() && trackedDirectories.get(dir));
-    }
-
-    /**
-     * Get list of all files in directory, recursively if need be
-     * @param directory - Directory to check for files
-     * @param recursive - true if sub-directories should be searched, false o/w
-     * @return List<File> of all files in directory
-     */
-    private List<File> getFiles(File directory, boolean recursive) {
-        List<File> fileList = new ArrayList<File>();
-        for (File file : directory.listFiles()) {
-            if (!file.isDirectory()) {
-                fileList.add(file);
-            } else if (recursive){
-                fileList.addAll(getFiles(file, recursive));
-            }
-
-        }
-        return fileList;
-    }
-
-    /**
-     * Get SHA-256 hash of each file in argument list
-     * @param fileList - ArrayList<File> of files to get hashes of
-     * @return ArrayList<byte[]> of corresponding SHA-256 file hashes or null if error occurred
-     */
-    private List<byte[]> getFilesHashes(List<File> fileList) {
-        List<byte[]> hashList = new ArrayList<byte[]>();
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-256");
-            for (File file : fileList) {
-                md.reset();
-                byte[] fileBytes = FileUtils.readFileToByteArray(file);
-                md.update(fileBytes);
-                hashList.add(md.digest());
-            }
-        } catch (NoSuchAlgorithmException | IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        Collections.sort(hashList, new FileHashComparator());
-        return hashList;
-    }
-
-    /**
-     * Minimal custom comparator subclass for sorting hashes
-     */
-    private class FileHashComparator implements Comparator<byte[]> {
-        public int compare(byte[] hash1, byte[] hash2) {
-            String hash1Hex = Hex.encodeHexString(hash1);
-            String hash2Hex = Hex.encodeHexString(hash2);
-            return hash1Hex.compareTo(hash2Hex);
-        }
     }
 
     /**
@@ -375,23 +286,10 @@ public class Merkle {
                 }
                 return; // Reached last non empty node at this level, we are done
             }
-            byte[] newHash = concatHashes(leftChildHash, rightChildHash);
+            byte[] newHash = MerkleUtils.concatHashes(leftChildHash, rightChildHash);
             md.update(newHash);
             tree[nodeIndex] = md.digest();
         }
-    }
-
-    /**
-     * Concatenates argument hashes L + R and returns result
-     * @param leftHash
-     * @param rightHash
-     * @return leftHash + rightHash
-     */
-    private byte[] concatHashes(byte[] leftHash, byte[] rightHash) {
-        byte[] newHash = new byte[leftHash.length + rightHash.length];
-        System.arraycopy(leftHash, 0, newHash, 0, leftHash.length);
-        System.arraycopy(rightHash, 0, newHash, leftHash.length, rightHash.length);
-        return newHash;
     }
 
     /**

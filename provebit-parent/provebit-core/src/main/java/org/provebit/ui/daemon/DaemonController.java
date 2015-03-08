@@ -25,7 +25,11 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 	public void actionPerformed(ActionEvent e) {
 		switch(e.getActionCommand()) {
 			case "startDaemon":
-				// Start daemon
+				int period = view.getPeriod();
+				if (period != -1) {
+					model.setDaemon(view.getPeriod());
+					model.startDaemon();
+				}
 				break;
 			case "stopDaemon":
 				model.stopDaemon();
@@ -51,9 +55,9 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 		if (e.getSource() instanceof JFileChooser) {
 			JFileChooser fileSelector = (JFileChooser) e.getSource();
 			File[] files = fileSelector.getSelectedFiles();
-			/** @TODO Add all files to model tracking */
-			System.out.println("Chosen files...");
-			System.out.println(files.toString());
+			for (File file : files) {
+				model.addFileToTree(file, true);
+			}
 		}
 	}
 

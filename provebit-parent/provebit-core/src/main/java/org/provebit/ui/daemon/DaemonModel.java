@@ -29,20 +29,28 @@ public class DaemonModel extends Observable {
 	}
 	
 	public void setDaemon(int period) {
-		daemon = new MerkleDaemon(tree, period);
+		if (daemon == null) {
+			daemon = new MerkleDaemon(tree, period);
+		}
 	}
 	
 	public void startDaemon() {
-		if (daemon == null || daemon.isAlive()) return;
+		if (daemon == null || daemon.isInterrupted()) return;
 		daemon.start();
-		daemonStatus = (daemon.isAlive()) ? DaemonStatus.ONLINE : DaemonStatus.OFFLINE;
+		daemonStatus = DaemonStatus.ONLINE;
 		notifyChange(DaemonNotification.DAEMONSTATUS);
 	}
 	
 	public void stopDaemon() {
 		if (daemon == null) return;
 		daemon.interrupt();
-		daemonStatus = (daemon.isAlive()) ? DaemonStatus.ONLINE : DaemonStatus.OFFLINE;
+		try {
+			daemon.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		daemon = null;
+		daemonStatus = DaemonStatus.OFFLINE;
 		notifyChange(DaemonNotification.DAEMONSTATUS);
 	}
 	

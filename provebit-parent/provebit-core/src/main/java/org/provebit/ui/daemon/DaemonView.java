@@ -52,6 +52,8 @@ public class DaemonView extends JPanel implements Observer {
 		
 		fileSelector = new JFileChooser();
 		fileSelector.setMultiSelectionEnabled(true);
+		fileSelector.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		
 		runPeriodInput = new JTextField("");
 		daemonStatusLabel = new JLabel("Daemon status: " + model.getDaemonStatus());
 		
@@ -143,13 +145,26 @@ public class DaemonView extends JPanel implements Observer {
 					logFrame.setVisible(true);
 					break;
 				case SHOWFILESELECT:
-					System.out.println("SHOWING FILE SELECTOR");
 					fileSelector.showOpenDialog(null);
 					break;
 				default:
 					break;
 			}
 		}
+	}
+	
+	/**
+	 * Returns the desired period runtime
+	 * @return desired period, or -1 if period invalid
+	 */
+	public int getPeriod() {
+		float periodMinutes;
+		try {
+			periodMinutes = Float.parseFloat(runPeriodInput.getText());
+		} catch (NumberFormatException nfe) {
+			return -1;
+		}
+		return (int) periodMinutes*60;
 	}
 	
 	/**

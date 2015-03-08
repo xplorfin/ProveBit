@@ -106,17 +106,17 @@ public class MerkleDaemon extends Thread {
 				Thread.sleep(period);
 			}
 		} catch (InterruptedException ie) {
-			System.out.println("Monitor interrupted, exiting...");
+			listener.log.addEntry("Daemon interrupted, exiting...");
 			try {
 				for (FileAlterationObserver observer : observers) {
 					observer.destroy();
 				}
 			} catch (Exception e) {
-				System.out.println("Observer destruction failed, messy exit...");
+				listener.log.addEntry("Observer destruction failed, messy exit...");
 				e.printStackTrace();
 			}
 		} finally {
-			Thread.currentThread().interrupt();
+			// Future cleanup
 		}
 	}
 

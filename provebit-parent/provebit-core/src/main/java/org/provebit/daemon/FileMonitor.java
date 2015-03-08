@@ -120,10 +120,9 @@ public class FileMonitor implements FileAlterationListener {
 	 * Reconstructs the merkle tree and increments the change counter
 	 */
 	private void reconstructTree() {
-		System.out.println("Old root: "
-				+ Hex.encodeHexString(tree.getRootHash()));
+		String oldRoot = Hex.encodeHexString(tree.getRootHash());
 		tree.makeTree();
-		System.out.println("New root: "
-				+ Hex.encodeHexString(tree.getRootHash()));
+		String newRoot = Hex.encodeHexString(tree.getRootHash());
+		log.addEntry("Hash update: " + oldRoot + " -> " + newRoot);
 	}
 }

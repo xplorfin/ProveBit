@@ -221,11 +221,9 @@ public class DaemonTest {
     	FileUtils.deleteQuietly(tempFile);
     	Thread.sleep(TESTSLEEP);
     	Log log = daemon.getLog();
-    	ArrayList<LogEntry> entries = log.getLog();
-    	assertEquals(3, entries.size());
-    	assertTrue(entries.get(0).message.contains(MonitorEvent.FCREATE.toString()));
-    	assertTrue(entries.get(1).message.contains(MonitorEvent.FCHANGE.toString()));
-    	assertTrue(entries.get(2).message.contains(MonitorEvent.FDELETE.toString()));
+    	assertTrue(log.toString().contains(MonitorEvent.FCREATE.toString()));
+    	assertTrue(log.toString().contains(MonitorEvent.FCHANGE.toString()));
+    	assertTrue(log.toString().contains(MonitorEvent.FDELETE.toString()));
     	daemon.interrupt();
     }
     
@@ -246,7 +244,6 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	Log log = daemon.getLog();
     	ArrayList<LogEntry> entries = log.getLog();
-    	System.out.println(log.toString());
     	assertTrue(entries.size() >= 4);
     	assertTrue(log.toString().contains(MonitorEvent.DCREATE.toString()));
     	assertTrue(log.toString().contains(MonitorEvent.FCREATE.toString()));
@@ -316,8 +313,9 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	FileUtils.write(file2, "new data");
     	Thread.sleep(TESTSLEEP);
-    	System.out.println(daemon.getLog().toString());
-    	assertEquals(0, daemon.getEvents());
+    	FileUtils.write(subDirFile, "data");
+    	Thread.sleep(TESTSLEEP);
+    	assertEquals(1, daemon.getEvents());
     	daemon.interrupt();
     }
 }

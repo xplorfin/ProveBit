@@ -28,7 +28,7 @@ public class DaemonView extends JPanel implements Observer {
 	private JList<String> fileList;
 	private JTextField runPeriodInput;
 	private JScrollPane listScrollPane;
-
+	private JLabel daemonStatus;
 	public DaemonView(DaemonModel model) {
 		this.model = model;
 		this.setLayout(new MigLayout("", "[][][]", "[]5[]5[][]"));
@@ -39,13 +39,15 @@ public class DaemonView extends JPanel implements Observer {
 		setUpList();
 
 		runPeriodInput = new JTextField("");
-
+		daemonStatus = new JLabel("Daemon status: " + model.getDaemonStatus().toString());
+		
 		add(addFileButton);
 		add(removeFileButton, "wrap");
 		add(listScrollPane, "wrap");
 		add(new JLabel("Daemon Run Period: "));
 		add(runPeriodInput, "width :480");
 		add(new JLabel("minutes"));
+		
 		setVisible(true);
 	}
 

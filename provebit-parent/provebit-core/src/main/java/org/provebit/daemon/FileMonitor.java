@@ -17,7 +17,7 @@ public class FileMonitor implements FileAlterationListener {
 	};
 
 	private Merkle tree;
-	private int changes;
+	private int events;
 	protected Log log;
 
 	/**
@@ -25,7 +25,7 @@ public class FileMonitor implements FileAlterationListener {
 	 */
 	public FileMonitor(Merkle mTree) {
 		tree = mTree;
-		changes = 0;
+		events = 0;
 		log = new Log();
 	}
 
@@ -81,12 +81,12 @@ public class FileMonitor implements FileAlterationListener {
 	}
 
 	/**
-	 * Get number of changes detected since daemon launched
+	 * Get number of events detected since daemon launched
 	 * 
-	 * @return number of changes since launch
+	 * @return number of events since launch
 	 */
-	public int getChanges() {
-		return changes;
+	public int getNumEvents() {
+		return events;
 	}
 
 	/**
@@ -94,7 +94,11 @@ public class FileMonitor implements FileAlterationListener {
 	 * spending the time to reconstruct the merkle tree
 	 */
 	private void updateTree(MonitorEvent event, File file) {
-		if (tree.isTracking(file) || tree.isTracking(file.getParentFile())) {
+		if (event == MonitorEvent.DDELETE || event == MonitorEvent.DCREATE || event == MonitorEvent.DCHANGE) { // Directories aren't part of merkle tree
+			events++;
+			logEvent(event, file);
+		} else if (tree.isTracking(file) || tree.isTracking(file.getParentFile())) {
+			events++;
 			logEvent(event, file);
 			reconstructTree();
 		}
@@ -116,7 +120,6 @@ public class FileMonitor implements FileAlterationListener {
 	 * Reconstructs the merkle tree and increments the change counter
 	 */
 	private void reconstructTree() {
-		changes++;
 		System.out.println("Old root: "
 				+ Hex.encodeHexString(tree.getRootHash()));
 		tree.makeTree();

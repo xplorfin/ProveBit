@@ -55,6 +55,7 @@ public class Log {
 	private FileOutputStream fOut;
 	private ObjectOutputStream oOut;
 	private int nextPending;
+	private int numEntries;
 
 	/**
 	 * Simple log constructor that performs no I/O
@@ -62,6 +63,7 @@ public class Log {
 	public Log() {
 		entries = new ArrayList<LogEntry>();
 		output = null;
+		numEntries = 0;
 	}
 
 	/**
@@ -106,6 +108,7 @@ public class Log {
 		LogEntry entry = new LogEntry(message, new Timestamp(
 				new Date().getTime()));
 		entries.add(entry);
+		numEntries++;
 	}
 
 	/**
@@ -146,6 +149,10 @@ public class Log {
 			fOut.close();
 		}
 		output = null;
+	}
+	
+	public int getNumEntries() {
+		return numEntries;
 	}
 
 	/**

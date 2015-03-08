@@ -72,7 +72,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
-        assertEquals(0, daemon.getChanges());
+        assertEquals(0, daemon.getEvents());
         daemon.interrupt();
     }
     
@@ -91,7 +91,7 @@ public class DaemonTest {
         FileUtils.deleteQuietly(tempFile);
         Thread.sleep(TESTSLEEP);
         assertNotEquals(startingHash, endingHash);
-        assertEquals(2, daemon.getChanges());
+        assertEquals(2, daemon.getEvents());
         daemon.interrupt();
     }
     
@@ -130,34 +130,28 @@ public class DaemonTest {
     @Test
     public void testDetectDirectoryAdd() throws IOException, InterruptedException {
     	Merkle m = new Merkle();
-    	m.addTracking(daemonDir, false);
+    	m.addTracking(daemonDir, true);
         MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
-        String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
         FileUtils.forceMkdir(daemonSubDir);
         Thread.sleep(TESTSLEEP);
-        String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        assertNotEquals(startingHash, endingHash);
-        assertEquals(1, daemon.getChanges());
-        FileUtils.deleteQuietly(daemonSubDir); // TODO maybe don't need
+        assertTrue(daemon.getLog().toString().contains(MonitorEvent.DCREATE.toString()));
         daemon.interrupt();
     }
     
     @Test
     public void testDetectDirectoryDelete() throws InterruptedException, IOException {
     	Merkle m = new Merkle();
-    	m.addTracking(daemonDir, false);
+    	m.addTracking(daemonDir, true);
         FileUtils.forceMkdir(daemonSubDir);
         MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
-        String startingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
         FileUtils.deleteQuietly(daemonSubDir);
         Thread.sleep(TESTSLEEP);
-        String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
-        assertNotEquals(startingHash, endingHash);
-        assertEquals(1, daemon.getChanges());
+        assertTrue(daemon.getLog().toString().contains(MonitorEvent.DDELETE.toString()));
+        assertEquals(1, daemon.getEvents());
         daemon.interrupt();
     }
     
@@ -175,7 +169,7 @@ public class DaemonTest {
         Thread.sleep(TESTSLEEP);
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
         assertNotEquals(startingHash, endingHash);
-        assertEquals(1, daemon.getChanges());
+        assertEquals(1, daemon.getEvents());
         daemon.interrupt();
     }
     
@@ -190,7 +184,7 @@ public class DaemonTest {
         Thread.sleep(TESTSLEEP);
         FileUtils.write(subDirFile, "sub dir file modified data");
         Thread.sleep(TESTSLEEP);
-        assertEquals(0, daemon.getChanges());
+        assertEquals(0, daemon.getEvents());
         daemon.interrupt();
     }
     
@@ -209,7 +203,7 @@ public class DaemonTest {
         Thread.sleep(TESTSLEEP);
         String endingHash = Hex.encodeHexString(daemon.getTree().getRootHash());
         assertNotEquals(startingHash, endingHash);
-        assertTrue(daemon.getChanges() >= 1);
+        assertTrue(daemon.getEvents() >= 1);
         daemon.interrupt();
     }
     
@@ -274,14 +268,7 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	FileUtils.deleteQuietly(daemonSubDir);
     	Thread.sleep(TESTSLEEP);
-    	Log log = daemon.getLog();
-    	ArrayList<LogEntry> entries = log.getLog();
-    	for (LogEntry entry : entries) {
-    		System.out.println(entry.toString());
-    	}
-    	assertTrue(entries.size() >= 2);
-    	assertTrue(log.toString().contains(MonitorEvent.DCREATE.toString()));
-    	assertTrue(log.toString().contains(MonitorEvent.DDELETE.toString()));
+    	assertEquals(0, daemon.getLog().getNumEntries());
     	daemon.interrupt();
     }
     
@@ -297,7 +284,7 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	FileUtils.write(file2, "new data 2");
     	Thread.sleep(TESTSLEEP);
-    	assertEquals(2, daemon.getChanges());
+    	assertEquals(2, daemon.getEvents());
     	daemon.interrupt();
     }
     
@@ -314,7 +301,7 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	FileUtils.write(subDirFile, "data 2");
     	Thread.sleep(TESTSLEEP);
-    	assertEquals(3, daemon.getChanges());
+    	assertEquals(2, daemon.getEvents());
     	daemon.interrupt();
     }
     
@@ -329,7 +316,8 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	FileUtils.write(file2, "new data");
     	Thread.sleep(TESTSLEEP);
-    	assertEquals(0, daemon.getChanges());
+    	System.out.println(daemon.getLog().toString());
+    	assertEquals(0, daemon.getEvents());
     	daemon.interrupt();
     }
 }

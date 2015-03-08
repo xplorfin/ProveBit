@@ -61,7 +61,17 @@ public class MerkleDaemon extends Thread {
 
 	private void createObservers() {
 		for (File directory : listener.getTree().getTrackedDirs()) {
-			observers.add(new FileAlterationObserver(directory.getAbsolutePath()));
+			if (listener.getTree().isTrackingRecursive(directory)) {
+				observers.add(new FileAlterationObserver(directory));
+			} else {
+				IOFileFilter filter = FileFileFilter.FILE;
+				for (File file : directory.listFiles()) {
+					if (!file.isDirectory()) {
+						filter = FileFilterUtils.or(new NameFileFilter(file.getName()), filter);
+					}
+				}
+				observers.add(new FileAlterationObserver(directory, filter));
+			}
 		}
 		
 		Map<File, List<File>> uniqueFilesDirs = new HashMap<File, List<File>>();
@@ -120,12 +130,12 @@ public class MerkleDaemon extends Thread {
 	}
 
 	/**
-	 * Get number of changes detected since daemon launched
+	 * Get number of events detected since daemon launched
 	 * 
-	 * @return number of changes since launch
+	 * @return number of events since launch
 	 */
-	public int getChanges() {
-		return listener.getChanges();
+	public int getEvents() {
+		return listener.getNumEvents();
 	}
 
 	public Log getLog() {

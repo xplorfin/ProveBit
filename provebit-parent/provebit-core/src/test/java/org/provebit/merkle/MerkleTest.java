@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
@@ -90,6 +91,21 @@ public class MerkleTest {
     	Merkle mTree = new Merkle();
         mTree.addTracking(incompleteDirPath, false);
     	assertNull(mTree.getTree());
+    }
+    
+    @Test
+    public void testLeafExists() {
+    	Merkle m = new Merkle();
+    	m.addTracking(completeDirPath, false);
+    	m.makeTree();
+    	assertEquals(true, m.existsAsLeaf(m.getLeaves().get(0)));
+    }
+    
+    @Test public void testLeafNoExist() throws DecoderException {
+    	Merkle m = new Merkle();
+    	m.addTracking(completeDirPath, false);
+    	m.makeTree();
+    	assertEquals(false, m.existsAsLeaf(Hex.decodeHex("0000000000000000000000000000000000000000000000000000000000000000".toCharArray())));
     }
 
     @Test

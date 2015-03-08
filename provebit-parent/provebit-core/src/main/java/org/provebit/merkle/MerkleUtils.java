@@ -97,7 +97,7 @@ public class MerkleUtils {
     /**
      * Minimal custom comparator subclass for sorting hashes
      */
-    private static class FileHashComparator implements Comparator<byte[]> {
+    public static class FileHashComparator implements Comparator<byte[]> {
         public int compare(byte[] hash1, byte[] hash2) {
             String hash1Hex = Hex.encodeHexString(hash1);
             String hash2Hex = Hex.encodeHexString(hash2);

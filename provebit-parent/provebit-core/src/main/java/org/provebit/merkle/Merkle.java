@@ -1,19 +1,17 @@
 package org.provebit.merkle;
 
 import java.io.File;
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.FileUtils;
+import org.provebit.merkle.MerkleUtils.FileHashComparator;
 
 /**
  * This class constructs a Merkle tree from files within a given directory
@@ -102,6 +100,7 @@ public class Merkle {
             hashList.add(hashList.get(hashList.size()-1));
         }
         numLeaves = hashList.size();
+        recentLeaves = hashList;
         
         allocateTree();
         makeLeaves(hashList);
@@ -144,6 +143,15 @@ public class Merkle {
 		}
  
         return root;
+    }
+    
+    public boolean existsAsLeaf(byte[] hash) {
+    	int index = Collections.binarySearch(recentLeaves, hash, new FileHashComparator());
+    	return (index >= 0) ? true : false;
+    }
+    
+    public List<byte[]> getLeaves() {
+    	return recentLeaves;
     }
 
     /**

@@ -29,7 +29,7 @@ public class DaemonModel extends Observable {
 	}
 	
 	public void startDaemon(int period) {
-		if (daemon == null || daemon.isInterrupted()) return;
+		if (daemon != null) return;
 		daemon = new MerkleDaemon(tree, period);
 		daemon.start();
 		daemonStatus = DaemonStatus.ONLINE;

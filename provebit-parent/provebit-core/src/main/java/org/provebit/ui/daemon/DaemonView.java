@@ -67,8 +67,8 @@ public class DaemonView extends JPanel implements Observer {
 		add(removeFileButton, "wrap");
 		add(listScrollPane, "wrap");
 		add(new JLabel("Daemon Run Period: "));
-		add(runPeriodInput, "width :480");
-		add(new JLabel("minutes"), "wrap");
+		add(runPeriodInput, "split 2, width :50");
+		add(new JLabel("msec"), "wrap");
 		add(startDaemonButton);
 		add(stopDaemonButton, "wrap");
 		add(daemonStatusLabel, "span, wrap");
@@ -158,13 +158,13 @@ public class DaemonView extends JPanel implements Observer {
 	 * @return desired period, or -1 if period invalid
 	 */
 	public int getPeriod() {
-		float periodMinutes;
+		int period;
 		try {
-			periodMinutes = Float.parseFloat(runPeriodInput.getText());
+			period = Integer.parseInt(runPeriodInput.getText());
 		} catch (NumberFormatException nfe) {
 			return -1;
 		}
-		return (int) periodMinutes*60;
+		return period;
 	}
 	
 	/**

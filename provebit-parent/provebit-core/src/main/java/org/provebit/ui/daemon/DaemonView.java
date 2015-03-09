@@ -68,7 +68,7 @@ public class DaemonView extends JPanel implements Observer {
 		add(listScrollPane, "wrap");
 		add(new JLabel("Daemon Run Period: "));
 		add(runPeriodInput, "split 2, width :50");
-		add(new JLabel("msec"), "wrap");
+		add(new JLabel("sec"), "wrap");
 		add(startDaemonButton);
 		add(stopDaemonButton, "wrap");
 		add(daemonStatusLabel, "span, wrap");
@@ -164,7 +164,7 @@ public class DaemonView extends JPanel implements Observer {
 		} catch (NumberFormatException nfe) {
 			return -1;
 		}
-		return period;
+		return period*1000;
 	}
 	
 	/**

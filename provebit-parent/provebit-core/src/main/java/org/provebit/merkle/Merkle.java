@@ -222,7 +222,7 @@ public class Merkle {
      * @param dir -Tracked directory 
      * @return true if directory is recursively tracked, false if not a directory or not recursively tracked
      */
-    public Boolean isTrackingRecursive(File dir) {
+    public Boolean isDirRecursive(File dir) {
     	return (dir.isDirectory() && trackedDirectories.get(dir));
     }
 

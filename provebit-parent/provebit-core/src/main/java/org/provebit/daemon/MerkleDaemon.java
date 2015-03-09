@@ -61,7 +61,7 @@ public class MerkleDaemon extends Thread {
 
 	private void createObservers() {
 		for (File directory : listener.getTree().getTrackedDirs()) {
-			if (listener.getTree().isTrackingRecursive(directory)) {
+			if (listener.getTree().isDirRecursive(directory)) {
 				observers.add(new FileAlterationObserver(directory));
 			} else {
 				IOFileFilter filter = FileFileFilter.FILE;

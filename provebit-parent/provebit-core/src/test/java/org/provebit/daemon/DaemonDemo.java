@@ -13,8 +13,9 @@ public class DaemonDemo {
     	m.addTracking(liveDir, false);
 		MerkleDaemon daemon = new MerkleDaemon(m, 100);
 		daemon.start();
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 		new DaemonDemoReconnect().start();
+		Thread.sleep(10000);
 		System.out.println("Main closing...");
 	}
 }

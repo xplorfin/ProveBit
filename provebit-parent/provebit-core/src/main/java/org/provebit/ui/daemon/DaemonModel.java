@@ -28,14 +28,9 @@ public class DaemonModel extends Observable {
 		tree.removeTracking(file);
 	}
 	
-	public void setDaemon(int period) {
-		if (daemon == null) {
-			daemon = new MerkleDaemon(tree, period);
-		}
-	}
-	
-	public void startDaemon() {
+	public void startDaemon(int period) {
 		if (daemon == null || daemon.isInterrupted()) return;
+		daemon = new MerkleDaemon(tree, period);
 		daemon.start();
 		daemonStatus = DaemonStatus.ONLINE;
 		notifyChange(DaemonNotification.DAEMONSTATUS);

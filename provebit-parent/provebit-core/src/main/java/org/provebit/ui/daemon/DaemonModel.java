@@ -1,6 +1,10 @@
 package org.provebit.ui.daemon;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Observable;
 
 import org.provebit.daemon.Log;
@@ -11,7 +15,7 @@ import org.provebit.ui.daemon.DaemonController.DaemonNotification;
 public class DaemonModel extends Observable {
 	private MerkleDaemon daemon;
 	private DaemonStatus daemonStatus;
-	private enum DaemonStatus{ONLINE, OFFLINE};
+	private enum DaemonStatus{ONLINE, OFFLINE, TRACKING};
 	private Merkle tree;
 	
 	public DaemonModel() {
@@ -22,10 +26,12 @@ public class DaemonModel extends Observable {
 	
 	public void addFileToTree(File file, boolean recursive) {
 		tree.addTracking(file, recursive);
+		notifyChange(DaemonNotification.UPDATETRACKING);
 	}
 	
 	public void removeFileFromTree(File file) {
 		tree.removeTracking(file);
+		notifyChange(DaemonNotification.UPDATETRACKING);
 	}
 	
 	public void startDaemon(int period) {
@@ -55,6 +61,21 @@ public class DaemonModel extends Observable {
 	
 	public String getDaemonStatus() {
 		return daemonStatus.toString();
+	}
+	
+	public int getNumTracked() {
+		return tree.getNumTracked();
+	}
+	
+	public String[] getTrackedFileStrings() {
+		List<String> tracked = new ArrayList<String>();
+		for (File file : tree.getTrackedFiles()) {
+			tracked.add(file.getAbsolutePath());
+		}
+		for (File dir : tree.getTrackedDirs()) {
+			tracked.add("DIR: " + dir.getAbsolutePath());
+		}
+		return (String[]) tracked.toArray(new String[tracked.size()]);
 	}
 	
 	private void notifyChange(DaemonNotification type) {

@@ -129,6 +129,14 @@ public class Merkle {
     public int getNumLeaves() {
         return numLeaves;
     }
+    
+    /**
+     * Get total number of tracked discrete files and directories
+     * @return total discrete files + total directories
+     */
+    public int getNumTracked() {
+    	return trackedFiles.size() + trackedDirectories.keySet().size();
+    }
 
     /**
      * Get the top level hash of the merkle tree

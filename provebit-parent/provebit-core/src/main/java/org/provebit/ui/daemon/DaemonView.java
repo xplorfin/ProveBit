@@ -2,6 +2,7 @@ package org.provebit.ui.daemon;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -26,13 +27,9 @@ public class DaemonView extends JPanel implements Observer {
 	private static final long serialVersionUID = 5876970360392816111L;
 	private static final String ADDFILESTRING = "Add Files to Monitor...";
 	private static final String REMOVEFILESTRING = "Remove Files...";
-	private static final String[] TESTLISTDATA = { "alphabet.png", "juice.txt",
-			"secrets.txt", "insurenceInfo.txt", "ipsumlorum.png",
-			"funds.wallet", "escapePlan.tiff", "cowlevel.wav", "ZAP.app",
-			"file1.txt", "file34.txt", "thatotherfile.txt" };
 	private DaemonModel model;
 	private JButton addFileButton, removeFileButton, startDaemonButton, stopDaemonButton, showLogButton, refreshLogButton;
-	private JLabel trackedFiles, daemonStatusLabel;
+	private JLabel trackedFilesLabel, daemonStatusLabel;
 	private JList<String> fileList;
 	private JTextField runPeriodInput;
 	private JScrollPane listScrollPane;
@@ -45,7 +42,7 @@ public class DaemonView extends JPanel implements Observer {
 	private List<JButton> buttons;
 	public DaemonView(DaemonModel model) {
 		this.model = model;
-		this.setLayout(new MigLayout("", "[][][]", "[]5[]5[][]"));
+		this.setLayout(new MigLayout("", "[][][]", "[]20[]20[]5[]5[]"));
 		buttons = new ArrayList<JButton>();
 		
 		setupButtons();
@@ -67,6 +64,7 @@ public class DaemonView extends JPanel implements Observer {
 	private void addControls() {
 		add(addFileButton);
 		add(removeFileButton, "wrap");
+		add(trackedFilesLabel);
 		add(listScrollPane, "wrap");
 		add(new JLabel("Daemon Run Period: "));
 		add(runPeriodInput, "split 2, width :50");
@@ -107,7 +105,8 @@ public class DaemonView extends JPanel implements Observer {
 	 * Private helper for setting up the List
 	 */
 	private void setupList() {
-		fileList = new JList<String>(TESTLISTDATA);
+		trackedFilesLabel = new JLabel("Tracking");
+		fileList = new JList<String>(model.getTrackedFileStrings());
 		fileList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		fileList.setLayoutOrientation(JList.VERTICAL);
 		fileList.setVisibleRowCount(10);
@@ -136,6 +135,10 @@ public class DaemonView extends JPanel implements Observer {
 		}
 		fileSelector.addActionListener(controller);
 	}
+	
+	public List<String> getSelectedFiles() {
+		return fileList.getSelectedValuesList();
+	}
 
 	@Override
 	public void update(Observable o, Object arg) {
@@ -152,10 +155,20 @@ public class DaemonView extends JPanel implements Observer {
 				case SHOWFILESELECT:
 					fileSelector.showOpenDialog(null);
 					break;
+				case UPDATETRACKING:
+					updateTrackingList();
+					break;
 				default:
 					break;
 			}
 		}
+	}
+	
+	/**
+	 * Update the list of tracked files
+	 */
+	private void updateTrackingList() {
+		fileList.setListData(model.getTrackedFileStrings());
 	}
 	
 	/**

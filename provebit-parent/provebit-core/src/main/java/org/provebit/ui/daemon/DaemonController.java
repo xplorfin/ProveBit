@@ -12,7 +12,7 @@ import javax.swing.event.ListSelectionListener;
 import org.provebit.daemon.Log;
 
 public class DaemonController implements ActionListener, ListSelectionListener {
-	public enum DaemonNotification{DAEMONSTATUS, SHOWLOG, SHOWFILESELECT}; // Enum to hold notification types for observers
+	public enum DaemonNotification{DAEMONSTATUS, SHOWLOG, SHOWFILESELECT, UPDATETRACKING}; // Enum to hold notification types for observers
 	DaemonModel model;
 	DaemonView view;
 
@@ -26,7 +26,7 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 		switch(e.getActionCommand()) {
 			case "startDaemon":
 				int period = view.getPeriod();
-				if (period != -1) {
+				if (period != -1 && model.getNumTracked() > 0) {
 					model.startDaemon(view.getPeriod());
 				}
 				break;
@@ -40,7 +40,10 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 				view.update(model, DaemonNotification.SHOWFILESELECT);
 				break;
 			case "removeFiles":
-				// Remove files
+				System.out.println("Removing files: " + view.getSelectedFiles());
+				for (String file : view.getSelectedFiles()) {
+					model.removeFileFromTree(new File(file));
+				}
 				break;
 			case "refreshLog":
 				Log log = model.getDaemonLog();

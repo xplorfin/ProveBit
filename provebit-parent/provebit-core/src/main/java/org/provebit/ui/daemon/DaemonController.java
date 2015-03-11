@@ -40,7 +40,6 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 				view.update(model, DaemonNotification.SHOWFILESELECT);
 				break;
 			case "removeFiles":
-				System.out.println("Removing files: " + view.getSelectedFiles());
 				for (String file : view.getSelectedFiles()) {
 					model.removeFileFromTree(new File(file));
 				}

@@ -73,7 +73,7 @@ public class DaemonModel extends Observable {
 			tracked.add(file.getAbsolutePath());
 		}
 		for (File dir : tree.getTrackedDirs()) {
-			tracked.add("DIR: " + dir.getAbsolutePath());
+			tracked.add(dir.getAbsolutePath());
 		}
 		return (String[]) tracked.toArray(new String[tracked.size()]);
 	}

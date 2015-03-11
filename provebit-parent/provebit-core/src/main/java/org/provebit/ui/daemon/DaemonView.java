@@ -81,7 +81,7 @@ public class DaemonView extends JPanel implements Observer {
 		buttons.add(addFileButton);
 		
 		removeFileButton = new JButton(REMOVEFILESTRING);
-		removeFileButton.setActionCommand("removeFile");
+		removeFileButton.setActionCommand("removeFiles");
 		buttons.add(removeFileButton);
 		
 		startDaemonButton = new JButton("Start Daemon");

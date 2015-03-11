@@ -1,5 +1,6 @@
 package org.provebit.ui.daemon;
 
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ public class DaemonView extends JPanel implements Observer {
 	private JPanel logPanel;
 	private JTextPane logTextPane;
 	private JFileChooser fileSelector;
+	private JScrollPane logScrollPane;
 	
 	private List<JButton> buttons;
 	public DaemonView(DaemonModel model) {
@@ -119,7 +121,10 @@ public class DaemonView extends JPanel implements Observer {
 		logPanel = new JPanel(new MigLayout());
 		logTextPane = new JTextPane();
 		logPanel.add(refreshLogButton, "span, wrap");
-		logPanel.add(logTextPane);
+		logScrollPane = new JScrollPane(logTextPane);
+		logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		logScrollPane.setPreferredSize(new Dimension(450, 700));
+		logPanel.add(logScrollPane);
 		logFrame.add(logPanel);
 		logFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		logFrame.setVisible(false);

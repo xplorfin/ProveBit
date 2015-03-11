@@ -23,6 +23,7 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		String data;
 		switch(e.getActionCommand()) {
 			case "startDaemon":
 				int period = view.getPeriod();
@@ -35,6 +36,8 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 				break;
 			case "showLog":
 				view.update(model, DaemonNotification.SHOWLOG);
+				data = (model.getDaemonLog() == null) ? "Daemon Offline" : model.getDaemonLog().toString();
+				view.updateLog(data);
 				break;
 			case "addFile":
 				view.update(model, DaemonNotification.SHOWFILESELECT);
@@ -46,7 +49,7 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 				break;
 			case "refreshLog":
 				Log log = model.getDaemonLog();
-				String data = (log == null) ? "Daemon Offline" : log.toString();
+				data = (log == null) ? "Daemon Offline" : log.toString();
 				view.updateLog(data);
 				break;
 			default:

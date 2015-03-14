@@ -42,7 +42,8 @@ public class DaemonView extends JPanel implements Observer {
 	private List<JButton> buttons;
 	public DaemonView(DaemonModel model) {
 		this.model = model;
-		this.setLayout(new MigLayout("", "[][][]", "[]20[]20[]5[]5[]"));
+		
+		this.setLayout(new MigLayout("", "[]", "[]20[]5[]20[]5[]5[]"));
 		buttons = new ArrayList<JButton>();
 		
 		setupButtons();
@@ -62,17 +63,17 @@ public class DaemonView extends JPanel implements Observer {
 	}
 
 	private void addControls() {
-		add(addFileButton);
+		add(addFileButton, "split 2");
 		add(removeFileButton, "wrap");
-		add(trackedFilesLabel);
-		add(listScrollPane, "wrap");
-		add(new JLabel("Daemon Run Period: "));
-		add(runPeriodInput, "split 2, width :50");
+		add(trackedFilesLabel, "wrap");
+		add(listScrollPane, "span, grow, push, wrap");
+		add(new JLabel("Daemon Run Period: "), "split 3");
+		add(runPeriodInput, "width :50");
 		add(new JLabel("sec"), "wrap");
-		add(startDaemonButton);
+		add(startDaemonButton, "split 2");
 		add(stopDaemonButton, "wrap");
-		add(daemonStatusLabel, "span, wrap");
-		add(showLogButton);
+		add(daemonStatusLabel, "wrap");
+		add(showLogButton, "");
 	}
 	
 	private void setupButtons() {

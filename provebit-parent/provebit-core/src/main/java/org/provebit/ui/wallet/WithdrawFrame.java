@@ -1,6 +1,7 @@
 package org.provebit.ui.wallet;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -13,20 +14,16 @@ public class WithdrawFrame extends JFrame{
 		this.setTitle("Send from Provebit wallet");
 	
 		
-		JTextArea sWalletAddress = new JTextArea("Destination Wallet Address: ");
-		sWalletAddress.setOpaque(false);
+		JLabel sWalletAddress = new JLabel("Destination Wallet Address: ");
 		add(sWalletAddress);
 		
 		JTextField addressField = new JTextField("" , 15);
-		addressField.setOpaque(false);
 		add(addressField, "wrap");
 		
-		JTextArea amount = new JTextArea("Amount: ");
-		amount.setOpaque(false);
+		JLabel amount = new JLabel("Amount: ");
 		add(amount);
 		
 		JTextField amountField = new JTextField("" , 5);
-		amountField.setOpaque(false);
 		add(amountField, "cell 0 1");
 		
 		// Add the deposit and send buttons

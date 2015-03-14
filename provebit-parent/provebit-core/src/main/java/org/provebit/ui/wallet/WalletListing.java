@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
@@ -17,18 +18,15 @@ public class WalletListing extends JPanel{
 		setBorder(BorderFactory.createLineBorder(Color.black));
 		
 		// Add the name of the wallet
-		JTextArea nameField = new JTextArea(name);
-		nameField.setOpaque(false);
+		JLabel nameField = new JLabel(name);
 		add(nameField, "wrap");
 		
 		// Add the Balance of the wallet
-		JTextArea balanceField = new JTextArea("Balance: " + amount + " " + type);
-		balanceField.setOpaque(false);
+		JLabel balanceField = new JLabel("Balance: " + amount + " " + type);
 		add(balanceField, "wrap");
 		
 		// Show the Address of the Wallet
-		JTextArea addressArea = new JTextArea("Address: 19VStDyNS5QdMTtV8juQ5sDZcGPyyoLrvi");
-		addressArea.setOpaque(false);
+		JLabel addressArea = new JLabel("Address: 19VStDyNS5QdMTtV8juQ5sDZcGPyyoLrvi");
 		add(addressArea, "wrap");
 		
 		// Add the deposit and send buttons

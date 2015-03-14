@@ -22,13 +22,12 @@ public class ApplicationDirectory {
 		else {
 			// linux 
 		    workingDirectory = System.getProperty("user.home");
-		    workingDirectory += "/.provebit";
 		    // for mac
 		    if (OS.contains("MAC")) {
+		    	// TODO check mac works
 			    workingDirectory += "/Library/Application Support";
-			    // TODO check mac works
-				workingDirectory += "/.provebit";
 		    }
+		    workingDirectory += "/.provebit";
 		}
 		
 		// create ProveBit application folder if it does not exist

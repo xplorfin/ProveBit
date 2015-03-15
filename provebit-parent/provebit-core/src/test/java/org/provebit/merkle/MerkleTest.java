@@ -1,9 +1,13 @@
 package org.provebit.merkle;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -12,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.provebit.merkle.Merkle;
 
 public class MerkleTest {
     final public static String COMPLETEDIR = "testCompleteDir";
@@ -256,5 +259,23 @@ public class MerkleTest {
     	mTree.removeTracking(tempFile2);
     	String oneFileRoot = Hex.encodeHexString(mTree.makeTree());
     	assertNotEquals(null, oneFileRoot, twoFileRoot);
+    }
+    
+    @Test 
+    public void testListPath() {
+    	Merkle mtree = new Merkle();
+    	mtree.addTracking(completeDirPath, false);
+    	mtree.makeTree();
+    	byte[][] tree = mtree.getTree();
+    	byte[] startingHash = tree[9];
+    	List<MerklePathStep> path = mtree.findPath(startingHash);
+    	assertTrue(path.get(0).onLeft());
+    	assertEquals(path.get(0).getFullHash(), tree[9]);
+    	
+    	assertTrue(!path.get(1).onLeft());
+    	assertEquals(path.get(1).getFullHash(), tree[4]);
+    	
+    	assertTrue(path.get(2).onLeft());
+    	assertEquals(path.get(2).getFullHash(), tree[1]);
     }
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -233,6 +234,24 @@ public class Merkle {
     public Boolean isDirRecursive(File dir) {
     	return (dir.isDirectory() && trackedDirectories.get(dir));
     }
+    
+    /**
+     * Function that returns a list of the path of hashes to the root given a leaf hash
+     * @param startingHash - leaf hash to start the path with
+     * @return The path in list form. The list starts with the lowest hash.
+     */
+    public List<MerklePathStep> findPath(byte[] startingHash){
+    	List<MerklePathStep> merklePath = new ArrayList<MerklePathStep> ();
+    	if(existsAsLeaf(startingHash)){
+    		int currentIndex = findLeafIndex(startingHash);
+    		while(currentIndex != 0){
+    			merklePath.add(new MerklePathStep(isLeftNode(currentIndex), tree[currentIndex]));
+    			currentIndex = getParent(currentIndex);
+    		}
+    	}
+    	
+    	return merklePath;
+    }
 
     /**
      * Calculates the total number of actual nodes in the tree
@@ -268,6 +287,11 @@ public class Merkle {
     private int getRightChild(int index) {
         return 2*(index+1);
     }
+    
+    private boolean isLeftNode(int index) {
+    	return (index % 2) != 0;
+    }
+
 
     /**
      * Wrapper that builds each level of the tree (except last)
@@ -318,6 +342,21 @@ public class Merkle {
             tree[i] = hash;
             i++;
         }
+    }
+    
+    /**
+     * Helper function that finds the array index of a given hash
+     * @param leafHash - Hash to be looked for in the leaves
+     * @return - Array index of the hash. -1 returned if not found
+     */
+    private int findLeafIndex(byte[] leafHash){    	
+    	 // Start at the Leftmost leaf node
+    	for (int i = (int) Math.pow(2, height) - 1; i < tree.length; i++){
+    		if (Arrays.equals(leafHash, tree[i])){
+    			return i;
+    		}
+    	}
+    	return -1;
     }
 
     /**

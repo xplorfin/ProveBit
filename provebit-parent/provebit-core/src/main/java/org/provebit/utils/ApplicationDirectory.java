@@ -5,12 +5,13 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ApplicationDirectory {
-	private static final Logger log = LoggerFactory
-			.getLogger(ApplicationDirectory.class);
-	private static File applicationDirectory;
+public enum ApplicationDirectory implements DirectoryAccessor {
+	INSTANCE;
+	
+	private File applicationDirectory;
 
-	static {
+	private ApplicationDirectory() {
+		final Logger ilog = LoggerFactory.getLogger(ApplicationDirectory.class);
 		String workingDirectory;
 		String OS = (System.getProperty("os.name")).toUpperCase();
 
@@ -34,12 +35,14 @@ public class ApplicationDirectory {
 		applicationDirectory = new File(workingDirectory);
 		if (!applicationDirectory.exists()) {
 			if (!applicationDirectory.mkdir()) {
-				log.error("Error creating the application folder");
+				//log.error("Error creating the application folder");
+				ilog.error("Wat");
 			}
 		}
+		//ilog.error("asdf");
 	}
 
-	public static File getRoot() {
+	public File getRoot() {
 		return applicationDirectory;
 	}
 }

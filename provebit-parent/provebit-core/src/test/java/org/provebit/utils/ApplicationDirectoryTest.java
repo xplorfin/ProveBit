@@ -7,7 +7,7 @@ public class ApplicationDirectoryTest {
 
 	@Test
 	public void testGetRoot() {
-		assertTrue(ApplicationDirectory.getRoot().exists());
+		assertTrue(ApplicationDirectory.INSTANCE.getRoot().exists());
 	}
 
 }

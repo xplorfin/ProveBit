@@ -8,6 +8,7 @@ import java.util.Date;
 import org.provebit.Config;
 import org.provebit.proof.keysys.AbstractKeyNode;
 import org.provebit.proof.keysys.KeyNotFoundException;
+import org.provebit.systems.bitcoin.wallet.CompleteHeaderStore;
 import org.bitcoinj.core.Block;
 import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.NetworkParameters;

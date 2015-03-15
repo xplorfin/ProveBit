@@ -1,4 +1,4 @@
-package org.provebit.proof.keysys.bitcoin;
+package org.provebit.systems.bitcoin.wallet;
 
 import java.io.File;
 import java.io.IOException;

@@ -8,11 +8,11 @@ package org.provebit.merkle;
  */
 public class MerklePathStep {
 	private boolean onLeft;
-	private byte[] fullHash;
+	private byte[] hash;
 	
 	public MerklePathStep(boolean onLeft, byte[] fullHash){
 		this.onLeft = onLeft;
-		this.fullHash = fullHash;
+		this.hash = fullHash;
 	}
 
 	public boolean onLeft() {
@@ -23,12 +23,12 @@ public class MerklePathStep {
 		this.onLeft = onLeft;
 	}
 
-	public byte[] getFullHash() {
-		return fullHash;
+	public byte[] getHash() {
+		return hash;
 	}
 
 	public void setFullHash(byte[] fullHash) {
-		this.fullHash = fullHash;
+		this.hash = fullHash;
 	}
 	
 	

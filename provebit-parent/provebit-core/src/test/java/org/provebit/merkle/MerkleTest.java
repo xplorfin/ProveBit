@@ -262,7 +262,7 @@ public class MerkleTest {
     }
     
     @Test 
-    public void testListPath() {
+    public void testListPathCreation() {
     	Merkle mtree = new Merkle();
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
@@ -270,12 +270,50 @@ public class MerkleTest {
     	byte[] startingHash = tree[9];
     	List<MerklePathStep> path = mtree.findPath(startingHash);
     	assertTrue(path.get(0).onLeft());
-    	assertEquals(path.get(0).getFullHash(), tree[9]);
+    	assertEquals(path.get(0).getHash(), tree[9]);
     	
     	assertTrue(!path.get(1).onLeft());
-    	assertEquals(path.get(1).getFullHash(), tree[4]);
+    	assertEquals(path.get(1).getHash(), tree[4]);
     	
     	assertTrue(path.get(2).onLeft());
-    	assertEquals(path.get(2).getFullHash(), tree[1]);
+    	assertEquals(path.get(2).getHash(), tree[1]);
+    }
+    
+    @Test
+    public void testCheckListPathValid(){
+    	Merkle mtree = new Merkle();
+    	mtree.addTracking(completeDirPath, false);
+    	mtree.makeTree();
+    	byte[][] tree = mtree.getTree();
+    	byte[] startingHash = tree[9];
+    	List<MerklePathStep> path = mtree.findPath(startingHash);
+    	
+    	assertTrue(mtree.checkPath(path));
+    	
+    }
+    
+    @Test
+    public void testCheckListShortPath(){
+    	Merkle mtree = new Merkle();
+    	mtree.addTracking(completeDirPath, false);
+    	mtree.makeTree();
+    	byte[][] tree = mtree.getTree();
+    	byte[] startingHash = tree[9];
+    	List<MerklePathStep> path = mtree.findPath(startingHash);
+    	path.remove(0);
+    	assertTrue(!mtree.checkPath(path));    	
+    }
+    
+    @Test
+    public void testCheckListInvalidPath(){
+    	Merkle mtree = new Merkle();
+    	mtree.addTracking(completeDirPath, false);
+    	mtree.makeTree();
+    	byte[][] tree = mtree.getTree();
+    	byte[] startingHash = tree[9];
+    	List<MerklePathStep> path = mtree.findPath(startingHash);
+    	//Set to an invalid byte []
+    	path.get(0).setFullHash(tree[2]);
+    	assertTrue(!mtree.checkPath(path));    	
     }
 }

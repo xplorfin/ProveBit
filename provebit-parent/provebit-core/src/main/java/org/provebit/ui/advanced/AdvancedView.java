@@ -16,7 +16,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class AdvancedView extends JPanel implements Observer {
 	AdvancedModel model;
-	private static final String[] TESTDROPDOWNDATA = {"SHA256", "SHA3", ""};
+	private static final String[] TESTDROPDOWNDATA = {"SHA256", "SHA3"};
 	private static final String warning = "Warning: Do not edit these settings if you don't know what to do.";
 	private JComboBox advancedDropDown;
 	private JRadioButton advancedFirst;
@@ -31,7 +31,7 @@ public class AdvancedView extends JPanel implements Observer {
 		setLayout(new MigLayout("","[]","5[]5[][][]"));
 		
 		warningLabel = new JLabel(warning);
-		add(warningLabel, "dock north");
+		add(warningLabel,"wrap");
 		/*
 		advancedFirst = new JRadioButton("Option 1");
 		advancedSecond = new JRadioButton("Option 2");
@@ -46,11 +46,11 @@ public class AdvancedView extends JPanel implements Observer {
 		advancedDropDown = new JComboBox(TESTDROPDOWNDATA);
 		advancedDropDown.setSelectedIndex(0);
 		chooseHashLabel = new JLabel("Change crypto hash:");
-		add(chooseHashLabel);
+		add(chooseHashLabel, "split");
 		add(advancedDropDown, "wrap");
 		
 		configButton = new JButton("Open config.yaml");
-		add(configButton);
+		add(configButton, "dock south");
 		
 		setVisible(true);
 	}

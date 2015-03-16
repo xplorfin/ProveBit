@@ -11,33 +11,33 @@ import javax.swing.JTextArea;
 import net.miginfocom.swing.MigLayout;
 
 public class WalletListing extends JPanel{
+	private JButton sendButton;
+	private JLabel nameField, balanceField, addressField;
 
 	
 	public WalletListing(String name, int amount, String type, WalletController controller){
-		setLayout(new MigLayout("", "[]70[]", "[][]10[]"));
+		setLayout(new MigLayout("", "[]40[]", "[][][]"));
 		setBorder(BorderFactory.createLineBorder(Color.black));
 		
+		nameField = new JLabel(name);
+		sendButton = new JButton("Send");
+		sendButton.setActionCommand("Send");
+		sendButton.addActionListener(controller);
+		balanceField = new JLabel("Balance: " + amount + " " + type);
+		addressField = new JLabel("Address: 19VStDyNS5QdMTtV8juQ5sDZcGPyyoLrvi");
+		
 		// Add the name of the wallet
-		JLabel nameField = new JLabel(name);
-		add(nameField, "wrap");
+		add(nameField);
+		
+		// Add the send button
+		add(sendButton, "wrap");
 		
 		// Add the Balance of the wallet
-		JLabel balanceField = new JLabel("Balance: " + amount + " " + type);
 		add(balanceField, "wrap");
 		
 		// Show the Address of the Wallet
-		JLabel addressArea = new JLabel("Address: 19VStDyNS5QdMTtV8juQ5sDZcGPyyoLrvi");
-		add(addressArea, "wrap");
+		add(addressField, "wrap");
 		
-		// Add the deposit and send buttons
-		JButton sendButton = new JButton("Send");
-		
-		sendButton.setActionCommand("Send");
-		
-		sendButton.addActionListener(controller);
-		
-		add(sendButton);
-
 	}
 
 

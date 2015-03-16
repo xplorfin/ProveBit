@@ -20,8 +20,7 @@ public class WalletView extends JPanel implements Observer {
 		withdraw = new WithdrawFrame(controller);
 		wallets = new ArrayList<WalletListing>();
 		
-		this.setLayout(new MigLayout());
-		
+		this.setLayout(new MigLayout("","[]",""));
 		
 		// Add all of the current wallets
 		wallets.add(new WalletListing("Bitcoin Wallet", 10, "BTC", controller));

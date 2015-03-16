@@ -254,6 +254,11 @@ public class Merkle {
     	return merklePath;
     }
     
+    /**
+     * Function that takes in a list of merkle steps and checks whether the path is valid
+     * @param path - list of merkle steps starting from the leafs
+     * @return Whether the given path is valid
+     */
     public boolean checkPath(List<MerklePathStep> path){
     	boolean validPath = (this.height == path.size());
     	

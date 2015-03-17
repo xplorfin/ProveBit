@@ -57,10 +57,17 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 		}
 		
 		if (e.getSource() instanceof JFileChooser) {
+			boolean recursive = false;
 			JFileChooser fileSelector = (JFileChooser) e.getSource();
 			File[] files = fileSelector.getSelectedFiles();
 			for (File file : files) {
-				model.addFileToTree(file, true);
+				if (!model.isTracking(file)) {
+					if (file.isDirectory()) {
+						recursive = view.getRecursiveOption(file.getName());
+					}
+					model.addFileToTree(file, recursive);
+				}
+				
 			}
 		}
 	}

@@ -2,7 +2,6 @@ package org.provebit.ui.daemon;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -13,6 +12,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -27,17 +27,19 @@ public class DaemonView extends JPanel implements Observer {
 	private static final long serialVersionUID = 5876970360392816111L;
 	private static final String ADDFILESTRING = "Add Files to Monitor...";
 	private static final String REMOVEFILESTRING = "Remove Files...";
+	private static final String[] RECURSIVEOPTIONS = {"No","Yes"};
 	private DaemonModel model;
 	private JButton addFileButton, removeFileButton, startDaemonButton, stopDaemonButton, showLogButton, refreshLogButton;
 	private JLabel trackedFilesLabel, daemonStatusLabel;
 	private JList<String> fileList;
 	private JTextField runPeriodInput;
 	private JScrollPane listScrollPane;
-	private JFrame logFrame;
+	private JFrame logFrame, optionFrame;
 	private JPanel logPanel;
 	private JTextPane logTextPane;
 	private JFileChooser fileSelector;
 	private JScrollPane logScrollPane;
+	private JOptionPane recursiveOptionPane;
 	
 	private List<JButton> buttons;
 	public DaemonView(DaemonModel model) {
@@ -56,6 +58,8 @@ public class DaemonView extends JPanel implements Observer {
 		
 		runPeriodInput = new JTextField("");
 		daemonStatusLabel = new JLabel("Daemon status: " + model.getDaemonStatus());
+		optionFrame = new JFrame();
+		optionFrame.setVisible(false);
 		
 		addControls();
 		
@@ -128,6 +132,26 @@ public class DaemonView extends JPanel implements Observer {
 		logFrame.add(logPanel);
 		logFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		logFrame.setVisible(false);
+	}
+	
+	/**
+	 * Get recursive status of a given directory
+	 * @param dirName - Directory to ask user to choose status of
+	 * @return - true if directory should be tracked recursively, false o/w
+	 */
+	public boolean getRecursiveOption(String dirName) {
+		int choice;
+		optionFrame.setVisible(true);
+		choice = JOptionPane.showOptionDialog(optionFrame, 
+									 "Should " + dirName + " track sub directories?", 
+									 "Recursive Status", 
+									 JOptionPane.YES_NO_OPTION, 
+									 JOptionPane.QUESTION_MESSAGE,
+									 null, 
+									 RECURSIVEOPTIONS,
+									 RECURSIVEOPTIONS[0]);
+		optionFrame.setVisible(false);
+		return (choice == 1) ? true : false;
 	}
 
 	public void addController(ActionListener controller) {

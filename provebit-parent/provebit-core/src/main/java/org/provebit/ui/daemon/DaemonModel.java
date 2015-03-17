@@ -42,6 +42,10 @@ public class DaemonModel extends Observable {
 		notifyChange(DaemonNotification.DAEMONSTATUS);
 	}
 	
+	public boolean isTracking(File file) {
+		return tree.isTracking(file);
+	}
+	
 	public void stopDaemon() {
 		if (daemon == null) return;
 		daemon.interrupt();

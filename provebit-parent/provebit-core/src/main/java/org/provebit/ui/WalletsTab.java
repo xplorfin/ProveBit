@@ -2,16 +2,16 @@ package org.provebit.ui;
 
 import javax.swing.JPanel;
 
-import org.provebit.ui.wallet.WalletController;
-import org.provebit.ui.wallet.WalletModel;
-import org.provebit.ui.wallet.WalletView;
+import org.provebit.ui.wallets.WalletController;
+import org.provebit.ui.wallets.WalletModel;
+import org.provebit.ui.wallets.WalletView;
 
-public class WalletTab {
+public class WalletsTab {
 	private WalletModel model;
 	private WalletView view;
 	private WalletController controller;
 
-	public WalletTab() {
+	public WalletsTab() {
 		model = new WalletModel();
 		view = new WalletView(model);
 		model.addObserver(view);

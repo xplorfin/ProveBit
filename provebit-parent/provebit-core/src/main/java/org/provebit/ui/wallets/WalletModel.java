@@ -1,4 +1,4 @@
-package org.provebit.ui.wallet;
+package org.provebit.ui.wallets;
 
 import java.util.Observable;
 

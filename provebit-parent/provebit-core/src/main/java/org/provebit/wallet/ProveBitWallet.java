@@ -17,12 +17,12 @@ import org.bitcoinj.core.Wallet;
 import org.bitcoinj.core.Wallet.SendResult;
 import org.bitcoinj.core.WalletEventListener;
 import org.bitcoinj.core.WalletExtension;
+import org.bitcoinj.kits.WalletAppKit;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.utils.Threading;
 import org.provebit.utils.ApplicationDirectory;
-import org.provebit.wallet.deterministic.DeterministicExtension;
 
 public class ProveBitWallet {
 	
@@ -32,13 +32,12 @@ public class ProveBitWallet {
 	private NetworkParameters params;
 	private PeerGroup peerGroup;
 	private Wallet wallet;
-	private WalletInitializer walletGen;
+	private WalletAppKit walletGen;
 	private WalletEventHandler weventh;
-	private String name;
 	
-	public DeterministicExtension deterministic;
-
 	private BlockChain chain;
+
+	private Map<String,WalletExtension> extensions;
 	
 	public ProveBitWallet() {
 		initWallet(WALLET_NAME, ApplicationDirectory.INSTANCE.getRoot());
@@ -53,7 +52,7 @@ public class ProveBitWallet {
 		else {
 			params = MainNetParams.get();
 		}
-		walletGen = new WalletInitializer(params, directory,  walletName);
+		walletGen = new WalletAppKit(params, directory,  walletName);
 		
 		// configure wallet service
 		walletGen.setBlockingStartup(false);
@@ -63,7 +62,6 @@ public class ProveBitWallet {
 		walletGen.awaitRunning();
 		
 		// post configuration
-		name = walletGen.getName();
 		peerGroup = walletGen.peerGroup();
 		chain = walletGen.chain();
 		peerGroup.setMaxConnections(12);
@@ -71,18 +69,9 @@ public class ProveBitWallet {
 		wallet.allowSpendingUnconfirmedTransactions();
 		weventh = new WalletEventHandler();
 		wallet.addEventListener(weventh);
-		// ensure we have atleast one address
-		//if (wallet.getKeychainSize() < 1)
-		//	addAddress();
-		Map<String,WalletExtension> extensions = wallet.getExtensions();
-		deterministic = (DeterministicExtension) extensions.get(DeterministicExtension.getExtensionIDStatic());
-		if (walletGen.newWallet)
-			extensionsInit();
+		extensions = wallet.getExtensions();
 	}
 	
-	private void extensionsInit() {
-		deterministic.newSeedInit(wallet);
-	}
 	
 	/**
 	 * Sends bitcoin

@@ -1,4 +1,4 @@
-package org.provebit.ui.wallet;
+package org.provebit.ui.wallets;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;

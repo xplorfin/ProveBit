@@ -22,7 +22,7 @@ import net.miginfocom.swing.MigLayout;
 import org.provebit.ui.AdvancedTab;
 import org.provebit.ui.DaemonTab;
 import org.provebit.ui.GeneralTab;
-import org.provebit.ui.WalletTab;
+import org.provebit.ui.WalletsTab;
 
 public class MainView extends JFrame implements Observer {
 	private MainModel model;
@@ -87,7 +87,7 @@ public class MainView extends JFrame implements Observer {
 	private void addTabs() {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.addTab("General", new GeneralTab().getPanel());
-		tabbedPane.addTab("Wallet", new WalletTab().getPanel());
+		tabbedPane.addTab("Wallet", new WalletsTab().getPanel());
 		tabbedPane.addTab("Daemon", new DaemonTab().getPanel());
 		tabbedPane.addTab("Advanced", new AdvancedTab().getPanel());
 		add(tabbedPane);

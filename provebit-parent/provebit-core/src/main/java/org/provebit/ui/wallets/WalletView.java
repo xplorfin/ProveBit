@@ -1,4 +1,4 @@
-package org.provebit.ui.wallet;
+package org.provebit.ui.wallets;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -15,8 +15,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class WalletView extends JPanel implements Observer {
 	private WalletModel model;
-	private ArrayList<WalletListing> wallets;
-	private JList<WalletListing> walletList;
+	private ArrayList<JPanel> walletsViews;
 	private JScrollPane listScrollPane;
 	
 	private WithdrawFrame withdraw;
@@ -25,18 +24,16 @@ public class WalletView extends JPanel implements Observer {
 		this.model = model;
 		this.setLayout(new MigLayout("","[]",""));
 		WalletController controller = new WalletController(model, this);
-		withdraw = new WithdrawFrame(controller);
-		wallets = new ArrayList<WalletListing>();
+		//withdraw = new WithdrawFrame(controller);
+		walletsViews = new ArrayList<JPanel>();
+		// TODO actually add the scroll pane
 		listScrollPane = new JScrollPane();
 		
 		
-		
 		// Add all of the current wallets
-		wallets.add(new WalletListing("Bitcoin Wallet", 10, "BTC", controller));
-		wallets.add(new WalletListing("Litecoin Wallet", 10, "LTC", controller));
-		wallets.add(new WalletListing("Hackurcoin Wallet", 15, "HXC", controller));
+		walletsViews.add(new org.provebit.systems.bitcoin.ui.gui.WalletPanel().getPanel());
 		
-		for (WalletListing wallet: wallets){
+		for (JPanel wallet: walletsViews){
 			this.add(wallet, "wrap, span, push");
 		}
 		

@@ -91,8 +91,7 @@ public class Merkle {
     public byte[] makeTree() {
         List<File> fileList = MerkleUtils.getFiles(trackedFiles, trackedDirectories);
         if (fileList.size() == 0) {
-            numLeaves = 0;
-            tree = null;
+            resetTree();
             return getRootHash();
         }
         
@@ -322,6 +321,13 @@ public class Merkle {
     	return (index % 2) != 0;
     }
 
+    private void resetTree() {
+    	numLeaves = 0;
+    	height = 0;
+    	recentLeaves.clear();
+        tree = null;
+        exists = false;
+    }
 
     /**
      * Wrapper that builds each level of the tree (except last)

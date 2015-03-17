@@ -18,12 +18,11 @@ public class WalletController implements ActionListener {
 		switch (e.getActionCommand()) {
 			case "send":
 				// launch a pane to collect input
-				System.out.println("clicked");
+				view.sendPrompt();
 				break;
 			default:
 				break;
 		}
 		
 	}
-
 }

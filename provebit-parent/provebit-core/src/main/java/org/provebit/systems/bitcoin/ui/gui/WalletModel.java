@@ -96,50 +96,55 @@ public class WalletModel extends Observable {
 		}, Threading.USER_THREAD);
 	}
 	
+	public String getBalance() {
+		Coin balance = wallet.getBalance();
+		return balance.toFriendlyString();
+	}
+	
+	public String getReceivingAddress() {
+		return wallet.currentReceiveAddress().toString();
+	}
+	
 	private class WalletEventHandler implements WalletEventListener {
 
 		@Override
 		public void onKeysAdded(List<ECKey> keys) {
-			// TODO Auto-generated method stub
-			
+			notifyChange();
 		}
 
 		@Override
 		public void onCoinsReceived(Wallet wallet, Transaction tx,
 				Coin prevBalance, Coin newBalance) {
-			// TODO Auto-generated method stub
-			
+			// caught by onWalletChanged
 		}
 
 		@Override
 		public void onCoinsSent(Wallet wallet, Transaction tx,
 				Coin prevBalance, Coin newBalance) {
-			// TODO Auto-generated method stub
-			
+			// caught by onWalletChanged
+
 		}
 
 		@Override
 		public void onReorganize(Wallet wallet) {
-			// TODO Auto-generated method stub
-			
+			// caught by onWalletChanged
+
 		}
 
 		@Override
 		public void onTransactionConfidenceChanged(Wallet wallet, Transaction tx) {
-			// TODO Auto-generated method stub
-			
+			// caught by onWalletChanged
+
 		}
 
 		@Override
 		public void onWalletChanged(Wallet wallet) {
-			// TODO Auto-generated method stub
-			
+			notifyChange();
 		}
 
 		@Override
 		public void onScriptsAdded(Wallet wallet, List<Script> scripts) {
-			// TODO Auto-generated method stub
-			
+			notifyChange();
 		}
 		
 	}

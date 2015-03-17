@@ -14,6 +14,8 @@ import net.miginfocom.swing.MigLayout;
 
 public class WalletView extends JPanel implements Observer {
 
+	private JButton sendButton;
+
 	public WalletView(WalletModel model){
 		setLayout(new MigLayout("", "[]70[]", "[][]10[]"));
 		setBorder(BorderFactory.createLineBorder(Color.black));
@@ -30,10 +32,9 @@ public class WalletView extends JPanel implements Observer {
 		JLabel addressArea = new JLabel("Address: 19VStDyNS5QdMTtV8juQ5sDZcGPyyoLrvi");
 		add(addressArea, "wrap");
 		
-		// Add the deposit and send buttons
-		JButton sendButton = new JButton("Send");
+		sendButton = new JButton("Send");
 		
-		sendButton.setActionCommand("Send");
+		sendButton.setActionCommand("send");
 		
 		//sendButton.addActionListener(controller);
 		
@@ -47,8 +48,7 @@ public class WalletView extends JPanel implements Observer {
 	}
 
 	public void addController(WalletController controller) {
-		// TODO Auto-generated method stub
-		
+		sendButton.addActionListener(controller);
 	}
 
 }

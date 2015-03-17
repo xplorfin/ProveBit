@@ -1,6 +1,7 @@
 package org.provebit.ui.wallets;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -22,7 +23,8 @@ public class WalletView extends JPanel implements Observer {
 	
 	public WalletView(WalletModel model) {
 		this.model = model;
-		this.setLayout(new MigLayout("","[]",""));
+		setLayout(new FlowLayout(FlowLayout.LEFT));
+		//this.setLayout(new MigLayout("","[]",""));
 		WalletController controller = new WalletController(model, this);
 		//withdraw = new WithdrawFrame(controller);
 		walletsViews = new ArrayList<JPanel>();
@@ -32,9 +34,10 @@ public class WalletView extends JPanel implements Observer {
 		
 		// Add all of the current wallets
 		walletsViews.add(new org.provebit.systems.bitcoin.ui.gui.WalletPanel().getPanel());
+		//walletsViews.add(new org.provebit.systems.bitcoin.ui.gui.WalletPanel().getPanel());
 		
 		for (JPanel wallet: walletsViews){
-			this.add(wallet, "wrap, span, push");
+			this.add(wallet);
 		}
 		
 

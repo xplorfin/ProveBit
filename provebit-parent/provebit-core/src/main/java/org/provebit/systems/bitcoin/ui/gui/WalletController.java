@@ -1,9 +1,29 @@
 package org.provebit.systems.bitcoin.ui.gui;
 
-public class WalletController {
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+public class WalletController implements ActionListener {
+
+	WalletModel model;
+	WalletView view;
+	
 	public WalletController(WalletModel model, WalletView view) {
-		// TODO Auto-generated constructor stub
+		this.model = model;
+		this.view = view;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		switch (e.getActionCommand()) {
+			case "send":
+				// launch a pane to collect input
+				System.out.println("clicked");
+				break;
+			default:
+				break;
+		}
+		
 	}
 
 }

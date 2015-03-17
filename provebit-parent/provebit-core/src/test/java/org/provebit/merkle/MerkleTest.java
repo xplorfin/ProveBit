@@ -316,4 +316,22 @@ public class MerkleTest {
     	path.get(0).setFullHash(tree[2]);
     	assertTrue(!mtree.checkPath(path));    	
     }
+    
+    @Test
+    public void testCheckStepSerializer(){
+    	Merkle mtree = new Merkle();
+    	mtree.addTracking(completeDirPath, false);
+    	mtree.makeTree();
+    	byte[][] tree = mtree.getTree();
+    	byte[] startingHash = tree[9];
+    	List<MerklePathStep> path = mtree.findPath(startingHash);
+    	byte[] serializedPath = MerkleStepSerializer.MerklePathStepSerializer(path);
+
+    	for(int i = 0; i < path.size(); i++){
+    		assertTrue((serializedPath[i*33] != 0) == path.get(i).onLeft());
+    		for(int j = 0; j < 32; j++){
+    			assertTrue((serializedPath[(i*33) + j + 1]) != path.get(i).getHash()[j]);
+    		}
+    	}
+    }
 }

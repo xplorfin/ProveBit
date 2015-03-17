@@ -239,7 +239,6 @@ public class Merkle {
      * @param startingHash - leaf hash to start the path with
      * @return The path in list form. The list starts with the lowest hash.
      */
-    // TODO: Should the param be a hash or a file? Also should the path include the root?
     public List<MerklePathStep> findPath(byte[] startingHash){
     	List<MerklePathStep> merklePath = new ArrayList<MerklePathStep> ();
     	if(existsAsLeaf(startingHash)){

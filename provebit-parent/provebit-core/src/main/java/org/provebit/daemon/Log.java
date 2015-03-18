@@ -143,7 +143,7 @@ public class Log {
 	public void endLog() throws IOException {
 		if (output != null) {
 			if (nextPending != entries.size() - 1) {
-				this.writeToFile();
+				writeToFile();
 			}
 			oOut.close();
 			fOut.close();

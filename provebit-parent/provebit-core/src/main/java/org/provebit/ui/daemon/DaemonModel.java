@@ -71,6 +71,10 @@ public class DaemonModel extends Observable {
 		return tree.getNumTracked();
 	}
 	
+	public void updatePeriod(int newPeriod) {
+		
+	}
+	
 	public String[] getTrackedFileStrings() {
 		List<String> tracked = new ArrayList<String>();
 		for (File file : tree.getTrackedFiles()) {

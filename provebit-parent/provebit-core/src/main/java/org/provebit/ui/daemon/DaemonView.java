@@ -29,7 +29,7 @@ public class DaemonView extends JPanel implements Observer {
 	private static final String REMOVEFILESTRING = "Remove Files...";
 	private static final String[] RECURSIVEOPTIONS = {"No","Yes"};
 	private DaemonModel model;
-	private JButton addFileButton, removeFileButton, startDaemonButton, stopDaemonButton, showLogButton, refreshLogButton;
+	private JButton addFileButton, removeFileButton, startDaemonButton, stopDaemonButton, updateIntervalButton, showLogButton, refreshLogButton;
 	private JLabel trackedFilesLabel, daemonStatusLabel;
 	private JList<String> fileList;
 	private JTextField runPeriodInput;
@@ -74,8 +74,9 @@ public class DaemonView extends JPanel implements Observer {
 		add(new JLabel("Daemon Run Period: "), "split 3");
 		add(runPeriodInput, "width :50");
 		add(new JLabel("sec"), "wrap");
-		add(startDaemonButton, "split 2");
-		add(stopDaemonButton, "wrap");
+		add(startDaemonButton, "split 3");
+		add(stopDaemonButton);
+		add(updateIntervalButton, "wrap");
 		add(daemonStatusLabel, "wrap");
 		add(showLogButton, "");
 	}
@@ -104,6 +105,10 @@ public class DaemonView extends JPanel implements Observer {
 		refreshLogButton = new JButton("Refresh Log");
 		refreshLogButton.setActionCommand("refreshLog");
 		buttons.add(refreshLogButton);
+		
+		updateIntervalButton = new JButton("Update Interval");
+		updateIntervalButton.setActionCommand("updateInterval");
+		buttons.add(updateIntervalButton);
 	}
 
 	/**
@@ -127,7 +132,7 @@ public class DaemonView extends JPanel implements Observer {
 		logPanel.add(refreshLogButton, "span, wrap");
 		logScrollPane = new JScrollPane(logTextPane);
 		logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		logScrollPane.setPreferredSize(new Dimension(450, 700));
+		logScrollPane.setPreferredSize(new Dimension(500, 800));
 		logPanel.add(logScrollPane);
 		logFrame.add(logPanel);
 		logFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);

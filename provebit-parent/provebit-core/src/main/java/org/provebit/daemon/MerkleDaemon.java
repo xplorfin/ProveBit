@@ -141,4 +141,12 @@ public class MerkleDaemon extends Thread {
 	public Log getLog() {
 		return listener.log;
 	}
+	
+	/**
+	 * Changes the refresh period
+	 * @param newPeriod - New refresh period to use
+	 */
+	public void updatePeriod(int newPeriod) {
+		period = newPeriod;
+	}
 }

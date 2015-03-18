@@ -182,6 +182,8 @@ public class Log {
 				return false;
 			}
 		}
+		numEntries = entries.size();
+		
 		return true;
 	}
 
@@ -201,10 +203,47 @@ public class Log {
 			}
 		}
 	}
+	
+	/**
+	 * Get all the log entries saved in a given file
+	 * @param file - Existing log file to read
+	 * @return ArrayList<LogEntry> of all entries found
+	 */
+	public ArrayList<LogEntry> readLogFile(File file) {
+		ArrayList<LogEntry> fileEntries = new ArrayList<LogEntry>();
+
+		LogEntry entry;
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(
+					file));
+			while ((entry = (LogEntry) ois.readObject()) != null) {
+				fileEntries.add(entry);
+			}
+			ois.close();
+		} catch (IOException | ClassNotFoundException e) {
+			if (e instanceof EOFException) {
+				// Ignore, we finished reading all objects
+			} else {
+				System.out.println("Log recovery failed");
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return fileEntries;
+	}
 
 	public String toString() {
+		return entriesToString(this.entries);
+	}
+	
+	/**
+	 * Static to string method to create a human readable form of a log entry list
+	 * @param logEntries - list of log entries
+	 * @return
+	 */
+	public static String entriesToString(ArrayList<LogEntry> logEntries) {
 		String logAsString = "";
-		for (LogEntry entry : entries) {
+		for (LogEntry entry : logEntries) {
 			logAsString += entry.toString() + "\n";
 		}
 		return logAsString;

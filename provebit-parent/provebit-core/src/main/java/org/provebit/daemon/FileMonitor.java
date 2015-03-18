@@ -2,8 +2,6 @@ package org.provebit.daemon;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
@@ -19,14 +17,25 @@ public class FileMonitor implements FileAlterationListener {
 	private Merkle tree;
 	private int events;
 	protected Log log;
+	private File logFile;
 
 	/**
 	 * Initializes file monitor
+	 * Sets up logging instance that attempts to log events to local file
+	 * @throws IOException 
 	 */
 	public FileMonitor(Merkle mTree) {
 		tree = mTree;
 		events = 0;
-		log = new Log();
+		logFile = new File(new java.io.File("").getAbsolutePath() + "daemon.log");
+		FileUtils.deleteQuietly(logFile); // If an old log already exists, delete it
+		try {
+			log = new Log(logFile);
+		} catch (IOException e) {
+			System.out.println("Failed to create log file, only logging internally");
+			e.printStackTrace();
+			log = new Log();
+		}
 	}
 
 	@Override

@@ -40,8 +40,12 @@ public class DaemonView extends JPanel implements Observer {
 	private JFileChooser fileSelector;
 	private JScrollPane logScrollPane;
 	private JOptionPane recursiveOptionPane;
-	
 	private List<JButton> buttons;
+	
+	/**
+	 * Constructor
+	 * @param model - DaemonModel
+	 */
 	public DaemonView(DaemonModel model) {
 		this.model = model;
 		
@@ -111,9 +115,6 @@ public class DaemonView extends JPanel implements Observer {
 		buttons.add(updateIntervalButton);
 	}
 
-	/**
-	 * Private helper for setting up the List
-	 */
 	private void setupList() {
 		trackedFilesLabel = new JLabel("Tracking");
 		fileList = new JList<String>(model.getTrackedFileStrings());
@@ -124,7 +125,6 @@ public class DaemonView extends JPanel implements Observer {
 	}
 	
 	private void setupLogFrame() {
-		// Setup log panel
 		logFrame = new JFrame("Daemon Log");
 		logFrame.setSize(500, 800);
 		logPanel = new JPanel(new MigLayout());
@@ -171,6 +171,13 @@ public class DaemonView extends JPanel implements Observer {
 	}
 
 	@Override
+	/**
+	 * Called by observables (DaemonModel) when a change
+	 * occurs that requires a view update
+	 * 
+	 * @param o - DaemonModel or null
+	 * @param arg - object relevant to update
+	 */
 	public void update(Observable o, Object arg) {
 		if (arg instanceof DaemonNotification) {
 			DaemonNotification notification = (DaemonNotification) arg;

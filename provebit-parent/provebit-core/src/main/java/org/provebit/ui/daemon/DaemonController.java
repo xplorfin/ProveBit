@@ -16,11 +16,19 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 	DaemonModel model;
 	DaemonView view;
 
+	/**
+	 * Constructor
+	 * @param model - DaemonModel
+	 * @param view - DaemonView
+	 */
 	public DaemonController(DaemonModel model, DaemonView view) {
 		this.model = model;
 		this.view = view;
 	}
 
+	/**
+	 * Main dispatch method for actionCommands
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String data;

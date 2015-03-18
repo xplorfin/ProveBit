@@ -138,7 +138,11 @@ public class MerkleDaemon extends Thread {
 		return listener.getNumEvents();
 	}
 
-	public Log getLog() {
+	public String getLog() {
+		return listener.getLogEntries();
+	}
+	
+	public Log getLogActual() {
 		return listener.log;
 	}
 	

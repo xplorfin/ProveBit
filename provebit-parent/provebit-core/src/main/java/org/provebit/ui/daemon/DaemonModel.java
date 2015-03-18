@@ -59,7 +59,7 @@ public class DaemonModel extends Observable {
 		notifyChange(DaemonNotification.DAEMONSTATUS);
 	}
 	
-	public Log getDaemonLog() {
+	public String getDaemonLog() {
 		return (daemon == null) ? null : daemon.getLog();
 	}
 	

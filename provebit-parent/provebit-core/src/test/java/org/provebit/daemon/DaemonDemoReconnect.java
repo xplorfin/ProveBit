@@ -27,7 +27,7 @@ public class DaemonDemoReconnect extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Log log = daemon.getLog();
+		Log log = daemon.getLogActual();
 		System.out.println(log.toString());
 		daemon.interrupt();
 	}

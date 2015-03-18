@@ -220,7 +220,7 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	FileUtils.deleteQuietly(tempFile);
     	Thread.sleep(TESTSLEEP);
-    	Log log = daemon.getLog();
+    	Log log = daemon.getLogActual();
     	assertTrue(log.toString().contains(MonitorEvent.FCREATE.toString()));
     	assertTrue(log.toString().contains(MonitorEvent.FCHANGE.toString()));
     	assertTrue(log.toString().contains(MonitorEvent.FDELETE.toString()));
@@ -242,7 +242,7 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	FileUtils.deleteQuietly(daemonSubDir);
     	Thread.sleep(TESTSLEEP);
-    	Log log = daemon.getLog();
+    	Log log = daemon.getLogActual();
     	ArrayList<LogEntry> entries = log.getLog();
     	assertTrue(entries.size() >= 4);
     	assertTrue(log.toString().contains(MonitorEvent.DCREATE.toString()));
@@ -265,7 +265,7 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	FileUtils.deleteQuietly(daemonSubDir);
     	Thread.sleep(TESTSLEEP);
-    	assertEquals(0, daemon.getLog().getNumEntries());
+    	assertEquals(0, daemon.getLogActual().getNumEntries());
     	daemon.interrupt();
     }
     

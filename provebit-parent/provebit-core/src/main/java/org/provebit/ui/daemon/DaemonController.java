@@ -45,7 +45,7 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 				break;
 			case "showLog":
 				view.update(model, DaemonNotification.SHOWLOG);
-				data = (model.getDaemonLog() == null) ? "Daemon Offline" : model.getDaemonLog().toString();
+				data = (model.getDaemonLog() == null) ? "Daemon Offline" : model.getDaemonLog();
 				view.updateLog(data);
 				break;
 			case "addFile":
@@ -57,7 +57,7 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 				}
 				break;
 			case "refreshLog":
-				Log log = model.getDaemonLog();
+				String log = model.getDaemonLog();
 				data = (log == null) ? "Daemon Offline" : log.toString();
 				view.updateLog(data);
 				break;

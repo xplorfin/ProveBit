@@ -2,6 +2,7 @@ package org.provebit.daemon;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.locks.ReadWriteLock;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
@@ -27,7 +28,7 @@ public class FileMonitor implements FileAlterationListener {
 	public FileMonitor(Merkle mTree) {
 		tree = mTree;
 		events = 0;
-		logFile = new File(new java.io.File("").getAbsolutePath() + "daemon.log");
+		logFile = new File(new java.io.File("").getAbsolutePath() + "/daemon.log");
 		FileUtils.deleteQuietly(logFile); // If an old log already exists, delete it
 		try {
 			log = new Log(logFile);
@@ -35,6 +36,7 @@ public class FileMonitor implements FileAlterationListener {
 			System.out.println("Failed to create log file, only logging internally");
 			e.printStackTrace();
 			log = new Log();
+			logFile = null;
 		}
 	}
 
@@ -77,7 +79,7 @@ public class FileMonitor implements FileAlterationListener {
 
 	@Override
 	public void onStop(FileAlterationObserver observer) {
-		// Do nothing
+		log.writeToFile();
 	}
 
 	/**
@@ -133,5 +135,12 @@ public class FileMonitor implements FileAlterationListener {
 		tree.makeTree();
 		String newRoot = Hex.encodeHexString(tree.getRootHash());
 		log.addEntry("Hash update: " + oldRoot + " -> " + newRoot);
+	}
+	
+	public String getLogEntries() {
+		if (logFile == null) {
+			return log.toString();
+		}
+		return Log.entriesToString(log.readLogFile(logFile));
 	}
 }

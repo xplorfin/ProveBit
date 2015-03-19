@@ -2,13 +2,13 @@ package org.provebit.daemon;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.locks.ReadWriteLock;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.merkle.Merkle;
+import org.provebit.utils.ApplicationDirectory;
 
 public class FileMonitor implements FileAlterationListener {
 	public enum MonitorEvent {
@@ -28,7 +28,7 @@ public class FileMonitor implements FileAlterationListener {
 	public FileMonitor(Merkle mTree) {
 		tree = mTree;
 		events = 0;
-		logFile = new File(new java.io.File("").getAbsolutePath() + "/daemon.log");
+		logFile = ApplicationDirectory.INSTANCE.getRoot();
 		FileUtils.deleteQuietly(logFile); // If an old log already exists, delete it
 		try {
 			log = new Log(logFile);

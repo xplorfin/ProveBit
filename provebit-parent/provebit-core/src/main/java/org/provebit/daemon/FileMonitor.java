@@ -28,7 +28,7 @@ public class FileMonitor implements FileAlterationListener {
 	public FileMonitor(Merkle mTree) {
 		tree = mTree;
 		events = 0;
-		logFile = ApplicationDirectory.INSTANCE.getRoot();
+		logFile = new File(ApplicationDirectory.INSTANCE.getRoot(), "daemon.log");
 		FileUtils.deleteQuietly(logFile); // If an old log already exists, delete it
 		try {
 			log = new Log(logFile);

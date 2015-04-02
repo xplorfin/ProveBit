@@ -17,15 +17,9 @@ public class SimpleServer {
 	 * @param port
 	 */
 	public SimpleServer(int port, SimpleSocketsProtocol protocol) {
-		this.port = -1;
-		if ((port > 1023) && (port < 65535)) {
-			this.port = port;
-			killServer = false;
-			this.protocol = protocol;
-		} else {
-			throw new RuntimeException("Invalid port specified");
-		}
-		
+		this.port = port;
+		killServer = false;
+		this.protocol = protocol;
 	}
 	
 	public int getPort() {
@@ -33,7 +27,11 @@ public class SimpleServer {
 	}
 	
 	public void startServer() {
+		if ((port < 1024) || (port > 65535)) {
+			throw new RuntimeException("Invalid port specified");
+		}
 		bindSocket();
+
 		while (!killServer) {
 			Socket connection;
 			try {

@@ -3,13 +3,14 @@ package org.simplesockets.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.simplesockets.protocol.SimpleSocketsProtocol;
 
-public class SimpleServer {
+public class SimpleServer implements Runnable {
 	private int port;
 	private ServerSocket socket;
-	private boolean killServer;
+	private boolean killServer, alive;
 	private SimpleSocketsProtocol protocol;
 	
 	/**
@@ -20,18 +21,29 @@ public class SimpleServer {
 		this.port = port;
 		killServer = false;
 		this.protocol = protocol;
+		alive = false;
 	}
 	
 	public int getPort() {
 		return port;
 	}
 	
+	public boolean isAlive() {
+		return alive;
+	}
+	
 	public void startServer() {
+		Thread serverThread = new Thread(this);
+		serverThread.start();
+	}
+	
+	public void run() {
 		if ((port < 1024) || (port > 65535)) {
 			throw new RuntimeException("Invalid port specified");
 		}
 		bindSocket();
-
+		
+		alive = true;
 		while (!killServer) {
 			Socket connection;
 			try {
@@ -39,9 +51,12 @@ public class SimpleServer {
 				new SimpleServerConnectionHandler(connection, protocol);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if (!(e instanceof SocketException)) {
+					e.printStackTrace();
+				}
 			}
 		}
+		alive = false;
 	}
 	
 	/**
@@ -58,7 +73,7 @@ public class SimpleServer {
 				bound = true;
 			} catch (IOException e) {
 				System.out.println("Failed to bind port: " + port);
-				port = ((port+1) % 65535) + 1024;
+				port = ((port+1) % 65535);
 			}
 		}
 		System.out.println("Successfuly bound port: " + port);
@@ -66,5 +81,10 @@ public class SimpleServer {
 	
 	public void stopServer() {
 		killServer = true;
+		try {
+			socket.close();
+		} catch (IOException e) {
+			// Expecting socket exception to be thrown
+		}
 	}
 }

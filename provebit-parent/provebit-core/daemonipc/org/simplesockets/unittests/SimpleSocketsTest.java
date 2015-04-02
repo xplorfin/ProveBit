@@ -1,6 +1,11 @@
 package org.simplesockets.unittests;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.net.ServerSocket;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -61,46 +66,73 @@ public class SimpleSocketsTest {
 
 	
 	@Test
-	public void testServerStartInvalidPortHigh() {
+	public void testServerStartInvalidPortHigh() throws InterruptedException {
 		int port = 65536;
 		SimpleServer server = new SimpleServer(port, emptyProtocol);
 		try {
 			server.startServer();
-			fail();
 		} catch (Exception e) {
-			if (!(e instanceof RuntimeException)) {
-				fail();
-			}
+			// Ignore
 		}
+		
+		Thread.sleep(200);
+		assertFalse(server.isAlive());
 	}
 	
 	@Test
-	public void testServerStartInvalidPortLow() {
+	public void testServerStartInvalidPortLow() throws InterruptedException {
 		int port = 1022;
 		SimpleServer server = new SimpleServer(port, emptyProtocol);
 		try {
 			server.startServer();
-			fail();
 		} catch (Exception e) {
-			if (!(e instanceof RuntimeException)) {
-				fail();
-			}
+			// Ignore
 		}
+		
+		Thread.sleep(200);
+		assertFalse(server.isAlive());
 	}
 	
 	@Test
-	public void testServerStart() {
-		fail("Not yet implemented");
+	public void testServerStartStop() throws InterruptedException {
+		int port = 12345;
+		SimpleServer server = new SimpleServer(port, emptyProtocol);
+		try {
+			server.startServer();
+		} catch (Exception e) {
+			fail();
+		}
+		Thread.sleep(200);
+		assertTrue(server.isAlive());
+		server.stopServer();
+		Thread.sleep(200);
+		assertFalse(server.isAlive());
 	}
 	
 	@Test
-	public void testServerStop() {
-		fail("Not yet implemented");
-	}
-	
-	@Test
-	public void testServerStartPortBusy() {
-		fail("Not yet implemented");
+	public void testServerStartPortBusy() throws InterruptedException {
+		// Bind a known port, then try to have the server bind it
+		// ensure server picks a different port
+		int port = 43323;
+		SimpleServer server = null;
+		ServerSocket socket = null;
+		try {
+			socket = new ServerSocket(port);
+		} catch (IOException e) {
+			fail();
+		}
+		server = new SimpleServer(port, emptyProtocol);
+		server.startServer();
+		Thread.sleep(200);
+		assertTrue(server.isAlive());
+		assertTrue(server.getPort() != port);
+		try {
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		server.stopServer();
 	}
 	
 	@Test

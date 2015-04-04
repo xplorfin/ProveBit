@@ -1,6 +1,7 @@
 package org.provebit.systems.bitcoin.ui.gui;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,8 @@ import org.bitcoinj.kits.WalletAppKit;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.script.Script;
+import org.bitcoinj.script.ScriptBuilder;
+import org.bitcoinj.script.ScriptOpCodes;
 import org.bitcoinj.utils.Threading;
 import org.provebit.systems.bitcoin.BitcoinDirectory;
 
@@ -100,6 +103,27 @@ public class WalletModel extends Observable {
 			}
 			
 		}, Threading.USER_THREAD);
+	}
+	
+	public void proofTX(byte[] hash) {
+		if (hash.length != 32) {
+			throw new RuntimeException("not a hash");
+		}
+		
+		byte[] embedData = new byte[40];
+		byte[] id = null;
+		try {
+			id = "ProveBit".getBytes("US-ASCII");
+		} catch (UnsupportedEncodingException e) {
+			// should not happen
+			e.printStackTrace();
+		}
+		assert(id.length == 8);
+		
+		// TODO
+		
+		Transaction dataTx = new Transaction(params);
+		dataTx.addOutput(Coin.ZERO, new ScriptBuilder().op(ScriptOpCodes.OP_RETURN).data(hash).build());
 	}
 	
 	private Coin lastBalance = null;

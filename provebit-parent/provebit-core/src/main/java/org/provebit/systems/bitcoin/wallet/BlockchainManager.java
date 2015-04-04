@@ -40,6 +40,24 @@ public enum BlockchainManager {
 			e.printStackTrace();
 			throw new RuntimeException("failed to initialized block store");
 		}
+		// register safe blockchain close
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				shutdown();
+			}
+		});
+	}
+	
+	private void shutdown() {
+		peers.stopAsync();
+		peers.awaitTerminated();
+		try {
+			store.close();
+		} catch (BlockStoreException e) {
+			e.printStackTrace();
+			throw new RuntimeException("failed to close block store");
+		}
 	}
 	
 	public BlockChain getChain() {

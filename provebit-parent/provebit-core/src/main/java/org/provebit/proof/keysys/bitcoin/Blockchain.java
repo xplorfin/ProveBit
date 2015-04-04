@@ -8,6 +8,7 @@ import java.util.Date;
 import org.provebit.Config;
 import org.provebit.proof.keysys.AbstractKeyNode;
 import org.provebit.proof.keysys.KeyNotFoundException;
+import org.provebit.systems.bitcoin.wallet.BlockchainManager;
 import org.provebit.systems.bitcoin.wallet.CompleteHeaderStore;
 import org.bitcoinj.core.Block;
 import org.bitcoinj.core.BlockChain;
@@ -24,51 +25,17 @@ import org.bitcoinj.store.SPVBlockStore;
 public class Blockchain extends AbstractKeyNode {
 	private static Blockchain instance = getInstance();
 	
-	private Blockchain() { init(); }
+	private Blockchain() { }
 	private static Blockchain getInstance() {
 		if (instance != null) return instance;
 		else return new Blockchain();
 	}
 	
-	public boolean initialized = false;
-	public BlockStore store;
-	public BlockChain chain;
+	public BlockStore store = BlockchainManager.INSTANCE.getChain().getBlockStore();
+
 	public PeerGroup peers;
 	public NetworkParameters params = Config.getBitcoinNet();
 	
-	public void init() {
-		File folder = Config.getDirectory();
-		File chainFile = new File(folder, "bitcoin.headerchain"); ///"bitcoin.spvchain");
-
-		
-		try {
-			store = new CompleteHeaderStore(params, chainFile); //new SPVBlockStore(params, chainFile);
-			chain = new BlockChain(params, store);
-			peers = new PeerGroup(params, chain);
-			// TODO set peers / user agent
-			peers.addPeerDiscovery(new DnsDiscovery(params));
-			peers.setMaxConnections(15);
-			// 4 hours ago
-			peers.setFastCatchupTimeSecs((new Date().getTime() / 1000) - (4 * 60 * 60));
-			peers.startAsync();
-			peers.awaitRunning();
-			peers.downloadBlockChain();
-		} catch (BlockStoreException e) {
-			e.printStackTrace();
-			throw new RuntimeException("failed to initialized block store");
-		}
-	}
-	
-	public void shutdown() {
-		peers.stopAsync();
-		peers.awaitTerminated();
-		try {
-			store.close();
-		} catch (BlockStoreException e) {
-			e.printStackTrace();
-			throw new RuntimeException("failed to close block store");
-		}
-	}
 	
 	public static byte[] keyLookup(String[] vals, int i) {
 		return instance.keyLookupRecurse(vals, i);

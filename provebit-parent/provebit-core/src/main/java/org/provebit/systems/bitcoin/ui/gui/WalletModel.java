@@ -1,9 +1,12 @@
 package org.provebit.systems.bitcoin.ui.gui;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+
+import javax.swing.SwingUtilities;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
@@ -39,6 +42,9 @@ public class WalletModel extends Observable {
 	private BlockChain chain;
 
 	private Map<String,WalletExtension> extensions;
+
+	private Date last;
+	
 	
 	public WalletModel() {
 		initWallet(WALLET_NAME, BitcoinDirectory.INSTANCE.getRoot());
@@ -96,13 +102,17 @@ public class WalletModel extends Observable {
 		}, Threading.USER_THREAD);
 	}
 	
-	public String getBalance() {
+	private Coin lastBalance = null;
+	
+	public Coin getBalance() {
 		Coin balance = wallet.getBalance();
-		return balance.toFriendlyString();
+		return balance;
 	}
 	
-	public String getReceivingAddress() {
-		return wallet.currentReceiveAddress().toString();
+	private Address lastAddress = null;
+	
+	public Address getReceivingAddress() {
+		return wallet.currentReceiveAddress();
 	}
 	
 	private class WalletEventHandler implements WalletEventListener {
@@ -150,7 +160,32 @@ public class WalletModel extends Observable {
 	}
 	
 	private void notifyChange() {
-		setChanged();
-		notifyObservers();
+		// for performance reasons we only set changed when a value has actually changed
+		boolean diff = false;
+		
+		Address newAddress = getReceivingAddress();
+		if (!newAddress.equals(lastAddress)) {
+			diff = true;
+		}
+		lastAddress = newAddress;
+		
+		Coin newBalance = getBalance();
+		if (!newBalance.equals(lastBalance)) {
+			diff = true;
+		}
+		lastBalance = newBalance;
+		
+		if (!diff) {
+			return;
+		}
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				setChanged();
+				notifyObservers();
+			}
+		});
+
 	}
 }

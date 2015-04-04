@@ -63,11 +63,11 @@ public class WalletView extends JPanel implements Observer {
 	}
 	
 	private void updateBalance() {
-		balance.setText("Balance: " + model.getBalance());
+		balance.setText("Balance: " + model.getBalance().toFriendlyString());
 	}
 	
 	private void updateAddress() {
-		address.setText(model.getReceivingAddress());
+		address.setText(model.getReceivingAddress().toString());
 	}
 
 	@Override

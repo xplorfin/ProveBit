@@ -12,6 +12,8 @@ public class SimpleClient {
 	private int port;
 	private Socket socket;
 	private SimpleSocketsProtocol protocol;
+	private ObjectOutputStream toServer;
+	private ObjectInputStream fromServer;
 	
 	public SimpleClient(String hostname, int port, SimpleSocketsProtocol protocol) {
 		this.hostname = hostname;
@@ -22,6 +24,8 @@ public class SimpleClient {
 	public boolean connect() {
 		try {
 			socket = new Socket(hostname, port);
+			toServer = new ObjectOutputStream(socket.getOutputStream());
+			fromServer = new ObjectInputStream(socket.getInputStream());
 		} catch (IOException e) {
 			e.printStackTrace();
 			socket = null;
@@ -39,9 +43,8 @@ public class SimpleClient {
 	}
 	
 	public void sendRequest(Object request) {
-		ObjectOutputStream toServer;
+		this.connect();
 		try {
-			toServer = new ObjectOutputStream(socket.getOutputStream());
 			toServer.writeObject(protocol.send(request));
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -50,9 +53,7 @@ public class SimpleClient {
 	
 	public Object getReply() {
 		byte[] reply = null;
-		ObjectInputStream fromServer;
 		try {
-			fromServer = new ObjectInputStream(socket.getInputStream());
 			reply = (byte[]) fromServer.readObject();
 			protocol.receive(reply);
 		} catch (IOException | ClassNotFoundException e) {

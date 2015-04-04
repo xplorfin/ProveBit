@@ -20,6 +20,10 @@ public class WalletController implements ActionListener {
 				// launch a pane to collect input
 				view.sendPrompt();
 				break;
+			case "prove":
+				// test prove hash(text)
+				view.provePrompt();
+				break;
 			default:
 				break;
 		}

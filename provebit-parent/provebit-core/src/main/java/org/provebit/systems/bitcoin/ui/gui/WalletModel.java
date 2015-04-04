@@ -29,6 +29,7 @@ import org.bitcoinj.script.Script;
 import org.bitcoinj.script.ScriptBuilder;
 import org.bitcoinj.script.ScriptOpCodes;
 import org.bitcoinj.utils.Threading;
+import org.bitcoinj.wallet.KeyChain;
 import org.provebit.systems.bitcoin.BitcoinDirectory;
 
 public class WalletModel extends Observable {
@@ -105,7 +106,7 @@ public class WalletModel extends Observable {
 		}, Threading.USER_THREAD);
 	}
 	
-	public void proofTX(byte[] hash) {
+	public Transaction proofTX(byte[] hash) throws InsufficientMoneyException {
 		if (hash.length != 32) {
 			throw new RuntimeException("not a hash");
 		}
@@ -119,11 +120,16 @@ public class WalletModel extends Observable {
 			e.printStackTrace();
 		}
 		assert(id.length == 8);
-		
-		// TODO
+		System.arraycopy(id, 0, embedData, 0, id.length);
+		System.arraycopy(hash, 0, embedData, id.length, hash.length);
 		
 		Transaction dataTx = new Transaction(params);
-		dataTx.addOutput(Coin.ZERO, new ScriptBuilder().op(ScriptOpCodes.OP_RETURN).data(hash).build());
+		dataTx.addOutput(Coin.ZERO, new ScriptBuilder().op(ScriptOpCodes.OP_RETURN).data(embedData).build());
+		// is min non-dust a bad idea?
+		dataTx.addOutput(Transaction.MIN_NONDUST_OUTPUT, wallet.currentAddress(KeyChain.KeyPurpose.CHANGE));
+		Wallet.SendRequest srq = Wallet.SendRequest.forTx(dataTx);
+		wallet.sendCoins(srq);
+		return dataTx;
 	}
 	
 	private Coin lastBalance = null;

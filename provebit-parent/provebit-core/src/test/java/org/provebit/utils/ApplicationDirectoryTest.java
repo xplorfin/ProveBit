@@ -9,5 +9,10 @@ public class ApplicationDirectoryTest {
 	public void testGetRoot() {
 		assertTrue(ApplicationDirectory.INSTANCE.getRoot().exists());
 	}
+	
+	@Test
+	public void testRootIsDirectory() {
+		assertTrue(ApplicationDirectory.INSTANCE.getRoot().isDirectory());
+	}
 
 }

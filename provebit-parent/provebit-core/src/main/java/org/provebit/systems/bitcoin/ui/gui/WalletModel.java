@@ -18,6 +18,7 @@ import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.Wallet;
 import org.bitcoinj.core.Wallet.SendResult;
 import org.bitcoinj.core.WalletEventListener;
@@ -125,11 +126,10 @@ public class WalletModel extends Observable {
 		
 		Transaction dataTx = new Transaction(params);
 		dataTx.addOutput(Coin.ZERO, new ScriptBuilder().op(ScriptOpCodes.OP_RETURN).data(embedData).build());
-		// is min non-dust a bad idea?
-		dataTx.addOutput(Transaction.MIN_NONDUST_OUTPUT, wallet.currentAddress(KeyChain.KeyPurpose.CHANGE));
 		Wallet.SendRequest srq = Wallet.SendRequest.forTx(dataTx);
-		wallet.sendCoins(srq);
-		return dataTx;
+		//wallet.completeTx(srq); // remove later
+		Wallet.SendResult res = wallet.sendCoins(srq);
+		return res.tx;
 	}
 	
 	private Coin lastBalance = null;

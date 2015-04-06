@@ -17,7 +17,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class MerkleTest {
+public class FileMerkleTest {
     final public static String COMPLETEDIR = "testCompleteDir";
     final public static String INCOMPLETEDIR = "testIncompleteDir";
     final public static String RECURSIVEDIR = "testRecursiveDir";
@@ -34,16 +34,16 @@ public class MerkleTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        completeDirPath = new File(MerkleTest.class.getResource(COMPLETEDIR).getPath());
-        incompleteDirPath = new File(MerkleTest.class.getResource(INCOMPLETEDIR).getPath());
-        recursiveDirPath = new File(MerkleTest.class.getResource(RECURSIVEDIR).getPath());
-        recursiveDir2Path = new File(MerkleTest.class.getResource(RECURSIVEDIR2).getPath());
+        completeDirPath = new File(FileMerkleTest.class.getResource(COMPLETEDIR).getPath());
+        incompleteDirPath = new File(FileMerkleTest.class.getResource(INCOMPLETEDIR).getPath());
+        recursiveDirPath = new File(FileMerkleTest.class.getResource(RECURSIVEDIR).getPath());
+        recursiveDir2Path = new File(FileMerkleTest.class.getResource(RECURSIVEDIR2).getPath());
         emptyDirPath = emptyFolder.getRoot();
     }
 
     @Test
     public void testTreeHeightEvenLeaves() {
-        Merkle mTree = new Merkle();
+        FileMerkle mTree = new FileMerkle();
         mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getHeight() == 3);
@@ -51,7 +51,7 @@ public class MerkleTest {
 
     @Test
     public void testTreeHeightOddLeaves() {
-        Merkle mTree = new Merkle();
+        FileMerkle mTree = new FileMerkle();
         mTree.addTracking(incompleteDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getHeight() == 4);
@@ -59,7 +59,7 @@ public class MerkleTest {
 
     @Test
     public void testNumLeavesEven() {
-        Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
         mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 8);
@@ -67,7 +67,7 @@ public class MerkleTest {
 
     @Test
     public void testNumLeavesOdd() {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
         mTree.addTracking(incompleteDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 14);
@@ -75,7 +75,7 @@ public class MerkleTest {
 
     @Test
     public void testTreeSizeEven() {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
         mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getTreeSize() == 15);
@@ -83,7 +83,7 @@ public class MerkleTest {
 
     @Test
     public void testTreeSizeOdd() {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
         mTree.addTracking(incompleteDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getTreeSize() == 29);
@@ -91,21 +91,21 @@ public class MerkleTest {
     
     @Test
     public void testNoTree() {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
         mTree.addTracking(incompleteDirPath, false);
     	assertNull(mTree.getTree());
     }
     
     @Test
     public void testLeafExists() {
-    	Merkle m = new Merkle();
+    	FileMerkle m = new FileMerkle();
     	m.addTracking(completeDirPath, false);
     	m.makeTree();
     	assertEquals(true, m.existsAsLeaf(m.getLeaves().get(0)));
     }
     
     @Test public void testLeafNoExist() throws DecoderException {
-    	Merkle m = new Merkle();
+    	FileMerkle m = new FileMerkle();
     	m.addTracking(completeDirPath, false);
     	m.makeTree();
     	assertEquals(false, m.existsAsLeaf(Hex.decodeHex("0000000000000000000000000000000000000000000000000000000000000000".toCharArray())));
@@ -113,7 +113,7 @@ public class MerkleTest {
 
     @Test
     public void testLeafPositions() {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
         mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         byte[][] tree = mTree.getTree();
@@ -125,7 +125,7 @@ public class MerkleTest {
 
     @Test
     public void testSortedLeaves() {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
         mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         byte[][] tree = mTree.getTree();
@@ -140,7 +140,7 @@ public class MerkleTest {
 
     @Test
     public void testRecursiveSearch() {
-        Merkle mTree = new Merkle();
+        FileMerkle mTree = new FileMerkle();
         mTree.addTracking(recursiveDirPath, true);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 8);
@@ -148,7 +148,7 @@ public class MerkleTest {
 
     @Test
     public void testRecursiveSearch2() {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
         mTree.addTracking(recursiveDir2Path, true);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 8);
@@ -156,7 +156,7 @@ public class MerkleTest {
     
     @Test
     public void testFalseRecursiveSearch() {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
         mTree.addTracking(recursiveDirPath, false);
     	mTree.makeTree();
     	assertTrue(mTree.getNumLeaves() == 4);
@@ -164,7 +164,7 @@ public class MerkleTest {
     
     @Test
     public void testFalseRecursiveSearch2() {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
         mTree.addTracking(recursiveDir2Path, false);
     	mTree.makeTree();
     	assertTrue(mTree.getNumLeaves() == 2);
@@ -172,9 +172,9 @@ public class MerkleTest {
 
     @Test
     public void testRootHashEquivalence() {
-    	Merkle mTree1 = new Merkle();
+    	FileMerkle mTree1 = new FileMerkle();
         mTree1.addTracking(recursiveDirPath, true);
-        Merkle mTree2 = new Merkle();
+        FileMerkle mTree2 = new FileMerkle();
         mTree2.addTracking(recursiveDir2Path, true);
         mTree1.makeTree();
         mTree2.makeTree();
@@ -185,7 +185,7 @@ public class MerkleTest {
 
     @Test
     public void testEmptyDirectory() {
-        Merkle mTree = new Merkle();
+        FileMerkle mTree = new FileMerkle();
         mTree.addTracking(emptyDirPath, false);
         assertTrue(mTree.makeTree() != null);
     }
@@ -194,7 +194,7 @@ public class MerkleTest {
     public void testTrackSpecificFile() throws IOException {
     	File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
     	FileUtils.write(tempFile, "temp data");
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
     	mTree.addTracking(tempFile, false);
     	mTree.makeTree();
     	assertTrue(mTree.getRootHash() != null);
@@ -206,8 +206,8 @@ public class MerkleTest {
     	File tempFile2 = new File(emptyDirPath.getAbsolutePath() + "/tempFile2");
     	FileUtils.write(tempFile, "temp data");
     	FileUtils.write(tempFile2, "temp data 2");
-    	Merkle mTree = new Merkle();
-    	Merkle mTreeNoTemp2 = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTreeNoTemp2 = new FileMerkle();
     	mTree.addTracking(tempFile, false);
     	mTree.addTracking(tempFile2, false);
     	mTreeNoTemp2.addTracking(tempFile, false);
@@ -220,7 +220,7 @@ public class MerkleTest {
     	File tempFile2 = new File(emptyDirPath.getAbsolutePath() + "/tempFile2");
     	FileUtils.write(tempFile, "temp data");
     	FileUtils.write(tempFile2, "temp data 2");
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
     	mTree.addTracking(tempFile, false);
     	mTree.addTracking(emptyDirPath, false);
     	assertEquals(0, mTree.getTrackedFiles().size());
@@ -229,8 +229,8 @@ public class MerkleTest {
     
     @Test
     public void testNoDuplicateTrackRecursive() {
-    	File testLevel2 = new File(MerkleTest.class.getResource(RECURSIVEDIR2).getPath() + "/testLevel1/testLevel2");
-    	Merkle mTree = new Merkle();
+    	File testLevel2 = new File(FileMerkleTest.class.getResource(RECURSIVEDIR2).getPath() + "/testLevel1/testLevel2");
+    	FileMerkle mTree = new FileMerkle();
     	mTree.addTracking(testLevel2, false);
     	mTree.addTracking(recursiveDir2Path, true);
     	assertEquals(1, mTree.getTrackedDirs().size());
@@ -238,7 +238,7 @@ public class MerkleTest {
     
     @Test
     public void testMultipleDirTracking() {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
     	mTree.addTracking(completeDirPath, false);
     	mTree.addTracking(incompleteDirPath, false);
     	mTree.makeTree();
@@ -248,7 +248,7 @@ public class MerkleTest {
     
     @Test
     public void testRemoveTracking() throws IOException {
-    	Merkle mTree = new Merkle();
+    	FileMerkle mTree = new FileMerkle();
     	File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
     	File tempFile2 = new File(emptyDirPath.getAbsolutePath() + "/tempFile2");
     	FileUtils.write(tempFile, "temp data");
@@ -263,7 +263,7 @@ public class MerkleTest {
     
     @Test 
     public void testListPathCreation() {
-    	Merkle mtree = new Merkle();
+    	FileMerkle mtree = new FileMerkle();
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
     	byte[][] tree = mtree.getTree();
@@ -281,7 +281,7 @@ public class MerkleTest {
     
     @Test
     public void testCheckListPathValid(){
-    	Merkle mtree = new Merkle();
+    	FileMerkle mtree = new FileMerkle();
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
     	byte[][] tree = mtree.getTree();
@@ -294,7 +294,7 @@ public class MerkleTest {
     
     @Test
     public void testCheckListShortPath(){
-    	Merkle mtree = new Merkle();
+    	FileMerkle mtree = new FileMerkle();
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
     	byte[][] tree = mtree.getTree();
@@ -306,7 +306,7 @@ public class MerkleTest {
     
     @Test
     public void testCheckListInvalidPath(){
-    	Merkle mtree = new Merkle();
+    	FileMerkle mtree = new FileMerkle();
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
     	byte[][] tree = mtree.getTree();
@@ -319,13 +319,13 @@ public class MerkleTest {
     
     @Test
     public void testCheckStepSerializer(){
-    	Merkle mtree = new Merkle();
+    	FileMerkle mtree = new FileMerkle();
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
     	byte[][] tree = mtree.getTree();
     	byte[] startingHash = tree[9];
     	List<MerklePathStep> path = mtree.findPath(startingHash);
-    	byte[] serializedPath = MerkleStepSerializer.MerklePathStepSerializer(path);
+    	byte[] serializedPath = MerkleStepSerializer.serialize(path);
 
     	for(int i = 0; i < path.size(); i++){
     		assertTrue((serializedPath[i*33] != 0) == path.get(i).onLeft());

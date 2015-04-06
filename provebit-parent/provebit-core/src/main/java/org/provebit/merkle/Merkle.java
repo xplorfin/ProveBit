@@ -1,22 +1,20 @@
 package org.provebit.merkle;
 
-import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.provebit.merkle.MerkleUtils.FileHashComparator;
 
 /**
- * This class constructs a Merkle tree from files within a given directory
- * @author Daniel Boehm, Matthew Knox
+ * This class constructs a Merkle tree given a list of files
+ * @author Daniel Boehm, Matthew Knox, Noah Malmed (refactored)
  * @organization ProveBit
  * @version 0.1
  * 
@@ -27,75 +25,33 @@ import org.provebit.merkle.MerkleUtils.FileHashComparator;
  *        Current allocation wastes O(N) tree nodes
  */
 public class Merkle {
-    private byte[][] tree;
-    private int height; // Root is level 0
-    private int numLeaves;
-    private int totalNodes;
-    private boolean exists;
-    private List<File> trackedFiles; // List of files being tracked
-    private Map<File, Boolean> trackedDirectories; // List of directories being tracked and whether
-    											   // or not they are recursively tracked
-    private List<byte[]> recentLeaves; // -Sorted- list of leaves in most recent tree construction
+    protected byte[][] tree;
+    protected int height; // Root is level 0
+    protected int numLeaves;
+    protected int totalNodes;
+    protected boolean exists;
+    protected List<byte[]> recentLeaves; // -Sorted- list of leaves in most recent tree construction
 
     /**
      * Default constructor
      */
     public Merkle() {
-    	trackedFiles = new ArrayList<File>();
-    	trackedDirectories = new HashMap<File, Boolean>();
     	recentLeaves = new ArrayList<byte[]>();
         tree = null;
         exists = false;
     }
-    
-    /**
-     * Add a file or directory to the list of tracked files in this tree if the file is not already tracked
-     * @param file - File/Directory to track
-     * @param recursive - If file is a directory, specify whether or not the directory should be recursively searched
-     */
-    public void addTracking(File file, boolean recursive) {
-    	if (!file.isDirectory() && !isTracking(file)) {
-    		trackedFiles.add(file);
-    	} else if ((file.isDirectory() && !isTracking(file)) || trackedDirectories.containsKey(file)) {
-    		trackedDirectories.put(file, recursive);
-    		// If we add a directory, we want to make sure that any files that were in that directory but are also
-    		// in the trackedFiles list are removed from the trackedFiles list since they are duplicated by the coverage
-    		// provided by the trackedDirectories list
-    		List<File> duplicates = new ArrayList<File>();
-    		for (File existingFile : trackedFiles) {
-    			if (MerkleUtils.isTrackedRecursively(existingFile, trackedDirectories)) {
-    				duplicates.add(existingFile);
-    			}
-    		}
-    		trackedFiles.removeAll(duplicates);
-    	}
-    }
-    
-    /**
-     * Remove file/directory from tracking
-     * @param file - file/directory to remove from tracking
-     */
-    public void removeTracking(File file) {
-    	if (file.isDirectory()) {
-    		trackedDirectories.remove(file);
-    	} else {
-    		trackedFiles.remove(file);
-    	}
-    }
 
     /**
-     * Make the merkle tree from the files in the specified directory and
+     * Make the merkle tree from a provided list of hashes.
      * return the root hash after construction
      * @return byte[] root hash of constructed tree
      */
-    public byte[] makeTree() {
-        List<File> fileList = MerkleUtils.getFiles(trackedFiles, trackedDirectories);
-        if (fileList.size() == 0) {
+    public byte[] makeTree(List<byte[]> hashList) {
+        if (hashList.size() == 0) {
             resetTree();
             return getRootHash();
         }
-        
-        List<byte[]> hashList = MerkleUtils.getFilesHashes(fileList);
+
         if (hashList.size() % 2 == 1) { // If odd number of hashes, duplicate last
             hashList.add(hashList.get(hashList.size()-1));
         }
@@ -129,14 +85,6 @@ public class Merkle {
     public int getNumLeaves() {
         return numLeaves;
     }
-    
-    /**
-     * Get total number of tracked discrete files and directories
-     * @return total discrete files + total directories
-     */
-    public int getNumTracked() {
-    	return trackedFiles.size() + trackedDirectories.keySet().size();
-    }
 
     /**
      * Get the top level hash of the merkle tree
@@ -153,6 +101,11 @@ public class Merkle {
         return root;
     }
     
+    /**
+     * Check to see if a given hash exists as a leaf
+     * @param hash - used to check all leaves
+     * @return 
+     */
     public boolean existsAsLeaf(byte[] hash) {
     	int index = Collections.binarySearch(recentLeaves, hash, new FileHashComparator());
     	return (index >= 0) ? true : false;
@@ -179,24 +132,6 @@ public class Merkle {
     }
     
     /**
-     * Get the list of directories being tracked
-     * @return List<File> of directories being tracked, may be empty
-     */
-    public List<File> getTrackedDirs() {
-        List<File> directoryList = new ArrayList<File>();
-        directoryList.addAll(trackedDirectories.keySet());
-        return directoryList;
-    }
-    
-    /**
-     * Get the list of files being tracked
-     * @return List<File> of specific files being tracked, may be empty
-     */
-    public List<File> getTrackedFiles() {
-    	return trackedFiles;
-    }
-    
-    /**
      * Returns whether or not a tree is currently being stored
      * @return - true if a tree has been created, false otherwise
      */
@@ -209,29 +144,8 @@ public class Merkle {
      * @param value - double to compute log_2 of
      * @return log_2(value)
      */
-    private double logBase2(double value) {
+    protected double logBase2(double value) {
         return (Math.log(value)/Math.log(2.0));
-    }
-    
-    /**
-     * Check to see whether the specific file is being tracked by the tree
-     * @param file - File to check for tracking
-     * @return true if file is being tracked, false o/w
-     */
-    public Boolean isTracking(File file) {
-    	if (trackedFiles.contains(file) || trackedDirectories.containsKey(file) || MerkleUtils.isTrackedRecursively(file, trackedDirectories)) {
-    		return true;
-    	}
-    	return false;
-    }
-    
-    /**
-     * Check to see whether directory is being recursively tracked
-     * @param dir -Tracked directory 
-     * @return true if directory is recursively tracked, false if not a directory or not recursively tracked
-     */
-    public Boolean isDirRecursive(File dir) {
-    	return (dir.isDirectory() && trackedDirectories.get(dir));
     }
     
     /**
@@ -285,7 +199,7 @@ public class Merkle {
      * Calculates the total number of actual nodes in the tree
      * @return number of nodes in the tree
      */
-    private int getNumNodes() {
+    protected int getNumNodes() {
         if (numLeaves == 0) {
             return 0;
         }        
@@ -304,23 +218,23 @@ public class Merkle {
         return total;
     }
 
-    private int getParent(int index) {
+    protected int getParent(int index) {
         return (index-1)/2;
     }
 
-    private int getLeftChild(int index) {
+    protected int getLeftChild(int index) {
         return 2*(index) + 1;
     }
 
-    private int getRightChild(int index) {
+    protected int getRightChild(int index) {
         return 2*(index+1);
     }
     
-    private boolean isLeftNode(int index) {
+    protected boolean isLeftNode(int index) {
     	return (index % 2) != 0;
     }
 
-    private void resetTree() {
+    protected void resetTree() {
     	numLeaves = 0;
     	height = 0;
     	recentLeaves.clear();
@@ -332,7 +246,7 @@ public class Merkle {
      * Wrapper that builds each level of the tree (except last)
      * @throws NoSuchAlgorithmException 
      */
-    private void makeInternalNodes() throws NoSuchAlgorithmException {
+    protected void makeInternalNodes() throws NoSuchAlgorithmException {
         int level = height-1; // Leaf level built already
         for (; level >= 0; level--) {
             buildLevel(level);
@@ -345,7 +259,7 @@ public class Merkle {
      * @param level - Level to build nodes of
      * @throws NoSuchAlgorithmException 
      */
-    private void buildLevel(int level) throws NoSuchAlgorithmException {
+    protected void buildLevel(int level) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         int nodeIndex = (int) Math.pow(2, level) - 1; // Leftmost node at level 'level'
         int lastNodeIndex = (int) Math.pow(2, level+1) - 2; // Last (rightmost) node at level 'level'
@@ -371,7 +285,7 @@ public class Merkle {
      * Helper function that makes the leaf nodes of the tree
      * @param hashList - Hashes of files that make up the leaf nodes
      */
-    private void makeLeaves(List<byte[]> hashList) {
+    protected void makeLeaves(List<byte[]> hashList) {
         int i = (int) Math.pow(2, height) - 1; // Leftmost leaf node
         for (byte[] hash : hashList) {
             tree[i] = hash;
@@ -384,7 +298,7 @@ public class Merkle {
      * @param leafHash - Hash to be looked for in the leaves
      * @return - Array index of the hash. -1 returned if not found
      */
-    private int findLeafIndex(byte[] leafHash){    	
+    protected int findLeafIndex(byte[] leafHash){    	
     	 // Start at the Leftmost leaf node
     	for (int i = (int) Math.pow(2, height) - 1; i < tree.length; i++){
     		if (Arrays.equals(leafHash, tree[i])){
@@ -398,7 +312,7 @@ public class Merkle {
      * Helper function that allocates space for tree and initializes
      * all elements to null
      */
-    private void allocateTree() {
+    protected void allocateTree() {
         height = (int) Math.ceil(logBase2(numLeaves));
         totalNodes = getNumNodes();
         tree = new byte[(int) (Math.pow(2, height+1) - 1)][]; // Allocate space as if tree is complete (easier representation)

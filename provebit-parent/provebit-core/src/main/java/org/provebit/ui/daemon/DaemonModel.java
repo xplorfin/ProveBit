@@ -1,26 +1,23 @@
 package org.provebit.ui.daemon;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 
-import org.provebit.daemon.Log;
 import org.provebit.daemon.MerkleDaemon;
-import org.provebit.merkle.Merkle;
+import org.provebit.merkle.FileMerkle;
 import org.provebit.ui.daemon.DaemonController.DaemonNotification;
 
 public class DaemonModel extends Observable {
 	private MerkleDaemon daemon;
 	private DaemonStatus daemonStatus;
 	private enum DaemonStatus{ONLINE, OFFLINE, TRACKING};
-	private Merkle tree;
+	private FileMerkle tree;
 	
 	public DaemonModel() {
 		daemonStatus = DaemonStatus.OFFLINE;
-		tree = new Merkle();
+		tree = new FileMerkle();
 		daemon = null;
 	}
 	

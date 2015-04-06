@@ -7,6 +7,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.provebit.merkle.FileMerkle;
 import org.provebit.merkle.Merkle;
 import org.provebit.utils.ApplicationDirectory;
 
@@ -15,7 +16,7 @@ public class FileMonitor implements FileAlterationListener {
 		FCREATE, FDELETE, FCHANGE, DCREATE, DDELETE, DCHANGE
 	};
 
-	private Merkle tree;
+	private FileMerkle tree;
 	private int events;
 	protected Log log;
 	private File logFile;
@@ -25,7 +26,7 @@ public class FileMonitor implements FileAlterationListener {
 	 * Sets up logging instance that attempts to log events to local file
 	 * @throws IOException 
 	 */
-	public FileMonitor(Merkle mTree) {
+	public FileMonitor(FileMerkle mTree) {
 		tree = mTree;
 		events = 0;
 		logFile = new File(ApplicationDirectory.INSTANCE.getRoot(), "daemon.log");
@@ -87,7 +88,7 @@ public class FileMonitor implements FileAlterationListener {
 	 * 
 	 * @return Currently constructed merkle tree
 	 */
-	public Merkle getTree() {
+	public FileMerkle getTree() {
 		return tree;
 	}
 

@@ -11,7 +11,7 @@ import java.util.List;
 
 public class MerkleStepSerializer {
     
-    public static byte[] MerklePathStepSerializer(List<MerklePathStep> path){
+    public static byte[] serialize(List<MerklePathStep> path){
         int list_size = path.size()*33;
         byte[] output = new byte[list_size];        
         

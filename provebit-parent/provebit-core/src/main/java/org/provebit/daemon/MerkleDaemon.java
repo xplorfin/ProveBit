@@ -11,6 +11,7 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.provebit.merkle.FileMerkle;
 import org.provebit.merkle.Merkle;
 
 public class MerkleDaemon extends Thread {
@@ -26,7 +27,7 @@ public class MerkleDaemon extends Thread {
 	 * @param period
 	 *            - Daemon polling period (msec)
 	 */
-	public MerkleDaemon(Merkle mTree, int period) {
+	public MerkleDaemon(FileMerkle mTree, int period) {
 		observers = new ArrayList<FileAlterationObserver>();
 		listener = new FileMonitor(mTree);
 		this.period = period;

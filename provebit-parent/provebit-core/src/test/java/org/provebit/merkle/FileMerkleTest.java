@@ -1,6 +1,7 @@
 package org.provebit.merkle;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -285,7 +286,7 @@ public class FileMerkleTest {
     	assertTrue(path.get(0).onLeft());
     	assertEquals(path.get(0).getHash(), tree[9]);
     	
-    	assertTrue(!path.get(1).onLeft());
+    	assertFalse(path.get(1).onLeft());
     	assertEquals(path.get(1).getHash(), tree[4]);
     	
     	assertTrue(path.get(2).onLeft());
@@ -343,7 +344,7 @@ public class FileMerkleTest {
     	for(int i = 0; i < path.size(); i++){
     		assertTrue((serializedPath[i*33] != 0) == path.get(i).onLeft());
     		for(int j = 0; j < 32; j++){
-    			assertTrue((serializedPath[(i*33) + j + 1]) != path.get(i).getHash()[j]);
+    			assertTrue((serializedPath[(i*33) + j + 1]) == path.get(i).getHash()[j]);
     		}
     	}
     }

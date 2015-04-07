@@ -17,8 +17,8 @@ public class MerkleStepSerializer {
         
         for (int i = 0; i < path.size(); i++){
             output[(33*i)] = (byte) (path.get(i).onLeft()?1:0);
-            for(int j = 0; j < 32; j++){
-                output[(33*i) + 1] = path.get(i).getHash()[j];
+            for(int j = 1; j < 33; j++){
+                output[(33*i) + j] = path.get(i).getHash()[j-1];
             }
         }
         return output;

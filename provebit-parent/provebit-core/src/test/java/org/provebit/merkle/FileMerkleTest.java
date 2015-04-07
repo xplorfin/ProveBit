@@ -43,7 +43,7 @@ public class FileMerkleTest {
 
     @Test
     public void testTreeHeightEvenLeaves() {
-        FileMerkle mTree = new FileMerkle();
+        FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getHeight() == 3);
@@ -51,7 +51,7 @@ public class FileMerkleTest {
 
     @Test
     public void testTreeHeightOddLeaves() {
-        FileMerkle mTree = new FileMerkle();
+        FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(incompleteDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getHeight() == 4);
@@ -59,7 +59,7 @@ public class FileMerkleTest {
 
     @Test
     public void testNumLeavesEven() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 8);
@@ -67,7 +67,7 @@ public class FileMerkleTest {
 
     @Test
     public void testNumLeavesOdd() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(incompleteDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 14);
@@ -75,7 +75,7 @@ public class FileMerkleTest {
 
     @Test
     public void testTreeSizeEven() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getTreeSize() == 15);
@@ -83,7 +83,7 @@ public class FileMerkleTest {
 
     @Test
     public void testTreeSizeOdd() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(incompleteDirPath, false);
         mTree.makeTree();
         assertTrue(mTree.getTreeSize() == 29);
@@ -91,21 +91,21 @@ public class FileMerkleTest {
     
     @Test
     public void testNoTree() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(incompleteDirPath, false);
     	assertNull(mTree.getTree());
     }
     
     @Test
     public void testLeafExists() {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(completeDirPath, false);
     	m.makeTree();
     	assertEquals(true, m.existsAsLeaf(m.getLeaves().get(0)));
     }
     
     @Test public void testLeafNoExist() throws DecoderException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(completeDirPath, false);
     	m.makeTree();
     	assertEquals(false, m.existsAsLeaf(Hex.decodeHex("0000000000000000000000000000000000000000000000000000000000000000".toCharArray())));
@@ -113,7 +113,7 @@ public class FileMerkleTest {
 
     @Test
     public void testLeafPositions() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         byte[][] tree = mTree.getTree();
@@ -125,7 +125,7 @@ public class FileMerkleTest {
 
     @Test
     public void testSortedLeaves() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(completeDirPath, false);
         mTree.makeTree();
         byte[][] tree = mTree.getTree();
@@ -140,7 +140,7 @@ public class FileMerkleTest {
 
     @Test
     public void testRecursiveSearch() {
-        FileMerkle mTree = new FileMerkle();
+        FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(recursiveDirPath, true);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 8);
@@ -148,7 +148,7 @@ public class FileMerkleTest {
 
     @Test
     public void testRecursiveSearch2() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(recursiveDir2Path, true);
         mTree.makeTree();
         assertTrue(mTree.getNumLeaves() == 8);
@@ -156,7 +156,7 @@ public class FileMerkleTest {
     
     @Test
     public void testFalseRecursiveSearch() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(recursiveDirPath, false);
     	mTree.makeTree();
     	assertTrue(mTree.getNumLeaves() == 4);
@@ -164,7 +164,7 @@ public class FileMerkleTest {
     
     @Test
     public void testFalseRecursiveSearch2() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(recursiveDir2Path, false);
     	mTree.makeTree();
     	assertTrue(mTree.getNumLeaves() == 2);
@@ -172,9 +172,9 @@ public class FileMerkleTest {
 
     @Test
     public void testRootHashEquivalence() {
-    	FileMerkle mTree1 = new FileMerkle();
+    	FileMerkle mTree1 = new FileMerkle(HashType.SHA256);
         mTree1.addTracking(recursiveDirPath, true);
-        FileMerkle mTree2 = new FileMerkle();
+        FileMerkle mTree2 = new FileMerkle(HashType.SHA256);
         mTree2.addTracking(recursiveDir2Path, true);
         mTree1.makeTree();
         mTree2.makeTree();
@@ -182,10 +182,23 @@ public class FileMerkleTest {
         String tree2Root = Hex.encodeHexString(mTree2.getRootHash());
         assertTrue(tree1Root.compareTo(tree2Root) == 0);
     }
+    
+    @Test
+    public void testDoubleSHA256(){
+    	FileMerkle mTree1 = new FileMerkle(HashType.DOUBLE_SHA256);
+        mTree1.addTracking(recursiveDirPath, true);
+        FileMerkle mTree2 = new FileMerkle(HashType.SHA256);
+        mTree2.addTracking(recursiveDir2Path, true);
+        mTree1.makeTree();
+        mTree2.makeTree();
+        String tree1Root = Hex.encodeHexString(mTree1.getRootHash());
+        String tree2Root = Hex.encodeHexString(mTree2.getRootHash());
+        assertTrue(tree1Root.compareTo(tree2Root) != 0);
+    }
 
     @Test
     public void testEmptyDirectory() {
-        FileMerkle mTree = new FileMerkle();
+        FileMerkle mTree = new FileMerkle(HashType.SHA256);
         mTree.addTracking(emptyDirPath, false);
         assertTrue(mTree.makeTree() != null);
     }
@@ -194,7 +207,7 @@ public class FileMerkleTest {
     public void testTrackSpecificFile() throws IOException {
     	File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
     	FileUtils.write(tempFile, "temp data");
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
     	mTree.addTracking(tempFile, false);
     	mTree.makeTree();
     	assertTrue(mTree.getRootHash() != null);
@@ -206,8 +219,8 @@ public class FileMerkleTest {
     	File tempFile2 = new File(emptyDirPath.getAbsolutePath() + "/tempFile2");
     	FileUtils.write(tempFile, "temp data");
     	FileUtils.write(tempFile2, "temp data 2");
-    	FileMerkle mTree = new FileMerkle();
-    	FileMerkle mTreeNoTemp2 = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
+    	FileMerkle mTreeNoTemp2 = new FileMerkle(HashType.SHA256);
     	mTree.addTracking(tempFile, false);
     	mTree.addTracking(tempFile2, false);
     	mTreeNoTemp2.addTracking(tempFile, false);
@@ -220,7 +233,7 @@ public class FileMerkleTest {
     	File tempFile2 = new File(emptyDirPath.getAbsolutePath() + "/tempFile2");
     	FileUtils.write(tempFile, "temp data");
     	FileUtils.write(tempFile2, "temp data 2");
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
     	mTree.addTracking(tempFile, false);
     	mTree.addTracking(emptyDirPath, false);
     	assertEquals(0, mTree.getTrackedFiles().size());
@@ -230,7 +243,7 @@ public class FileMerkleTest {
     @Test
     public void testNoDuplicateTrackRecursive() {
     	File testLevel2 = new File(FileMerkleTest.class.getResource(RECURSIVEDIR2).getPath() + "/testLevel1/testLevel2");
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
     	mTree.addTracking(testLevel2, false);
     	mTree.addTracking(recursiveDir2Path, true);
     	assertEquals(1, mTree.getTrackedDirs().size());
@@ -238,7 +251,7 @@ public class FileMerkleTest {
     
     @Test
     public void testMultipleDirTracking() {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
     	mTree.addTracking(completeDirPath, false);
     	mTree.addTracking(incompleteDirPath, false);
     	mTree.makeTree();
@@ -248,7 +261,7 @@ public class FileMerkleTest {
     
     @Test
     public void testRemoveTracking() throws IOException {
-    	FileMerkle mTree = new FileMerkle();
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
     	File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
     	File tempFile2 = new File(emptyDirPath.getAbsolutePath() + "/tempFile2");
     	FileUtils.write(tempFile, "temp data");
@@ -263,7 +276,7 @@ public class FileMerkleTest {
     
     @Test 
     public void testListPathCreation() {
-    	FileMerkle mtree = new FileMerkle();
+    	FileMerkle mtree = new FileMerkle(HashType.SHA256);
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
     	byte[][] tree = mtree.getTree();
@@ -281,7 +294,7 @@ public class FileMerkleTest {
     
     @Test
     public void testCheckListPathValid(){
-    	FileMerkle mtree = new FileMerkle();
+    	FileMerkle mtree = new FileMerkle(HashType.SHA256);
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
     	byte[][] tree = mtree.getTree();
@@ -294,7 +307,7 @@ public class FileMerkleTest {
     
     @Test
     public void testCheckListShortPath(){
-    	FileMerkle mtree = new FileMerkle();
+    	FileMerkle mtree = new FileMerkle(HashType.SHA256);
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
     	byte[][] tree = mtree.getTree();
@@ -306,7 +319,7 @@ public class FileMerkleTest {
     
     @Test
     public void testCheckListInvalidPath(){
-    	FileMerkle mtree = new FileMerkle();
+    	FileMerkle mtree = new FileMerkle(HashType.SHA256);
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
     	byte[][] tree = mtree.getTree();
@@ -319,7 +332,7 @@ public class FileMerkleTest {
     
     @Test
     public void testCheckStepSerializer(){
-    	FileMerkle mtree = new FileMerkle();
+    	FileMerkle mtree = new FileMerkle(HashType.SHA256);
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
     	byte[][] tree = mtree.getTree();
@@ -334,4 +347,6 @@ public class FileMerkleTest {
     		}
     	}
     }
+    
+    
 }

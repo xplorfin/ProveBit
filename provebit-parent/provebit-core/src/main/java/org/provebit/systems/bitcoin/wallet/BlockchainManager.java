@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.Peer;
 import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.params.MainNetParams;
@@ -62,6 +63,11 @@ public enum BlockchainManager {
 	
 	public BlockChain getChain() {
 		return chain;
+	}
+	
+	//New stuff:
+	public Peer getPeer(){
+		return peers.getDownloadPeer();
 	}
 
 }

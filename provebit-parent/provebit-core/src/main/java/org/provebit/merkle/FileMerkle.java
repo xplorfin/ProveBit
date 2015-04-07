@@ -34,8 +34,8 @@ public class FileMerkle extends Merkle {
     /**
      * Default constructor
      */
-    public FileMerkle() {
-    	super();
+    public FileMerkle(HashType type) {
+    	super(type);
     	trackedFiles = new ArrayList<File>();
     	trackedDirectories = new HashMap<File, Boolean>();
     }

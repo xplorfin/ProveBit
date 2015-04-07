@@ -5,7 +5,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.provebit.Config;
 import org.provebit.proof.keysys.AbstractKeyNode;
 import org.provebit.proof.keysys.KeyNotFoundException;
 import org.provebit.systems.bitcoin.wallet.BlockchainManager;
@@ -33,9 +32,7 @@ public class Blockchain extends AbstractKeyNode {
 	
 	public BlockStore store = BlockchainManager.INSTANCE.getChain().getBlockStore();
 
-	public PeerGroup peers;
-	public NetworkParameters params = Config.getBitcoinNet();
-	
+	public PeerGroup peers;	
 	
 	public static byte[] keyLookup(String[] vals, int i) {
 		return instance.keyLookupRecurse(vals, i);

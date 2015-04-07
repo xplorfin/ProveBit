@@ -30,12 +30,14 @@ public class Merkle {
     protected int numLeaves;
     protected int totalNodes;
     protected boolean exists;
+    protected HashType hashAlgorithm;
     protected List<byte[]> recentLeaves; // -Sorted- list of leaves in most recent tree construction
 
     /**
      * Default constructor
      */
-    public Merkle() {
+    public Merkle(HashType type) {
+    	hashAlgorithm = type;
     	recentLeaves = new ArrayList<byte[]>();
         tree = null;
         exists = false;
@@ -276,7 +278,16 @@ public class Merkle {
                 return; // Reached last non empty node at this level, we are done
             }
             byte[] newHash = MerkleUtils.concatHashes(leftChildHash, rightChildHash);
-            md.update(newHash);
+            switch(hashAlgorithm){
+            	case SHA256:
+            		md.update(newHash);
+            		break;
+            	case DOUBLE_SHA256:
+            		md.update(newHash);
+            		md.update(md.digest());
+            		break;
+            		
+            }
             tree[nodeIndex] = md.digest();
         }
     }

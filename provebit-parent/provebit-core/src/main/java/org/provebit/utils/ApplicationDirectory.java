@@ -19,7 +19,7 @@ public enum ApplicationDirectory implements DirectoryAccessor {
 		if (OS.contains("WIN")) {
 			workingDirectory = System.getenv("AppData");
 			// TODO check windows works
-			workingDirectory += "/Local/ProveBit";
+			workingDirectory += "\\..\\Local\\ProveBit";
 		} else {
 			// linux
 			workingDirectory = System.getProperty("user.home");

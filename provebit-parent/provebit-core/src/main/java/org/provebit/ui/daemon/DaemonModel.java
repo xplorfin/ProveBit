@@ -7,6 +7,7 @@ import java.util.Observable;
 
 import org.provebit.daemon.MerkleDaemon;
 import org.provebit.merkle.FileMerkle;
+import org.provebit.merkle.HashType;
 import org.provebit.ui.daemon.DaemonController.DaemonNotification;
 
 public class DaemonModel extends Observable {
@@ -17,7 +18,7 @@ public class DaemonModel extends Observable {
 	
 	public DaemonModel() {
 		daemonStatus = DaemonStatus.OFFLINE;
-		tree = new FileMerkle();
+		tree = new FileMerkle(HashType.SHA256);
 		daemon = null;
 	}
 	

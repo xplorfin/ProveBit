@@ -11,7 +11,6 @@ import java.util.ArrayList;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,6 +18,7 @@ import org.junit.rules.TemporaryFolder;
 import org.provebit.daemon.FileMonitor.MonitorEvent;
 import org.provebit.daemon.Log.LogEntry;
 import org.provebit.merkle.FileMerkle;
+import org.provebit.merkle.HashType;
 
 public class DaemonTest {
     public File daemonDir;
@@ -49,7 +49,7 @@ public class DaemonTest {
     
     @Test
     public void testLaunch() throws InterruptedException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, false);
         MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         assertTrue(!daemon.isDaemon());
@@ -60,7 +60,7 @@ public class DaemonTest {
     
     @Test
     public void testLaunchDaemon() throws InterruptedException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, false);
     	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.setDaemon(true);
@@ -73,7 +73,7 @@ public class DaemonTest {
     
     @Test
     public void testDetectNoChanges() throws InterruptedException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, false);
     	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
@@ -85,7 +85,7 @@ public class DaemonTest {
     
     @Test
     public void testDetectFileAdd() throws InterruptedException, IOException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, false);
     	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
@@ -105,7 +105,7 @@ public class DaemonTest {
     
     @Test
     public void testDetectFileDelete() throws InterruptedException, IOException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, false);
     	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
@@ -121,7 +121,7 @@ public class DaemonTest {
     
     @Test
     public void testDetectFileChange() throws InterruptedException, IOException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, false);
         FileUtils.write(file1, "testData");
         MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
@@ -139,7 +139,7 @@ public class DaemonTest {
     
     @Test
     public void testDetectDirectoryAdd() throws IOException, InterruptedException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, true);
         MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
@@ -153,7 +153,7 @@ public class DaemonTest {
     
     @Test
     public void testDetectDirectoryDelete() throws InterruptedException, IOException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, true);
         FileUtils.forceMkdir(daemonSubDir);
         MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
@@ -170,7 +170,7 @@ public class DaemonTest {
     @Test
     public void testSubDirectoryRecursive() throws IOException, InterruptedException {
         FileUtils.forceMkdir(daemonSubDir);
-        FileMerkle m = new FileMerkle();
+        FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, true);
         FileUtils.write(subDirFile, "sub dir file data");
         MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
@@ -188,7 +188,7 @@ public class DaemonTest {
     
     @Test
     public void testSubDirectoryNonRecursive() throws IOException, InterruptedException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, false);
     	FileUtils.forceMkdir(daemonSubDir);
         FileUtils.write(subDirFile, "sub dir file data");
@@ -204,7 +204,7 @@ public class DaemonTest {
     
     @Test
     public void testTwoSubDirectoriesRecursive() throws IOException, InterruptedException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, true);
     	FileUtils.forceMkdir(daemonSubDir);
         FileUtils.write(subDirFile, "sub dir file data");
@@ -224,7 +224,7 @@ public class DaemonTest {
     
     @Test
     public void testDaemonFileLogging() throws InterruptedException, IOException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, false);
     	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
     	daemon.start();
@@ -245,7 +245,7 @@ public class DaemonTest {
     
     @Test
     public void testDaemonDirLoggingRecursive() throws InterruptedException, IOException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, true);
     	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
     	daemon.start();
@@ -271,7 +271,7 @@ public class DaemonTest {
     
     @Test
     public void testDaemonDirLoggingNonRecursive() throws InterruptedException, IOException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(daemonDir, false);
     	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
     	daemon.start();
@@ -289,7 +289,7 @@ public class DaemonTest {
     
     @Test
     public void testDaemonMultipleFileLogging() throws InterruptedException, IOException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(file1, false);
     	m.addTracking(file2, false);
     	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
@@ -306,7 +306,7 @@ public class DaemonTest {
     
     @Test
     public void testDaemonMultipleDirLogging() throws InterruptedException, IOException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	FileUtils.forceMkdir(daemonSubDir);
     	m.addTracking(daemonDir, false);
     	m.addTracking(daemonSubDir, false);
@@ -324,7 +324,7 @@ public class DaemonTest {
     
     @Test
     public void testDaemonDisjointFileDirLogging() throws IOException, InterruptedException {
-    	FileMerkle m = new FileMerkle();
+    	FileMerkle m = new FileMerkle(HashType.SHA256);
     	FileUtils.forceMkdir(daemonSubDir);
     	m.addTracking(file1, false);
     	m.addTracking(daemonSubDir, false);

@@ -27,13 +27,13 @@ public class SimpleSocketsTest {
 		emptyProtocol = new SimpleSocketsProtocol() {
 
 			@Override
-			public Object receive(byte[] data) {
+			public Object receive(Object data) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
-			public byte[] send(Object data) {
+			public Object send(Object data) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -43,14 +43,14 @@ public class SimpleSocketsTest {
 		echoProtocol = new SimpleSocketsProtocol() {
 
 			@Override
-			public Object receive(byte[] data) {
-				String received = new String(data);
+			public Object receive(Object data) {
+				String received =(String) data;
 				return received;
 			}
 
 			@Override
-			public byte[] send(Object data) {
-				return ((String)data).getBytes();
+			public Object send(Object data) {
+				return data;
 			}
 			
 		};

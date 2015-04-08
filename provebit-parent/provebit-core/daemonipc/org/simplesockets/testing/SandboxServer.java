@@ -8,14 +8,14 @@ public class SandboxServer {
 		SandboxProtocol protocol = new SandboxProtocol() {
 			
 			@Override
-			public Object receive(byte[] data) {
-				String request = new String(data);
+			public Object receive(Object data) {
+				String request = (String) data;
 				System.out.println("Server got '" + request + "'");
 				return (Object) "Server Reply";
 			}
 
 			@Override
-			public byte[] send(Object data) {
+			public Object send(Object data) {
 				String reply = (String) data;
 				return reply.getBytes();
 			}

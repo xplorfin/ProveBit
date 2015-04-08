@@ -52,13 +52,13 @@ public class SimpleClient {
 	}
 	
 	public Object getReply() {
-		byte[] reply = null;
+		Object reply = null;
 		try {
-			reply = (byte[]) fromServer.readObject();
+			reply = fromServer.readObject();
 			protocol.receive(reply);
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		return protocol.receive(reply);
+		return reply;
 	}
 }

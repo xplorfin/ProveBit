@@ -11,15 +11,14 @@ public class SandboxClient {
 		SimpleSocketsProtocol protocol = new SimpleSocketsProtocol() {
 
 			@Override
-			public Object receive(byte[] data) {
-				String fromServer = new String(data);
+			public Object receive(Object data) {
+				String fromServer = (String) data;
 				return fromServer;
 			}
 
 			@Override
-			public byte[] send(Object data) {
-				String toServer = (String) data;
-				return toServer.getBytes();
+			public Object send(Object data) {
+				return data;
 			}
 			
 		};

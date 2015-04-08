@@ -22,14 +22,14 @@ public class SimpleServerConnectionHandler implements Runnable {
 		System.out.println("Connection handler launched");
 		ObjectInputStream socketInput;
 		ObjectOutputStream socketOutput;
-		byte[] request;
+		Object request;
 		Object reply;
 		
 		try {
 			socketInput = new ObjectInputStream(socket.getInputStream());
 			socketOutput = new ObjectOutputStream(socket.getOutputStream());
 			
-			request = (byte[]) socketInput.readObject();
+			request = socketInput.readObject();
 			reply = protocol.receive(request);
 			if (reply != null) {
 				socketOutput.writeObject(protocol.send(reply));

@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -46,21 +47,9 @@ public class MainView extends JFrame implements Observer {
 		// set up menu and tabs
 		addMenuBar();
 		addTabs();
-		setupAboutUsFrame();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-	}
-	
-	private void setupAboutUsFrame() {
-		aboutUsFrame = new JFrame("About Us");
-		aboutUsPanel = new JPanel(new MigLayout());
-		aboutUsPanel.setSize(300,200);
-		aboutUsPanel.add(new JLabel("ProveBit Iteration 4 About Us"));
-		aboutUsFrame.add(aboutUsPanel);
-		aboutUsFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		aboutUsFrame.pack();
-		aboutUsFrame.setVisible(false);
 	}
 	
 	private void addMenuBar() {
@@ -97,8 +86,10 @@ public class MainView extends JFrame implements Observer {
 	public void update(Observable o, Object arg) {
 		if (arg instanceof String) {
 			if ("showAbout".compareTo((String) arg) == 0) {
-				aboutUsFrame.setLocationRelativeTo(this);
-				aboutUsFrame.setVisible(true);
+				JOptionPane.showMessageDialog(this, 
+						"ProveBit - Trusted Timestamp System Using Bitcoin Network", 
+						"About Us", 
+						JOptionPane.PLAIN_MESSAGE);
 			}
 		}
 	}

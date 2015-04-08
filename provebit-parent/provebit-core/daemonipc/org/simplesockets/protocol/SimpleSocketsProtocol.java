@@ -12,7 +12,7 @@ public interface SimpleSocketsProtocol {
 	/**
 	 * Sending callback, called when data is to be sent on socket
 	 * 
-	 * @param data - Application data to be turned into a byte array to be sent on socket
+	 * @param data - Application data to be turned into serializable object for transmission
 	 * @return Serializable object send on socket as reply
 	 */
 	Object send(Object data);

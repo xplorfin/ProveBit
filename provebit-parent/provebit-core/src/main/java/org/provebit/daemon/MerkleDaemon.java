@@ -11,12 +11,16 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
 import org.provebit.merkle.Merkle;
+import org.simplesockets.server.SimpleServer;
 
 public class MerkleDaemon extends Thread {
+	private int maxPort = 65535, minPort = 1024;
 	private int period;
 	private List<FileAlterationObserver> observers;
 	private FileMonitor listener;
+	private SimpleServer server;
 
 	/**
 	 * Daemon constructor,
@@ -32,6 +36,45 @@ public class MerkleDaemon extends Thread {
 		this.period = period;
 		setDaemon(false);
 		setName("MerkleDaemon");
+		int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1));
+		DaemonProtocol protocol = setupProtocol();
+		server = new SimpleServer(serverPort, protocol);
+	}
+	
+	private DaemonProtocol setupProtocol() {
+		return new DaemonProtocol() {
+			@Override
+			public DaemonMessage<?> handleMessage(DaemonMessage<?> request) {
+				DaemonMessage<String> reply = null;
+				switch(request.type) {
+					case START:
+						// Is this needed?
+						break;
+					case STOP:
+						Thread.currentThread().interrupt();
+						break;
+					case ADDFILES:
+						// Extract list of file strings, convert to file objects, pass to merkle
+						break;
+					case REMOVEFILES:
+						// Extract list of file strings, convert to file objects, pass to merkle
+						break;
+					case SETPERIOD:
+						period = (int) request.data;
+						break;
+					case GETLOG:
+						reply = new DaemonMessage<String>(DaemonMessageType.REPLY, getLog());
+						break;
+					case REPLY:
+						// Ignore
+						break;
+					default:
+						break;
+				}
+				return reply;
+			}
+			
+		};
 	}
 
 	/**
@@ -56,6 +99,7 @@ public class MerkleDaemon extends Thread {
 			e.printStackTrace();
 			Thread.currentThread().interrupt();
 		}
+		server.startServer();
 		monitorDirectory();
 	}
 

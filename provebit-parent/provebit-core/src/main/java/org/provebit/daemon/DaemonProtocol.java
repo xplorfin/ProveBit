@@ -1,10 +1,12 @@
 package org.provebit.daemon;
 
+import java.io.Serializable;
+
 import org.simplesockets.protocol.SimpleSocketsProtocol;
 
-public class DaemonProtocol implements SimpleSocketsProtocol {
+public interface DaemonProtocol extends SimpleSocketsProtocol {
 	/**
-	 * MessageType : Object \ (optional) REPLY : Object
+	 * DaemonMessageType : Object \ (optional) REPLY : Object
 	 * 
 	 * START : null \ no reply
 	 * STOP : null \ no reply
@@ -12,31 +14,29 @@ public class DaemonProtocol implements SimpleSocketsProtocol {
 	 * REMOVEFILES : List<String> \ no reply
 	 * SETPERIOD : int \ no reply
 	 * GETLOG : null \ REPLY : String
-	 * @author dan
 	 *
 	 */
-	public enum MessageType {START, STOP, ADDFILES, REMOVEFILES, SETPERIOD, GETLOG, REPLY};
-	public class Message<T> {
-		public MessageType type;
-		public T data;
+	public class DaemonMessage<T> implements Serializable {
+		private static final long serialVersionUID = 2515667167455084448L;
 		
-		public Message(MessageType type, T data) {
+		public DaemonMessageType type;
+		public T data;
+		public enum DaemonMessageType {START, STOP, ADDFILES, REMOVEFILES, SETPERIOD, GETLOG, REPLY};
+		public DaemonMessage(DaemonMessageType type, T data) {
 			this.type = type;
 			this.data = data;
 		}
 	}
 	
-	@Override
-	public Object receive(Object data) {
-		Message<String> reply = null;
-		Message<?> request = (Message) data;
-		// Handle message type
-		// Return a reply message if type was getlog
-		return reply;
+	public default Object receive(Object data) {
+		DaemonMessage<String> reply = null;
+		DaemonMessage<?> request = (DaemonMessage<?>) data;
+		return handleMessage(request);
 	}
 
-	@Override
-	public Object send(Object data) {
+	public default Object send(Object data) {
 		return data;
 	}
+	
+	abstract DaemonMessage<?> handleMessage(DaemonMessage<?> request);
 }

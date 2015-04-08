@@ -1,11 +1,12 @@
 package org.simplesockets.testing;
 
+import org.simplesockets.protocol.SimpleSocketsProtocol;
 import org.simplesockets.server.SimpleServer;
 
 public class SandboxServer {
 	public static void main(String[] args) {
 		SimpleServer server;
-		SandboxProtocol protocol = new SandboxProtocol() {
+		SimpleSocketsProtocol protocol = new SimpleSocketsProtocol() {
 			
 			@Override
 			public Object receive(Object data) {

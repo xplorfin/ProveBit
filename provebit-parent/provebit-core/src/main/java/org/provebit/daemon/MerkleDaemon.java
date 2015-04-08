@@ -21,6 +21,7 @@ public class MerkleDaemon extends Thread {
 	private List<FileAlterationObserver> observers;
 	private FileMonitor listener;
 	private SimpleServer server;
+	private Merkle mTree;
 
 	/**
 	 * Daemon constructor,
@@ -34,13 +35,20 @@ public class MerkleDaemon extends Thread {
 		observers = new ArrayList<FileAlterationObserver>();
 		listener = new FileMonitor(mTree);
 		this.period = period;
+		this.mTree = mTree;
 		setDaemon(false);
 		setName("MerkleDaemon");
-		int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1));
+		int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1)); // Should this be random or static?
 		DaemonProtocol protocol = setupProtocol();
 		server = new SimpleServer(serverPort, protocol);
 	}
 	
+	/**
+	 * Setup the DaemonProtocol
+	 * Amounts to defining the message handler method and operations to
+	 * perform for each message type
+	 * @return DaemonProtocol
+	 */
 	private DaemonProtocol setupProtocol() {
 		return new DaemonProtocol() {
 			@Override
@@ -54,10 +62,12 @@ public class MerkleDaemon extends Thread {
 						Thread.currentThread().interrupt();
 						break;
 					case ADDFILES:
-						// Extract list of file strings, convert to file objects, pass to merkle
+						List<File> filesToAdd = pathsToFiles((List<String>) request.data);
+						// Add all files to tracking
 						break;
 					case REMOVEFILES:
-						// Extract list of file strings, convert to file objects, pass to merkle
+						List<File> filesToRemove = pathsToFiles((List<String>) request.data);
+						// Remove all files from tracking
 						break;
 					case SETPERIOD:
 						period = (int) request.data;
@@ -75,6 +85,27 @@ public class MerkleDaemon extends Thread {
 			}
 			
 		};
+	}
+	
+	/**
+	 * Simple helper that takes file absolute path strings and turns them into file objects
+	 * If the file exists add to a list of file objects
+	 * @param filePathStrings - List of absolute file path strings
+	 * @return List of files corresponding to the file path strings if the file exists
+	 * 
+	 */
+	private List<File> pathsToFiles(List<String> filePathStrings) {
+		List<File> fileList = new ArrayList<File>();
+		
+		for (String path : filePathStrings) {
+			File file = new File(path);
+			if (file.exists()) {
+				fileList.add(file);
+			}
+			fileList.add(new File(path));
+		}
+		
+		return fileList;
 	}
 
 	/**
@@ -100,6 +131,12 @@ public class MerkleDaemon extends Thread {
 			Thread.currentThread().interrupt();
 		}
 		server.startServer();
+		/**
+		 * After the server has started and has successfully bound a port we need to
+		 * write that port to some file in the application directory so the provebit application
+		 * knows what port to connect to
+		 */
+		// server.getPort();
 		monitorDirectory();
 	}
 
@@ -152,6 +189,7 @@ public class MerkleDaemon extends Thread {
 		} catch (InterruptedException ie) {
 			listener.log.addEntry("Daemon interrupted, exiting...");
 			try {
+				server.stopServer();
 				for (FileAlterationObserver observer : observers) {
 					observer.destroy();
 				}

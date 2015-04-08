@@ -33,8 +33,6 @@ public class MainView extends JFrame implements Observer {
 	private JMenuItem menuItemFileQuit;
 	private JMenu menuAbout;
 	private JMenuItem menuItemAboutUs;
-	private JFrame aboutUsFrame;
-	private JPanel aboutUsPanel;
 	private List<JMenuItem> menuItems;
 	
 	public MainView(MainModel model) {
@@ -75,6 +73,7 @@ public class MainView extends JFrame implements Observer {
 	
 	private void addTabs() {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setName("Main");
 		tabbedPane.addTab("General", new GeneralTab().getPanel());
 		tabbedPane.addTab("Wallet", new WalletsTab().getPanel());
 		tabbedPane.addTab("Daemon", new DaemonTab().getPanel());

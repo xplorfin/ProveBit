@@ -1,23 +1,30 @@
 package org.provebit.daemon;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage;
+import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
 import org.provebit.daemon.FileMonitor.MonitorEvent;
 import org.provebit.daemon.Log.LogEntry;
 import org.provebit.merkle.Merkle;
+import org.simplesockets.client.SimpleClient;
 
 public class DaemonTest {
     public File daemonDir;
@@ -29,6 +36,7 @@ public class DaemonTest {
     public final int TESTSLEEP = 100;
     public final int DAEMONPERIOD = 50;
     public DaemonProtocol clientProtocol;
+    public final String hostname = "localhost";
     
     @Rule
     public TemporaryFolder daemonTemp = new TemporaryFolder();
@@ -47,15 +55,7 @@ public class DaemonTest {
     		@Override
 			public DaemonMessage<?> handleMessage(DaemonMessage<?> request) {
 				System.out.println("Daemon client got request: " + request.type.toString());
-				switch(request.type) {
-					case REPLY: // Only received after sending a getLog
-						String logString = (String) request.data;
-						/** @TODO Pass updated log to view **/
-						break;
-					default:
-						break;
-				}
-				return null; // Never send reply to server
+				return request;
 			}
     	};
     }
@@ -336,8 +336,127 @@ public class DaemonTest {
     	daemon.interrupt();
     }
     
-    @Test
-    public void testDaemonNetworkConnect() {
+    @SuppressWarnings("unchecked")
+	@Test
+    public void testDaemonNetworkHeartBeat() throws InterruptedException {
     	Merkle m = new Merkle();
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	DaemonMessage<String> heartbeat = new DaemonMessage<String>(DaemonMessageType.HEARTBEAT, null);
+    	client.sendRequest(heartbeat);
+    	Thread.sleep(TESTSLEEP);
+    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
+    	assertNotNull(reply);
+    	daemon.interrupt();
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Test
+    public void testDaemonNetworkStartStopSuccess() throws InterruptedException {
+    	Merkle m = new Merkle();
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	DaemonMessage<String> request = new DaemonMessage<String>(DaemonMessageType.START, null);
+    	client.sendRequest(request);
+    	Thread.sleep(TESTSLEEP);
+    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
+    	assertNotNull(reply);
+    	request = new DaemonMessage<String>(DaemonMessageType.SUSPEND, null);
+    	client.sendRequest(request);
+    	Thread.sleep(TESTSLEEP);
+    	reply = (DaemonMessage<String>) client.getReply();
+    	assertNotNull(reply);
+    	daemon.interrupt();
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Test
+    public void testDaemonNetworkAddFiles() throws InterruptedException, IOException {
+    	Merkle m = new Merkle();
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	Map<String, Boolean> fileList = new HashMap<String, Boolean>();
+    	fileList.put(daemonDir.getAbsolutePath(), false);
+    	DaemonMessage<Map<String, Boolean>> request = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileList);
+    	client.sendRequest(request);
+    	assertNotNull(client.getReply());
+    	FileUtils.write(file1, "modified stuff");
+    	Thread.sleep(TESTSLEEP);
+    	DaemonMessage<String> getLog = new DaemonMessage<String>(DaemonMessageType.GETLOG, null);
+    	client.sendRequest(getLog);
+    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
+    	String logData = reply.data;
+    	assertTrue(logData.contains("FCHANGE : " + file1.getAbsolutePath()));
+    	daemon.interrupt();
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Test
+    public void testDaemonNetworkRemoveFiles() throws InterruptedException, IOException {
+    	Merkle m = new Merkle();
+    	MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
+    	fileMap.put(file1.getAbsolutePath(), false);
+    	DaemonMessage<Map<String, Boolean>> request = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileMap);
+    	client.sendRequest(request);
+    	assertNotNull(client.getReply());
+    	FileUtils.write(file1, "modified stuff");
+    	Thread.sleep(TESTSLEEP);
+    	DaemonMessage<String> getLog = new DaemonMessage<String>(DaemonMessageType.GETLOG, null);
+    	client.sendRequest(getLog);
+    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
+    	String logData = reply.data;
+    	assertTrue(logData.contains("FCHANGE : " + file1.getAbsolutePath()));
+    	List<String> fileList = new ArrayList<String>();
+    	fileList.add(file1.getAbsolutePath());
+    	DaemonMessage<List<String>> removeRequest = new DaemonMessage<List<String>>(DaemonMessageType.REMOVEFILES, fileList);
+    	client.sendRequest(removeRequest);
+    	assertNotNull(client.getReply());
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.deleteQuietly(file1);
+    	client.sendRequest(getLog);
+    	reply = (DaemonMessage<String>) client.getReply();
+    	logData = (String) reply.data;
+    	assertTrue(!logData.contains("FDELETE"));
+    	daemon.interrupt();
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Test
+    public void testDaemonNetworkSetPeriod() throws InterruptedException, IOException {
+    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(), DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
+    	fileMap.put(daemonDir.getAbsolutePath(), true);
+    	DaemonMessage<Map<String, Boolean>> addFilesRequest = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileMap);
+    	client.sendRequest(addFilesRequest);
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(file1, "set period network test");
+    	Thread.sleep(TESTSLEEP);
+    	DaemonMessage<String> getLogRequest = new DaemonMessage<String>(DaemonMessageType.GETLOG, null);
+    	client.sendRequest(getLogRequest);
+    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
+    	String log = reply.data;
+    	assertTrue(log.contains("FCHANGE"));
+    	DaemonMessage<Integer> changePeriodRequest = new DaemonMessage<Integer>(DaemonMessageType.SETPERIOD, 100*DAEMONPERIOD);
+    	client.sendRequest(changePeriodRequest);
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.deleteQuietly(file2);
+    	Thread.sleep(TESTSLEEP);
+    	client.sendRequest(getLogRequest);
+    	reply = (DaemonMessage<String>) client.getReply();
+    	log = reply.data;
+    	assertTrue(!log.contains("FDELETE"));
     }
 }

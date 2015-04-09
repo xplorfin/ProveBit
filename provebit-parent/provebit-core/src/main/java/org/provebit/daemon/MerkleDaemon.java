@@ -121,7 +121,9 @@ public class MerkleDaemon extends Thread {
 					default:
 						break;
 				}
-				
+				if (reply == null) {
+					reply = new DaemonMessage<Boolean>(DaemonMessageType.REPLY, true);
+				}
 				return reply;
 			}
 			
@@ -316,6 +318,10 @@ public class MerkleDaemon extends Thread {
 	 */
 	public void startMonitoring() {
 		state = DaemonStatus.ACTIVE;
+	}
+	
+	public int getPort() {
+		return server.getPort();
 	}
 	
 	/**

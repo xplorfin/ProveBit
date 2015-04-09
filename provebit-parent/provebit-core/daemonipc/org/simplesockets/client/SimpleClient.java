@@ -55,7 +55,7 @@ public class SimpleClient {
 	 * @param request - Serializable object to send to server
 	 */
 	public void sendRequest(Object request) {
-		this.connect();
+		connect();
 		try {
 			toServer.writeObject(protocol.send(request));
 		} catch (IOException e) {

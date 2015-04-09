@@ -8,11 +8,11 @@ public interface DaemonProtocol extends SimpleSocketsProtocol {
 	/**
 	 * DaemonMessageType : Object \ (optional) REPLY : Object
 	 * 
-	 * START : String (ignored) \ no reply
-	 * STOP : String (ignored) \ no reply
-	 * ADDFILES : Map<String, Boolean> \ no reply
-	 * REMOVEFILES : List<String> \ no reply
-	 * SETPERIOD : int \ no reply
+	 * START : String (ignored) \ REPLY : Boolean
+	 * STOP : String (ignored) \ REPLY : Boolean
+	 * ADDFILES : Map<String, Boolean> \ REPLY : Boolean
+	 * REMOVEFILES : List<String> \ REPLY : Boolean
+	 * SETPERIOD : Integer \ REPLY : Boolean
 	 * GETLOG : String (ignored) \ REPLY : String
 	 * GETTRACKED : String (ignored) \ REPLY : List<List<String>> where List.get(0) is tracked files, List.get(1) is tracked dirs
 	 * HEARTBEAT : String (ignored) \ REPLY : String (leave null)

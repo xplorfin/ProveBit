@@ -9,7 +9,8 @@ public interface DaemonProtocol extends SimpleSocketsProtocol {
 	 * DaemonMessageType : Object \ (optional) REPLY : Object
 	 * 
 	 * START : String (ignored) \ REPLY : Boolean
-	 * STOP : String (ignored) \ REPLY : Boolean
+	 * SUSPEND : String (ignored) \ REPLY : Boolean
+	 * KILL : String (ignored) \ no reply
 	 * ADDFILES : Map<String, Boolean> \ REPLY : Boolean
 	 * REMOVEFILES : List<String> \ REPLY : Boolean
 	 * SETPERIOD : Integer \ REPLY : Boolean
@@ -23,7 +24,7 @@ public interface DaemonProtocol extends SimpleSocketsProtocol {
 		
 		public DaemonMessageType type;
 		public T data;
-		public enum DaemonMessageType {START, SUSPEND, ADDFILES, REMOVEFILES, SETPERIOD, GETLOG, REPLY, HEARTBEAT, GETTRACKED, ISTRACKED};
+		public enum DaemonMessageType {START, SUSPEND, KILL, ADDFILES, REMOVEFILES, SETPERIOD, GETLOG, REPLY, HEARTBEAT, GETTRACKED, ISTRACKED};
 		public DaemonMessage(DaemonMessageType type, T data) {
 			this.type = type;
 			this.data = data;

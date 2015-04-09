@@ -35,7 +35,7 @@ public class SimpleClient {
 			toServer = new ObjectOutputStream(socket.getOutputStream());
 			fromServer = new ObjectInputStream(socket.getInputStream());
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			socket = null;
 		}
 	}
@@ -56,10 +56,12 @@ public class SimpleClient {
 	 */
 	public void sendRequest(Object request) {
 		connect();
-		try {
-			toServer.writeObject(protocol.send(request));
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (socket != null) {
+			try {
+				toServer.writeObject(protocol.send(request));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -69,6 +71,7 @@ public class SimpleClient {
 	 * @return Object - Object received from server as reply
 	 */
 	public Object getReply() {
+		if (socket == null) return null;
 		Object reply = null;
 		try {
 			reply = fromServer.readObject();

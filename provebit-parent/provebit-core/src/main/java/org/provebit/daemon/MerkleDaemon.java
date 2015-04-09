@@ -66,6 +66,9 @@ public class MerkleDaemon extends Thread {
 					case SUSPEND:
 						suspendMonitoring();
 						break;
+					case KILL:
+						killDaemon();
+						break;
 					/**
 					 * Add/RemoveFiles events are currently an extremely naive implementation until we have more
 					 * time to revisit this major overhaul
@@ -121,7 +124,7 @@ public class MerkleDaemon extends Thread {
 					default:
 						break;
 				}
-				if (reply == null) {
+				if (reply == null && request.type != DaemonMessageType.KILL) {
 					reply = new DaemonMessage<Boolean>(DaemonMessageType.REPLY, true);
 				}
 				return reply;
@@ -261,12 +264,18 @@ public class MerkleDaemon extends Thread {
 				Thread.sleep(period);
 			}
 		} catch (InterruptedException ie) {
-			listener.log.addEntry("Daemon interrupted, exiting...");
-			server.stopServer();
-			destroyObservers();
+			killDaemon();
 		} finally {
 			// Future cleanup
 		}
+	}
+	
+	private void killDaemon() {
+		state = DaemonStatus.SUSPENDED;
+		listener.log.addEntry("Daemon interrupted, exiting...");
+		server.stopServer();
+		destroyObservers();
+		Thread.currentThread().interrupt();
 	}
 	
 	private void destroyObservers() {

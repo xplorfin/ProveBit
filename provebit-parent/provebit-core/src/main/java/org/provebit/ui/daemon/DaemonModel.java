@@ -42,6 +42,7 @@ public class DaemonModel extends Observable {
 		
 		if (daemonExists()) {
 			daemonClient = new SimpleClient(hostname, port, clientProtocol);
+			daemonStatus = daemonStatus.ONLINE;
 		} else {
 			daemonStatus = DaemonStatus.OFFLINE;
 			tree = new Merkle();
@@ -59,7 +60,7 @@ public class DaemonModel extends Observable {
 	 */
 	@SuppressWarnings("unchecked")
 	private boolean daemonExists() {
-		// Get port from known (application folder config file) location
+		// Get last known port form well known (application folder config file) location
 		/** @TODO Remove hardcoded port */
 		int testPort = 9999;
 		SimpleClient heartBeatClient = new SimpleClient(hostname, testPort, clientProtocol);
@@ -71,7 +72,6 @@ public class DaemonModel extends Observable {
 		}
 		return false;
 	}
-	
 	
 	/**
 	 * Creates and returns a defined DaemonProtocol

@@ -66,13 +66,29 @@ public class MerkleDaemon extends Thread {
 					case SUSPEND:
 						suspendMonitoring();
 						break;
+					/**
+					 * Add/RemoveFiles events are currently an extremely naive implementation until we have more
+					 * time to revisit this major overhaul
+					 * 
+					 * Currently we are updating tree tracking and completely rebuilding all observers
+					 */
 					case ADDFILES:
 						Map<File, Boolean> pathFileMap = getPathFileMap((Map<String, Boolean>) request.data);
+						suspendMonitoring();
 						mTree.addAllTracking(pathFileMap);
+						destroyObservers();
+						createObservers();
+						launchObservers();
+						startMonitoring();
 						break;
 					case REMOVEFILES:
 						List<File> filesToRemove = pathsToFiles((List<String>) request.data);
+						suspendMonitoring();
 						mTree.removeAllTracking(filesToRemove);
+						destroyObservers();
+						createObservers();
+						launchObservers();
+						startMonitoring();
 						break;
 					case SETPERIOD:
 						period = (int) request.data;
@@ -160,7 +176,18 @@ public class MerkleDaemon extends Thread {
 		}
 		
 		createObservers();
+		launchObservers();
 		
+		server.startServer();
+		/**
+		 * After the server has started and has successfully bound a port we need to
+		 * write that port to some file in the application directory so the provebit application
+		 * knows what port to connect to
+		 */
+		monitorDirectory();
+	}
+	
+	private void launchObservers() {
 		for (FileAlterationObserver observer : observers) {
 			observer.addListener(listener);
 		}
@@ -173,13 +200,6 @@ public class MerkleDaemon extends Thread {
 			e.printStackTrace();
 			Thread.currentThread().interrupt();
 		}
-		server.startServer();
-		/**
-		 * After the server has started and has successfully bound a port we need to
-		 * write that port to some file in the application directory so the provebit application
-		 * knows what port to connect to
-		 */
-		monitorDirectory();
 	}
 
 	/**
@@ -240,18 +260,22 @@ public class MerkleDaemon extends Thread {
 			}
 		} catch (InterruptedException ie) {
 			listener.log.addEntry("Daemon interrupted, exiting...");
-			try {
-				server.stopServer();
-				for (FileAlterationObserver observer : observers) {
-					observer.destroy();
-				}
-			} catch (Exception e) {
-				listener.log.addEntry("Observer destruction failed, messy exit...");
-				e.printStackTrace();
-			}
+			server.stopServer();
+			destroyObservers();
 		} finally {
 			// Future cleanup
 		}
+	}
+	
+	private void destroyObservers() {
+		for (FileAlterationObserver observer : observers) {
+			try {
+				observer.destroy();
+			} catch (Exception e) {
+				listener.log.addEntry("Observer destruction failed, messy exit...");
+			}
+		}
+		observers.clear();
 	}
 
 	/**

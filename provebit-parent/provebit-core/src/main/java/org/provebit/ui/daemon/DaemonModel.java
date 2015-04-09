@@ -17,18 +17,61 @@ public class DaemonModel extends Observable {
 	private MerkleDaemon daemon;
 	private DaemonStatus daemonStatus;
 	private enum DaemonStatus{ONLINE, OFFLINE, TRACKING};
-	private Merkle tree;
+	private Merkle tree; /** @TODO Using networking this model no longer holds reference to Merkle tree, only the
+						  * MerkleDaemon thread holds the reference */
 	private SimpleClient daemonClient;
 	private int port;
-	private String hostname;
+	private final String hostname = "localhost";
+	private DaemonProtocol clientProtocol;
 	
+	/**
+	 * With the addition of socket based IPC we have the following considerations
+	 * 
+	 * When DaemonModel is instantiated, we need to see if there is already a MerkleDaemon running
+	 * somewhere on the system, this should be done with a heartbeat to hostname localhost, on a known port
+	 * 
+	 * If the heartbeat fails, then the server is not running, thus we need to start it via startDaemon
+	 * If the heartbeat succeeds, then we do not need to launch a daemon via startDaemon
+	 * All interactions need to be updated to use the network based model instead of directly accessing the daemon
+	 * as the daemon is not necessarily running in the scope of the jvm currently running this application
+	 */
+	
+	/** @TODO Change to use network model */
 	public DaemonModel() {
-		daemonStatus = DaemonStatus.OFFLINE;
-		tree = new Merkle();
-		daemon = null;
-		DaemonProtocol protocol = getProtocol();
-		daemonClient = new SimpleClient(hostname, port, protocol);
+		clientProtocol = getProtocol();
+		
+		if (daemonExists()) {
+			daemonClient = new SimpleClient(hostname, port, clientProtocol);
+		} else {
+			daemonStatus = DaemonStatus.OFFLINE;
+			tree = new Merkle();
+			daemon = null;
+			// Setup and launch a new daemon server
+		}
+		
 	}
+	
+	/**
+	 * Attempts to reconnect to an existing daemon server
+	 * 
+	 * If connection is successful the port member will be set to the servers port
+	 * @return true if connection succeeds, false o/w
+	 */
+	@SuppressWarnings("unchecked")
+	private boolean daemonExists() {
+		// Get port from known (application folder config file) location
+		/** @TODO Remove hardcoded port */
+		int testPort = 9999;
+		SimpleClient heartBeatClient = new SimpleClient(hostname, testPort, clientProtocol);
+		heartBeatClient.sendRequest(new DaemonMessage<String>(DaemonMessageType.HEARTBEAT, null));
+		DaemonMessage<String> reply = (DaemonMessage<String>) heartBeatClient.getReply();
+		if (reply != null) {
+			port = testPort;
+			return true;
+		}
+		return false;
+	}
+	
 	
 	/**
 	 * Creates and returns a defined DaemonProtocol

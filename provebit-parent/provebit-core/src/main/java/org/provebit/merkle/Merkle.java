@@ -72,6 +72,16 @@ public class Merkle {
     }
     
     /**
+     * Wrapper that accepts a <File, Boolean> map and adds all elements to tracking
+     * @param trackingMap
+     */
+    public void addAllTracking(Map<File, Boolean> trackingMap) {
+    	for (File file : trackingMap.keySet()) {
+    		addTracking(file, trackingMap.get(file));
+    	}
+    }
+    
+    /**
      * Remove file/directory from tracking
      * @param file - file/directory to remove from tracking
      */
@@ -80,6 +90,16 @@ public class Merkle {
     		trackedDirectories.remove(file);
     	} else {
     		trackedFiles.remove(file);
+    	}
+    }
+    
+    /**
+     * Wrapper that accepts a list of files and removes all from tracking
+     * @param fileList - List of files to remove from tracking
+     */
+    public void removeAllTracking(List<File> fileList) {
+    	for (File file : fileList) {
+    		removeTracking(file);
     	}
     }
 

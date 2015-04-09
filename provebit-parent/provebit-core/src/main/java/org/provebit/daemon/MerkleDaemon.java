@@ -54,9 +54,10 @@ public class MerkleDaemon extends Thread {
 	 */
 	private DaemonProtocol setupProtocol() {
 		return new DaemonProtocol() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public DaemonMessage<?> handleMessage(DaemonMessage<?> request) {
-				DaemonMessage<String> reply = null;
+				DaemonMessage<?> reply = null;
 				listener.log.addEntry("Network request '" + request.type.toString() + "' received");
 				switch(request.type) {
 					case START:
@@ -66,18 +67,37 @@ public class MerkleDaemon extends Thread {
 						suspendMonitoring();
 						break;
 					case ADDFILES:
-						List<File> filesToAdd = pathsToFiles((List<String>) request.data);
-						/** @TODO Add all files to tracking */
+						Map<File, Boolean> pathFileMap = getPathFileMap((Map<String, Boolean>) request.data);
+						mTree.addAllTracking(pathFileMap);
 						break;
 					case REMOVEFILES:
 						List<File> filesToRemove = pathsToFiles((List<String>) request.data);
-						/** @TODO Remove all files from tracking */
+						mTree.removeAllTracking(filesToRemove);
 						break;
 					case SETPERIOD:
 						period = (int) request.data;
 						break;
 					case GETLOG:
 						reply = new DaemonMessage<String>(DaemonMessageType.REPLY, getLog());
+						break;
+					case HEARTBEAT:
+						reply = new DaemonMessage<String>(DaemonMessageType.REPLY, null);
+						break;
+					case GETTRACKED:
+						List<List<String>> tracking = new ArrayList<List<String>>();
+						tracking.add(new ArrayList<String>());
+						tracking.add(new ArrayList<String>());
+						for (File file : mTree.getTrackedFiles()) {
+							tracking.get(0).add(file.getAbsolutePath());
+						}
+						for (File file : mTree.getTrackedDirs()) {
+							tracking.get(1).add(file.getAbsolutePath());
+						}
+						reply = new DaemonMessage<List<List<String>>>(DaemonMessageType.REPLY, tracking);
+						break;
+					case ISTRACKED:
+						String filePath = (String) request.data;
+						reply = new DaemonMessage<Boolean>(DaemonMessageType.REPLY, mTree.isTracking(new File(filePath)));
 						break;
 					case REPLY:
 						// Ignore
@@ -111,6 +131,24 @@ public class MerkleDaemon extends Thread {
 		}
 		
 		return fileList;
+	}
+	
+	/**
+	 * Takes the Map<String, Boolean> map supplied by the ADDFILES network event
+	 * and converts it into the Map<File, Boolean> map that the merkle class expects
+	 * @param pathStringMap
+	 * @return
+	 */
+	private Map<File, Boolean> getPathFileMap(Map<String, Boolean> pathStringMap) {
+		Map<File, Boolean> addFileMap = new HashMap<File, Boolean>();
+		for (String pathString : pathStringMap.keySet()) {
+			File file = new File(pathString);
+			if (file.exists()) {
+				addFileMap.put(file, pathStringMap.get(pathString));
+			}
+		}
+		
+		return addFileMap;
 	}
 
 	/**

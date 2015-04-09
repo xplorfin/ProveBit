@@ -21,27 +21,39 @@ public class SimpleClient {
 		this.protocol = protocol;
 	}
 	
-	public boolean connect() {
+	/**
+	 * Open a new connection with the server
+	 */
+	private void connect() {
 		try {
+			if (socket != null) {
+				toServer.close();
+				fromServer.close();
+				socket.close();
+			}
 			socket = new Socket(hostname, port);
 			toServer = new ObjectOutputStream(socket.getOutputStream());
 			fromServer = new ObjectInputStream(socket.getInputStream());
 		} catch (IOException e) {
 			e.printStackTrace();
 			socket = null;
-			return false;
 		}
-		return true;
 	}
 	
 	public void disconnect() {
 		try {
-			socket.close();
+			if (socket != null) {
+				socket.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * Open a connection with the server and send data
+	 * @param request - Serializable object to send to server
+	 */
 	public void sendRequest(Object request) {
 		this.connect();
 		try {
@@ -51,6 +63,11 @@ public class SimpleClient {
 		}
 	}
 	
+	/**
+	 * Get reply from server using connection established by previous
+	 * call to sendRequest
+	 * @return Object - Object received from server as reply
+	 */
 	public Object getReply() {
 		Object reply = null;
 		try {

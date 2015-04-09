@@ -21,7 +21,7 @@ public interface DaemonProtocol extends SimpleSocketsProtocol {
 		
 		public DaemonMessageType type;
 		public T data;
-		public enum DaemonMessageType {START, STOP, ADDFILES, REMOVEFILES, SETPERIOD, GETLOG, REPLY};
+		public enum DaemonMessageType {START, SUSPEND, ADDFILES, REMOVEFILES, SETPERIOD, GETLOG, REPLY};
 		public DaemonMessage(DaemonMessageType type, T data) {
 			this.type = type;
 			this.data = data;

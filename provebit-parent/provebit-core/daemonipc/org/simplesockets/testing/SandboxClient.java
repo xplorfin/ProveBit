@@ -24,7 +24,6 @@ public class SandboxClient {
 		};
 		
 		client = new SimpleClient(hostname, port, protocol);
-		client.connect();
 		client.sendRequest((Object) "Client request"); 
 		String reply = (String) client.getReply();
 		System.out.println("Client got reply '" + reply + "'");

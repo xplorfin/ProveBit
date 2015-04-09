@@ -16,12 +16,14 @@ import org.provebit.merkle.Merkle;
 import org.simplesockets.server.SimpleServer;
 
 public class MerkleDaemon extends Thread {
+	private enum DaemonStatus {ACTIVE, SUSPENDED};
 	private int maxPort = 65535, minPort = 1024;
 	private int period;
 	private List<FileAlterationObserver> observers;
 	private FileMonitor listener;
 	private SimpleServer server;
 	private Merkle mTree;
+	private DaemonStatus state;
 
 	/**
 	 * Daemon constructor,
@@ -41,6 +43,7 @@ public class MerkleDaemon extends Thread {
 		int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1)); // Should this be random or static?
 		DaemonProtocol protocol = setupProtocol();
 		server = new SimpleServer(serverPort, protocol);
+		state = DaemonStatus.SUSPENDED;
 	}
 	
 	/**
@@ -54,20 +57,21 @@ public class MerkleDaemon extends Thread {
 			@Override
 			public DaemonMessage<?> handleMessage(DaemonMessage<?> request) {
 				DaemonMessage<String> reply = null;
+				listener.log.addEntry("Network request '" + request.type.toString() + "' received");
 				switch(request.type) {
 					case START:
-						// Is this needed?
+						startMonitoring();
 						break;
-					case STOP:
-						Thread.currentThread().interrupt();
+					case SUSPEND:
+						suspendMonitoring();
 						break;
 					case ADDFILES:
 						List<File> filesToAdd = pathsToFiles((List<String>) request.data);
-						// Add all files to tracking
+						/** @TODO Add all files to tracking */
 						break;
 					case REMOVEFILES:
 						List<File> filesToRemove = pathsToFiles((List<String>) request.data);
-						// Remove all files from tracking
+						/** @TODO Remove all files from tracking */
 						break;
 					case SETPERIOD:
 						period = (int) request.data;
@@ -81,6 +85,7 @@ public class MerkleDaemon extends Thread {
 					default:
 						break;
 				}
+				
 				return reply;
 			}
 			
@@ -136,10 +141,15 @@ public class MerkleDaemon extends Thread {
 		 * write that port to some file in the application directory so the provebit application
 		 * knows what port to connect to
 		 */
-		// server.getPort();
 		monitorDirectory();
 	}
 
+	/**
+	 * Private helper function that creates all the file alteration observers
+	 * Attempts to consolidate observer creation as much as possible by using 
+	 * IOFileFilters and directory observers instead of unique observers of each
+	 * individual file
+	 */
 	private void createObservers() {
 		for (File directory : listener.getTree().getTrackedDirs()) {
 			if (listener.getTree().isDirRecursive(directory)) {
@@ -179,10 +189,14 @@ public class MerkleDaemon extends Thread {
 	 * directory
 	 */
 	private void monitorDirectory() {
+		System.out.println("Daemon server running on port " + server.getPort());
+		state = DaemonStatus.ACTIVE;
 		try {
 			while (true) {
-				for (FileAlterationObserver observer : observers) {
-					observer.checkAndNotify();
+				if (state == DaemonStatus.ACTIVE) {
+					for (FileAlterationObserver observer : observers) {
+						observer.checkAndNotify();
+					}
 				}
 				Thread.sleep(period);
 			}
@@ -226,6 +240,20 @@ public class MerkleDaemon extends Thread {
 	
 	public Log getLogActual() {
 		return listener.log;
+	}
+	
+	/**
+	 * Suspend file monitoring
+	 */
+	public void suspendMonitoring() {
+		state = DaemonStatus.SUSPENDED;
+	}
+	
+	/**
+	 * Start file monitoring if state is suspended
+	 */
+	public void startMonitoring() {
+		state = DaemonStatus.ACTIVE;
 	}
 	
 	/**

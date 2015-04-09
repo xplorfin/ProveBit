@@ -138,7 +138,6 @@ public class SimpleSocketsTest {
 		Thread.sleep(200);
 		port = server.getPort();
 		client = new SimpleClient(hostname, port, emptyProtocol);
-		client.connect();
 		Thread.sleep(50);
 		client.disconnect();
 		server.stopServer();
@@ -155,8 +154,6 @@ public class SimpleSocketsTest {
 		Thread.sleep(200);
 		port = server.getPort();
 		client = new SimpleClient(hostname, port, echoProtocol);
-		client.connect();
-		Thread.sleep(50);
 		client.sendRequest("Hello");
 		Thread.sleep(50);
 		client.disconnect();
@@ -174,8 +171,6 @@ public class SimpleSocketsTest {
 		Thread.sleep(200);
 		port = server.getPort();
 		client = new SimpleClient(hostname, port, echoProtocol);
-		client.connect();
-		Thread.sleep(50);
 		client.sendRequest("Hello");
 		Thread.sleep(50);
 		String reply = (String) client.getReply();
@@ -187,7 +182,7 @@ public class SimpleSocketsTest {
 	@Test
 	public void testServerMultipleClients() throws InterruptedException {
 		SimpleServer server;
-		int port = 34343, numClients = 10, numMessages = 20;
+		int port = 34343, numClients = 10, numMessages = 10;
 		String hostname = "localhost";
 		List<SimpleClient> clientList = new ArrayList<SimpleClient>();
 		server = new SimpleServer(port, echoProtocol);
@@ -196,7 +191,6 @@ public class SimpleSocketsTest {
 		
 		for (int i = 0; i < numClients; i++) {
 			clientList.add(new SimpleClient(hostname, server.getPort(), echoProtocol));
-			clientList.get(i).connect();
 		}
 		
 		for (int i = 0; i < numMessages; i++) {

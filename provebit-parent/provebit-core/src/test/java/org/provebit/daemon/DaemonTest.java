@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.provebit.daemon.DaemonProtocol.DaemonMessage;
 import org.provebit.daemon.FileMonitor.MonitorEvent;
 import org.provebit.daemon.Log.LogEntry;
 import org.provebit.merkle.Merkle;
@@ -27,6 +28,7 @@ public class DaemonTest {
     public File subDirFile;
     public final int TESTSLEEP = 100;
     public final int DAEMONPERIOD = 50;
+    public DaemonProtocol clientProtocol;
     
     @Rule
     public TemporaryFolder daemonTemp = new TemporaryFolder();
@@ -41,6 +43,21 @@ public class DaemonTest {
         subDirFile = new File(daemonSubDir, "subDirTempFile");
     	FileUtils.write(file1, "file 1");
     	FileUtils.write(file2, "file 2");
+    	clientProtocol = new DaemonProtocol() {
+    		@Override
+			public DaemonMessage<?> handleMessage(DaemonMessage<?> request) {
+				System.out.println("Daemon client got request: " + request.type.toString());
+				switch(request.type) {
+					case REPLY: // Only received after sending a getLog
+						String logString = (String) request.data;
+						/** @TODO Pass updated log to view **/
+						break;
+					default:
+						break;
+				}
+				return null; // Never send reply to server
+			}
+    	};
     }
     
     @Test
@@ -317,5 +334,10 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	assertEquals(1, daemon.getEvents());
     	daemon.interrupt();
+    }
+    
+    @Test
+    public void testDaemonNetworkConnect() {
+    	Merkle m = new Merkle();
     }
 }

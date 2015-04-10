@@ -116,7 +116,10 @@ public class DaemonModel extends Observable {
 			notifyChange(DaemonNotification.UPDATETRACKING);
 		}
 	}
-	
+	/**
+	 * Sets the Period of the Daemon and then starts it using SETPERIOD, START DaemonMessages
+	 * @param period
+	 */
 	public void startDaemon(int period) {
 		DaemonMessage setPeriodRequest;
 		DaemonMessage startRequest;
@@ -129,7 +132,11 @@ public class DaemonModel extends Observable {
 			daemonStatus = DaemonStatus.ACTIVE;
 		}
 	}
-	
+	/**
+	 * Requests if the parameter file is currently being tracked by the Daemon
+	 * @param file
+	 * @return true if the file is being tracked, false otherwise
+	 */
 	public boolean isTracking(File file) {
 		DaemonMessage isTrackedRequest = new DaemonMessage(DaemonMessageType.ISTRACKED, file.getAbsolutePath());
 		daemonClient.sendRequest(isTrackedRequest);
@@ -152,9 +159,18 @@ public class DaemonModel extends Observable {
 		}
 	}
 	
-	/** @TODO Change to use network model */
+	/**
+	 * Fetches log from Daemon Process using GETLOG DaemonMessage
+	 * @return String representation of Daemon Log
+	 */
 	public String getDaemonLog() {
-//		return (daemon == null) ? null : daemon.getLog();
+		
+		DaemonMessage logRequest = new DaemonMessage(DaemonMessageType.GETLOG, null);
+		daemonClient.sendRequest(logRequest);
+		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
+		if (reply != null) {
+			return (String)reply.data;
+		}
 		return null;
 	}
 	
@@ -172,7 +188,7 @@ public class DaemonModel extends Observable {
 	
 	/**
 	 * 
-	 * @return int: Number of files tracked by Daemon
+	 * @return Number of files tracked by Daemon
 	 */
 	public int getNumTracked() {
 		return getTrackedFileStrings().length;

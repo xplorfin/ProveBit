@@ -49,7 +49,7 @@ public class DaemonModel extends Observable {
 		
 		if (daemonConnected) {
 			daemonClient = new SimpleClient(hostname, port, clientProtocol);
-			daemonStatus = daemonStatus.ACTIVE;
+			daemonStatus = DaemonStatus.ACTIVE;
 		} else {
 			throw new RuntimeException("Cannot connect to local daemon server!");
 		}

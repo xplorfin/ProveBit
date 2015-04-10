@@ -183,7 +183,7 @@ public class DaemonView extends JPanel implements Observer {
 			DaemonNotification notification = (DaemonNotification) arg;
 			switch(notification) {
 				case DAEMONSTATUS:
-					daemonStatusLabel.setText("Daemon status: " + model.getDaemonStatus());
+					daemonStatusLabel.setText("Daemon status: " + model.getDaemonStatus().toString());
 					break;
 				case SHOWLOG:
 					logFrame.setLocationRelativeTo(this);

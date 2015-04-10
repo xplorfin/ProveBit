@@ -137,19 +137,19 @@ public class DaemonModel extends Observable {
 		return (boolean) reply.data;
 	}
 	
-	/** @TODO Change to use network model */
-	// Should SUSPEND the daemon now, not destroy it
+	/**
+	 * Suspends the Daemon using a SUSPEND Daemon Message
+	 * 
+	 */
 	public void stopDaemon() {
-//		if (daemon == null) return;
-//		daemon.interrupt();
-//		try {
-//			daemon.join();
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		daemon = null;
-//		daemonStatus = DaemonStatus.OFFLINE;
-//		notifyChange(DaemonNotification.DAEMONSTATUS);
+		if (getDaemonStatus().equals(DaemonStatus.SUSPENDED.toString())) return;
+		
+		DaemonMessage suspendRequest = new DaemonMessage(DaemonMessageType.SUSPEND, null);
+		daemonClient.sendRequest(suspendRequest);
+		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
+		if((boolean)reply.data == true) {
+			daemonStatus = DaemonStatus.SUSPENDED;
+		}
 	}
 	
 	/** @TODO Change to use network model */
@@ -158,8 +158,15 @@ public class DaemonModel extends Observable {
 		return null;
 	}
 	
-	/** @TODO Change to use network model */
+	/**
+	 * 
+	 * @return String of current daemon status
+	 */
 	public String getDaemonStatus() {
+		DaemonMessage stateRequest = new DaemonMessage(DaemonMessageType.GETSTATE, null);
+		daemonClient.sendRequest(stateRequest);
+		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
+		daemonStatus = ((int)reply.data == 0) ? DaemonStatus.SUSPENDED : DaemonStatus.ACTIVE;
 		return daemonStatus.toString();
 	}
 	
@@ -169,21 +176,30 @@ public class DaemonModel extends Observable {
 		return 0;
 	}
 	
-	/** @TODO Change to use network model */
+	/**
+	 * Updates the daemon's operating period using SETPERIOD DaemonMessage
+	 * @param newPeriod
+	 */
 	public void updatePeriod(int newPeriod) {
-		
+		DaemonMessage periodUpdateRequest = new DaemonMessage(DaemonMessageType.SETPERIOD, newPeriod);
+		daemonClient.sendRequest(periodUpdateRequest);
+		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
+				
 	}
 	
-	/** @TODO Change to use network model */
+	/**
+	 * Requests a list of Tracked Files from the Daemon using GETTRACKED DaemonMessage
+	 * @return String[] of Tracked Files
+	 */
+	@SuppressWarnings("unchecked")
 	public String[] getTrackedFileStrings() {
-//		List<String> tracked = new ArrayList<String>();
-//		for (File file : tree.getTrackedFiles()) {
-//			tracked.add(file.getAbsolutePath());
-//		}
-//		for (File dir : tree.getTrackedDirs()) {
-//			tracked.add(dir.getAbsolutePath());
-//		}
-//		return (String[]) tracked.toArray(new String[tracked.size()]);
+		DaemonMessage getTrackedRequest = new DaemonMessage(DaemonMessageType.GETTRACKED, null);
+		daemonClient.sendRequest(getTrackedRequest);
+		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
+		if (reply != null) {
+			List<String> trackedFileList = ((ArrayList<ArrayList<String>>) reply.data).get(0);
+			return (String[]) trackedFileList.toArray(new String[trackedFileList.size()]);
+		}
 		return null;
 	}
 	

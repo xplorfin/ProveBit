@@ -140,21 +140,22 @@ public class DaemonModel extends Observable {
 	/** @TODO Change to use network model */
 	// Should SUSPEND the daemon now, not destroy it
 	public void stopDaemon() {
-		if (daemon == null) return;
-		daemon.interrupt();
-		try {
-			daemon.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		daemon = null;
-		daemonStatus = DaemonStatus.OFFLINE;
-		notifyChange(DaemonNotification.DAEMONSTATUS);
+//		if (daemon == null) return;
+//		daemon.interrupt();
+//		try {
+//			daemon.join();
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//		daemon = null;
+//		daemonStatus = DaemonStatus.OFFLINE;
+//		notifyChange(DaemonNotification.DAEMONSTATUS);
 	}
 	
 	/** @TODO Change to use network model */
 	public String getDaemonLog() {
-		return (daemon == null) ? null : daemon.getLog();
+//		return (daemon == null) ? null : daemon.getLog();
+		return null;
 	}
 	
 	/** @TODO Change to use network model */
@@ -164,7 +165,8 @@ public class DaemonModel extends Observable {
 	
 	/** @TODO Change to use network model */
 	public int getNumTracked() {
-		return tree.getNumTracked();
+//		return tree.getNumTracked();
+		return 0;
 	}
 	
 	/** @TODO Change to use network model */
@@ -174,14 +176,15 @@ public class DaemonModel extends Observable {
 	
 	/** @TODO Change to use network model */
 	public String[] getTrackedFileStrings() {
-		List<String> tracked = new ArrayList<String>();
-		for (File file : tree.getTrackedFiles()) {
-			tracked.add(file.getAbsolutePath());
-		}
-		for (File dir : tree.getTrackedDirs()) {
-			tracked.add(dir.getAbsolutePath());
-		}
-		return (String[]) tracked.toArray(new String[tracked.size()]);
+//		List<String> tracked = new ArrayList<String>();
+//		for (File file : tree.getTrackedFiles()) {
+//			tracked.add(file.getAbsolutePath());
+//		}
+//		for (File dir : tree.getTrackedDirs()) {
+//			tracked.add(dir.getAbsolutePath());
+//		}
+//		return (String[]) tracked.toArray(new String[tracked.size()]);
+		return null;
 	}
 	
 	private void notifyChange(DaemonNotification type) {

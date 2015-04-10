@@ -170,10 +170,12 @@ public class DaemonModel extends Observable {
 		return daemonStatus.toString();
 	}
 	
-	/** @TODO Change to use network model */
+	/**
+	 * 
+	 * @return int: Number of files tracked by Daemon
+	 */
 	public int getNumTracked() {
-//		return tree.getNumTracked();
-		return 0;
+		return getTrackedFileStrings().length;
 	}
 	
 	/**

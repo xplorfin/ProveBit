@@ -50,7 +50,6 @@ public class DaemonTest {
     	clientProtocol = new DaemonProtocol() {
     		@Override
 			public DaemonMessage<?> handleMessage(DaemonMessage<?> request) {
-				System.out.println("Daemon client got request: " + request.type.toString());
 				return request;
 			}
     	};
@@ -539,8 +538,25 @@ public class DaemonTest {
     	daemon.interrupt();
     }
     
-    @Test
-    public void testDaemonNetworkIsTracked() {
-    	fail("Not yet implemented");
+    @SuppressWarnings("unchecked")
+	@Test
+    public void testDaemonNetworkIsTracked() throws InterruptedException {
+    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(), DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
+    	fileMap.put(file1.getAbsolutePath(), true);
+    	DaemonMessage<Map<String, Boolean>> addFileRequest = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileMap);
+    	client.sendRequest(addFileRequest);
+    	DaemonMessage<String> isFile1Tracked = new DaemonMessage<String>(DaemonMessageType.ISTRACKED, file1.getAbsolutePath());
+    	DaemonMessage<String> isFile2Tracked = new DaemonMessage<String>(DaemonMessageType.ISTRACKED, file2.getAbsolutePath());
+    	client.sendRequest(isFile1Tracked);
+    	DaemonMessage<Boolean> reply = (DaemonMessage<Boolean>) client.getReply();
+    	assertTrue(reply.data);
+    	client.sendRequest(isFile2Tracked);
+    	reply = (DaemonMessage<Boolean>) client.getReply();
+    	assertFalse(reply.data);
+    	daemon.interrupt();
     }
 }

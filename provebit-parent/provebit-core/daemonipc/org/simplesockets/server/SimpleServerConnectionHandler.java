@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.simplesockets.protocol.SimpleSocketsProtocol;
 
@@ -39,7 +40,10 @@ public class SimpleServerConnectionHandler implements Runnable {
 			socketOutput.close();
 			socket.close();
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			if (!(e instanceof SocketException)) {
+				// Client may have chosen to ignore the reply message and closed the connection
+				e.printStackTrace();
+			}
 		}
 	}
 }

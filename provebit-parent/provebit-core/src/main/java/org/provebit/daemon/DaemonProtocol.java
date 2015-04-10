@@ -20,11 +20,11 @@ public interface DaemonProtocol extends SimpleSocketsProtocol {
 	 * ISTRACKED : String (absolute file path) \ REPLY : Boolean
 	 * GETSTATE : String (ignored) \ REPLY : Integer (0 means suspended, 1 means active)
 	 */
-	public class DaemonMessage<T> implements Serializable {
+	public class DaemonMessage implements Serializable {
 		private static final long serialVersionUID = 2515667167455084448L;
 		
 		public DaemonMessageType type;
-		public T data;
+		public Object data;
 		public enum DaemonMessageType {START, // Start tracking file changes (from suspended state)
 									   SUSPEND, // Stop tracking file changes (from start state)
 									   KILL, // Shutdown merkle daemon
@@ -38,14 +38,14 @@ public interface DaemonProtocol extends SimpleSocketsProtocol {
 									   ISTRACKED, // Check if something is being tracked
 									   GETSTATE // Get current state (ACTIVE/SUSPENDED) of daemon
 									   };
-		public DaemonMessage(DaemonMessageType type, T data) {
+		public DaemonMessage(DaemonMessageType type, Object data) {
 			this.type = type;
 			this.data = data;
 		}
 	}
 	
 	public default Object receive(Object data) {
-		DaemonMessage<?> request = (DaemonMessage<?>) data;
+		DaemonMessage request = (DaemonMessage) data;
 		return handleMessage(request);
 	}
 
@@ -53,5 +53,5 @@ public interface DaemonProtocol extends SimpleSocketsProtocol {
 		return data;
 	}
 	
-	abstract DaemonMessage<?> handleMessage(DaemonMessage<?> request);
+	abstract DaemonMessage handleMessage(DaemonMessage request);
 }

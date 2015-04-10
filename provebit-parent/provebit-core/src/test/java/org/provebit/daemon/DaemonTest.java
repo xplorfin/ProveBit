@@ -49,7 +49,7 @@ public class DaemonTest {
     	FileUtils.write(file2, "file 2");
     	clientProtocol = new DaemonProtocol() {
     		@Override
-			public DaemonMessage<?> handleMessage(DaemonMessage<?> request) {
+			public DaemonMessage handleMessage(DaemonMessage request) {
 				return request;
 			}
     	};
@@ -339,10 +339,10 @@ public class DaemonTest {
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
     	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
-    	DaemonMessage<String> heartbeat = new DaemonMessage<String>(DaemonMessageType.HEARTBEAT, null);
+    	DaemonMessage heartbeat = new DaemonMessage(DaemonMessageType.HEARTBEAT, null);
     	client.sendRequest(heartbeat);
     	Thread.sleep(TESTSLEEP);
-    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
     	assertNotNull(reply);
     	daemon.interrupt();
     }
@@ -355,15 +355,15 @@ public class DaemonTest {
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
     	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
-    	DaemonMessage<String> request = new DaemonMessage<String>(DaemonMessageType.START, null);
+    	DaemonMessage request = new DaemonMessage(DaemonMessageType.START, null);
     	client.sendRequest(request);
     	Thread.sleep(TESTSLEEP);
-    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
     	assertNotNull(reply);
-    	request = new DaemonMessage<String>(DaemonMessageType.SUSPEND, null);
+    	request = new DaemonMessage(DaemonMessageType.SUSPEND, null);
     	client.sendRequest(request);
     	Thread.sleep(TESTSLEEP);
-    	reply = (DaemonMessage<String>) client.getReply();
+    	reply = (DaemonMessage) client.getReply();
     	assertNotNull(reply);
     	daemon.interrupt();
     }
@@ -376,12 +376,12 @@ public class DaemonTest {
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
     	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
-    	DaemonMessage<String> heartbeat = new DaemonMessage<String>(DaemonMessageType.HEARTBEAT, null);
+    	DaemonMessage heartbeat = new DaemonMessage(DaemonMessageType.HEARTBEAT, null);
     	client.sendRequest(heartbeat);
     	Thread.sleep(TESTSLEEP);
-    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
     	assertNotNull(reply);
-    	DaemonMessage<String> kill = new DaemonMessage<String>(DaemonMessageType.KILL, null);
+    	DaemonMessage kill = new DaemonMessage(DaemonMessageType.KILL, null);
     	client.sendRequest(kill);
     	Thread.sleep(TESTSLEEP);
     	client.sendRequest(heartbeat);
@@ -398,15 +398,15 @@ public class DaemonTest {
     	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
     	Map<String, Boolean> fileList = new HashMap<String, Boolean>();
     	fileList.put(daemonDir.getAbsolutePath(), false);
-    	DaemonMessage<Map<String, Boolean>> request = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileList);
+    	DaemonMessage request = new DaemonMessage(DaemonMessageType.ADDFILES, fileList);
     	client.sendRequest(request);
     	assertNotNull(client.getReply());
     	FileUtils.write(file1, "modified stuff");
     	Thread.sleep(TESTSLEEP);
-    	DaemonMessage<String> getLog = new DaemonMessage<String>(DaemonMessageType.GETLOG, null);
+    	DaemonMessage getLog = new DaemonMessage(DaemonMessageType.GETLOG, null);
     	client.sendRequest(getLog);
-    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
-    	String logData = reply.data;
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
+    	String logData = (String) reply.data;
     	assertTrue(logData.contains("FCHANGE : " + file1.getAbsolutePath()));
     	daemon.interrupt();
     }
@@ -421,25 +421,25 @@ public class DaemonTest {
     	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
     	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
     	fileMap.put(file1.getAbsolutePath(), false);
-    	DaemonMessage<Map<String, Boolean>> request = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileMap);
+    	DaemonMessage request = new DaemonMessage(DaemonMessageType.ADDFILES, fileMap);
     	client.sendRequest(request);
     	assertNotNull(client.getReply());
     	FileUtils.write(file1, "modified stuff");
     	Thread.sleep(TESTSLEEP);
-    	DaemonMessage<String> getLog = new DaemonMessage<String>(DaemonMessageType.GETLOG, null);
+    	DaemonMessage getLog = new DaemonMessage(DaemonMessageType.GETLOG, null);
     	client.sendRequest(getLog);
-    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
-    	String logData = reply.data;
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
+    	String logData = (String) reply.data;
     	assertTrue(logData.contains("FCHANGE : " + file1.getAbsolutePath()));
     	List<String> fileList = new ArrayList<String>();
     	fileList.add(file1.getAbsolutePath());
-    	DaemonMessage<List<String>> removeRequest = new DaemonMessage<List<String>>(DaemonMessageType.REMOVEFILES, fileList);
+    	DaemonMessage removeRequest = new DaemonMessage(DaemonMessageType.REMOVEFILES, fileList);
     	client.sendRequest(removeRequest);
     	assertNotNull(client.getReply());
     	Thread.sleep(TESTSLEEP);
     	FileUtils.deleteQuietly(file1);
     	client.sendRequest(getLog);
-    	reply = (DaemonMessage<String>) client.getReply();
+    	reply = (DaemonMessage) client.getReply();
     	logData = (String) reply.data;
     	assertTrue(!logData.contains("FDELETE"));
     	daemon.interrupt();
@@ -454,24 +454,24 @@ public class DaemonTest {
     	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
     	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
     	fileMap.put(daemonDir.getAbsolutePath(), true);
-    	DaemonMessage<Map<String, Boolean>> addFilesRequest = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileMap);
+    	DaemonMessage addFilesRequest = new DaemonMessage(DaemonMessageType.ADDFILES, fileMap);
     	client.sendRequest(addFilesRequest);
     	Thread.sleep(TESTSLEEP);
     	FileUtils.write(file1, "set period network test");
     	Thread.sleep(TESTSLEEP);
-    	DaemonMessage<String> getLogRequest = new DaemonMessage<String>(DaemonMessageType.GETLOG, null);
+    	DaemonMessage getLogRequest = new DaemonMessage(DaemonMessageType.GETLOG, null);
     	client.sendRequest(getLogRequest);
-    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
-    	String log = reply.data;
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
+    	String log = (String) reply.data;
     	assertTrue(log.contains("FCHANGE"));
-    	DaemonMessage<Integer> changePeriodRequest = new DaemonMessage<Integer>(DaemonMessageType.SETPERIOD, 100*DAEMONPERIOD);
+    	DaemonMessage changePeriodRequest = new DaemonMessage(DaemonMessageType.SETPERIOD, 100*DAEMONPERIOD);
     	client.sendRequest(changePeriodRequest);
     	Thread.sleep(TESTSLEEP);
     	FileUtils.deleteQuietly(file2);
     	Thread.sleep(TESTSLEEP);
     	client.sendRequest(getLogRequest);
-    	reply = (DaemonMessage<String>) client.getReply();
-    	log = reply.data;
+    	reply = (DaemonMessage) client.getReply();
+    	log = (String) reply.data;
     	assertTrue(!log.contains("FDELETE"));
     }
     
@@ -483,7 +483,7 @@ public class DaemonTest {
     	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
     	Map<String,Boolean> addFileMap = new HashMap<String, Boolean>();
     	addFileMap.put(daemonDir.getAbsolutePath(), true);
-    	DaemonMessage<Map<String, Boolean>> addFileRequest = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, addFileMap);
+    	DaemonMessage addFileRequest = new DaemonMessage(DaemonMessageType.ADDFILES, addFileMap);
     	client.sendRequest(addFileRequest);
     	Thread.sleep(TESTSLEEP);
     	FileUtils.forceMkdir(daemonSubDir);
@@ -494,10 +494,10 @@ public class DaemonTest {
     	Thread.sleep(TESTSLEEP);
     	FileUtils.deleteQuietly(daemonSubDir);
     	Thread.sleep(TESTSLEEP);
-    	DaemonMessage<String> getLogRequest = new DaemonMessage<String>(DaemonMessageType.GETLOG, null);
+    	DaemonMessage getLogRequest = new DaemonMessage(DaemonMessageType.GETLOG, null);
     	client.sendRequest(getLogRequest);
-    	DaemonMessage<String> reply = (DaemonMessage<String>) client.getReply();
-    	String log = reply.data;
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
+    	String log = (String) reply.data;
     	assertTrue(log.contains(MonitorEvent.DCREATE.toString()));
     	assertTrue(log.contains(MonitorEvent.FCREATE.toString()));
     	assertTrue(log.contains(MonitorEvent.DDELETE.toString()));
@@ -516,23 +516,23 @@ public class DaemonTest {
     	fileList.put(file1.getAbsolutePath(), false);
     	fileList.put(file2.getAbsolutePath(), false);
     	fileList.put(daemonSubDir.getAbsolutePath(), true);
-    	DaemonMessage<Map<String, Boolean>> request = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileList);
+    	DaemonMessage request = new DaemonMessage(DaemonMessageType.ADDFILES, fileList);
     	client.sendRequest(request);
     	assertNotNull(client.getReply());
-    	DaemonMessage<String> getTrackedRequest = new DaemonMessage<String>(DaemonMessageType.GETTRACKED, null);
+    	DaemonMessage getTrackedRequest = new DaemonMessage(DaemonMessageType.GETTRACKED, null);
     	Thread.sleep(TESTSLEEP);
-    	DaemonMessage<List<List<String>>> reply = (DaemonMessage<List<List<String>>>) client.getReply();
-    	List<List<String>> trackedFiles = reply.data;
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
+    	List<List<String>> trackedFiles = (List<List<String>>) reply.data;
     	assertTrue(trackedFiles.get(0).size() == 2);
     	assertTrue(trackedFiles.get(1).size() == 1);
     	List<String> removeList = new ArrayList<String>();
     	removeList.add(file2.getAbsolutePath());
-    	DaemonMessage<List<String>> removeFileRequest = new DaemonMessage<List<String>>(DaemonMessageType.REMOVEFILES, removeList);
+    	DaemonMessage removeFileRequest = new DaemonMessage(DaemonMessageType.REMOVEFILES, removeList);
     	client.sendRequest(removeFileRequest);
     	Thread.sleep(TESTSLEEP);
     	client.sendRequest(getTrackedRequest);
-    	reply = (DaemonMessage<List<List<String>>>) client.getReply();
-    	trackedFiles = reply.data;
+    	reply = (DaemonMessage) client.getReply();
+    	trackedFiles = (List<List<String>>) reply.data;
     	assertTrue(trackedFiles.get(0).size() == 1);
     	assertTrue(trackedFiles.get(1).size() == 1);
     	daemon.interrupt();
@@ -547,16 +547,16 @@ public class DaemonTest {
     	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
     	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
     	fileMap.put(file1.getAbsolutePath(), true);
-    	DaemonMessage<Map<String, Boolean>> addFileRequest = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileMap);
+    	DaemonMessage addFileRequest = new DaemonMessage(DaemonMessageType.ADDFILES, fileMap);
     	client.sendRequest(addFileRequest);
-    	DaemonMessage<String> isFile1Tracked = new DaemonMessage<String>(DaemonMessageType.ISTRACKED, file1.getAbsolutePath());
-    	DaemonMessage<String> isFile2Tracked = new DaemonMessage<String>(DaemonMessageType.ISTRACKED, file2.getAbsolutePath());
+    	DaemonMessage isFile1Tracked = new DaemonMessage(DaemonMessageType.ISTRACKED, file1.getAbsolutePath());
+    	DaemonMessage isFile2Tracked = new DaemonMessage(DaemonMessageType.ISTRACKED, file2.getAbsolutePath());
     	client.sendRequest(isFile1Tracked);
-    	DaemonMessage<Boolean> reply = (DaemonMessage<Boolean>) client.getReply();
-    	assertTrue(reply.data);
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
+    	assertTrue((boolean) reply.data);
     	client.sendRequest(isFile2Tracked);
-    	reply = (DaemonMessage<Boolean>) client.getReply();
-    	assertFalse(reply.data);
+    	reply = (DaemonMessage) client.getReply();
+    	assertFalse((boolean) reply.data);
     	daemon.interrupt();
     }
     
@@ -567,15 +567,15 @@ public class DaemonTest {
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
     	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
-    	DaemonMessage<String> getStateRequest = new DaemonMessage<String>(DaemonMessageType.GETSTATE, null);
+    	DaemonMessage getStateRequest = new DaemonMessage(DaemonMessageType.GETSTATE, null);
     	client.sendRequest(getStateRequest);
-    	DaemonMessage<Integer> reply = (DaemonMessage<Integer>) client.getReply();
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
     	assertEquals((int) reply.data, 1);
-    	DaemonMessage<String> suspendRequest = new DaemonMessage<String>(DaemonMessageType.SUSPEND, null);
+    	DaemonMessage suspendRequest = new DaemonMessage(DaemonMessageType.SUSPEND, null);
     	client.sendRequest(suspendRequest);
     	Thread.sleep(TESTSLEEP);
     	client.sendRequest(getStateRequest);
-    	reply = (DaemonMessage<Integer>) client.getReply();
+    	reply = (DaemonMessage) client.getReply();
     	assertEquals((int) reply.data, 0);
     	daemon.interrupt();
     }

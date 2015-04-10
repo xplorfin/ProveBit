@@ -70,8 +70,8 @@ public class DaemonModel extends Observable {
 		SimpleClient heartbeat = new SimpleClient(hostname, testPort, clientProtocol);
 		boolean connected = false;
 		while (!connected && attempts > 0) {
-			heartbeat.sendRequest(new DaemonMessage<String>(DaemonMessageType.HEARTBEAT, null));
-			DaemonMessage<String> reply = (DaemonMessage<String>) heartbeat.getReply();
+			heartbeat.sendRequest(new DaemonMessage(DaemonMessageType.HEARTBEAT, null));
+			DaemonMessage reply = (DaemonMessage) heartbeat.getReply();
 			if (reply != null) {
 				System.out.println("Daemon server found on port " + testPort);
 				port = testPort;
@@ -89,7 +89,7 @@ public class DaemonModel extends Observable {
 	private DaemonProtocol getProtocol() {
 		return new DaemonProtocol() {
 			@Override
-			public DaemonMessage<?> handleMessage(DaemonMessage<?> request) {
+			public DaemonMessage handleMessage(DaemonMessage request) {
 				return request;
 			}
 		};
@@ -98,9 +98,9 @@ public class DaemonModel extends Observable {
 	public void addFileToTree(File file, boolean recursive) {
 		Map<String,Boolean> fileMap = new HashMap<String, Boolean>();
 		fileMap.put(file.getAbsolutePath(), recursive);
-		DaemonMessage<Map<String, Boolean>> addFileRequest = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileMap);
+		DaemonMessage addFileRequest = new DaemonMessage(DaemonMessageType.ADDFILES, fileMap);
 		daemonClient.sendRequest(addFileRequest);
-		DaemonMessage<?> reply = (DaemonMessage<?>) daemonClient.getReply();
+		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		if (reply != null) {
 			notifyChange(DaemonNotification.UPDATETRACKING);
 		}
@@ -109,31 +109,31 @@ public class DaemonModel extends Observable {
 	public void removeFileFromTree(File file) {
 		List<String> fileList = new ArrayList<String>();
 		fileList.add(file.getAbsolutePath());
-		DaemonMessage<List<String>> removeFileRequest = new DaemonMessage<List<String>>(DaemonMessageType.REMOVEFILES, fileList);
+		DaemonMessage removeFileRequest = new DaemonMessage(DaemonMessageType.REMOVEFILES, fileList);
 		daemonClient.sendRequest(removeFileRequest);
-		DaemonMessage<?> reply = (DaemonMessage<?>) daemonClient.getReply();
+		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		if (reply != null) {
 			notifyChange(DaemonNotification.UPDATETRACKING);
 		}
 	}
 	
 	public void startDaemon(int period) {
-		DaemonMessage<Integer> setPeriodRequest;
-		DaemonMessage<String> startRequest;
-		setPeriodRequest = new DaemonMessage<Integer>(DaemonMessageType.SETPERIOD, period);
-		startRequest = new DaemonMessage<String>(DaemonMessageType.START, null);
+		DaemonMessage setPeriodRequest;
+		DaemonMessage startRequest;
+		setPeriodRequest = new DaemonMessage(DaemonMessageType.SETPERIOD, period);
+		startRequest = new DaemonMessage(DaemonMessageType.START, null);
 		daemonClient.sendRequest(setPeriodRequest);
 		daemonClient.sendRequest(startRequest);
-		DaemonMessage<?> reply = (DaemonMessage<?>) daemonClient.getReply();
+		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		if (reply != null) {
 			daemonStatus = DaemonStatus.ACTIVE;
 		}
 	}
 	
 	public boolean isTracking(File file) {
-		DaemonMessage<String> isTrackedRequest = new DaemonMessage<String>(DaemonMessageType.ISTRACKED, file.getAbsolutePath());
+		DaemonMessage isTrackedRequest = new DaemonMessage(DaemonMessageType.ISTRACKED, file.getAbsolutePath());
 		daemonClient.sendRequest(isTrackedRequest);
-		DaemonMessage<?> reply = (DaemonMessage<?>) daemonClient.getReply();
+		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		return (boolean) reply.data;
 	}
 	

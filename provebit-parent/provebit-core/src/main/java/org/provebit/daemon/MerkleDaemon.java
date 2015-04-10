@@ -57,8 +57,8 @@ public class MerkleDaemon extends Thread {
 		return new DaemonProtocol() {
 			@SuppressWarnings("unchecked")
 			@Override
-			public DaemonMessage<?> handleMessage(DaemonMessage<?> request) {
-				DaemonMessage<?> reply = null;
+			public DaemonMessage handleMessage(DaemonMessage request) {
+				DaemonMessage reply = null;
 				listener.log.addEntry("Network request '" + request.type.toString() + "' received");
 				switch(request.type) {
 					case START:
@@ -98,10 +98,10 @@ public class MerkleDaemon extends Thread {
 						period = (int) request.data;
 						break;
 					case GETLOG:
-						reply = new DaemonMessage<String>(DaemonMessageType.REPLY, getLog());
+						reply = new DaemonMessage(DaemonMessageType.REPLY, getLog());
 						break;
 					case HEARTBEAT:
-						reply = new DaemonMessage<String>(DaemonMessageType.REPLY, null);
+						reply = new DaemonMessage(DaemonMessageType.REPLY, null);
 						break;
 					case GETTRACKED:
 						List<List<String>> tracking = new ArrayList<List<String>>();
@@ -113,14 +113,14 @@ public class MerkleDaemon extends Thread {
 						for (File file : mTree.getTrackedDirs()) {
 							tracking.get(1).add(file.getAbsolutePath());
 						}
-						reply = new DaemonMessage<List<List<String>>>(DaemonMessageType.REPLY, tracking);
+						reply = new DaemonMessage(DaemonMessageType.REPLY, tracking);
 						break;
 					case ISTRACKED:
 						String filePath = (String) request.data;
-						reply = new DaemonMessage<Boolean>(DaemonMessageType.REPLY, mTree.isTracking(new File(filePath)));
+						reply = new DaemonMessage(DaemonMessageType.REPLY, mTree.isTracking(new File(filePath)));
 						break;
 					case GETSTATE:
-						reply = new DaemonMessage<Integer>(DaemonMessageType.REPLY, (state == DaemonStatus.ACTIVE) ? 1 : 0);
+						reply = new DaemonMessage(DaemonMessageType.REPLY, (state == DaemonStatus.ACTIVE) ? 1 : 0);
 						break;
 					case REPLY:
 						// Ignore
@@ -129,7 +129,7 @@ public class MerkleDaemon extends Thread {
 						break;
 				}
 				if (reply == null && request.type != DaemonMessageType.KILL) {
-					reply = new DaemonMessage<Boolean>(DaemonMessageType.REPLY, true);
+					reply = new DaemonMessage(DaemonMessageType.REPLY, true);
 				}
 				return reply;
 			}

@@ -559,4 +559,24 @@ public class DaemonTest {
     	assertFalse(reply.data);
     	daemon.interrupt();
     }
+    
+    @SuppressWarnings("unchecked")
+	@Test
+    public void testDaemonNetworkGetState() throws InterruptedException {
+    	MerkleDaemon daemon = new MerkleDaemon(new Merkle(), DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	DaemonMessage<String> getStateRequest = new DaemonMessage<String>(DaemonMessageType.GETSTATE, null);
+    	client.sendRequest(getStateRequest);
+    	DaemonMessage<Integer> reply = (DaemonMessage<Integer>) client.getReply();
+    	assertEquals((int) reply.data, 1);
+    	DaemonMessage<String> suspendRequest = new DaemonMessage<String>(DaemonMessageType.SUSPEND, null);
+    	client.sendRequest(suspendRequest);
+    	Thread.sleep(TESTSLEEP);
+    	client.sendRequest(getStateRequest);
+    	reply = (DaemonMessage<Integer>) client.getReply();
+    	assertEquals((int) reply.data, 0);
+    	daemon.interrupt();
+    }
 }

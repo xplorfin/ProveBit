@@ -18,6 +18,7 @@ import org.simplesockets.server.SimpleServer;
 public class MerkleDaemon extends Thread {
 	private enum DaemonStatus {ACTIVE, SUSPENDED};
 	private int maxPort = 65535, minPort = 1024;
+	private static final int TEMPORARYPORT = 9999;
 	private int period;
 	private List<FileAlterationObserver> observers;
 	private FileMonitor listener;
@@ -40,9 +41,9 @@ public class MerkleDaemon extends Thread {
 		this.mTree = mTree;
 		setDaemon(false);
 		setName("MerkleDaemon");
-		int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1)); // Should this be random or static?
+		//int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1)); // Should this be random or static?
 		DaemonProtocol protocol = setupProtocol();
-		server = new SimpleServer(serverPort, protocol);
+		server = new SimpleServer(TEMPORARYPORT, protocol);
 		state = DaemonStatus.SUSPENDED;
 	}
 	
@@ -117,6 +118,9 @@ public class MerkleDaemon extends Thread {
 					case ISTRACKED:
 						String filePath = (String) request.data;
 						reply = new DaemonMessage<Boolean>(DaemonMessageType.REPLY, mTree.isTracking(new File(filePath)));
+						break;
+					case GETSTATE:
+						reply = new DaemonMessage<Integer>(DaemonMessageType.REPLY, (state == DaemonStatus.ACTIVE) ? 1 : 0);
 						break;
 					case REPLY:
 						// Ignore

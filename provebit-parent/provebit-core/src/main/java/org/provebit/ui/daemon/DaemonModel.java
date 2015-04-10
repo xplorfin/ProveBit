@@ -2,27 +2,28 @@ package org.provebit.ui.daemon;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 
 import org.provebit.daemon.DaemonProtocol;
-import org.provebit.daemon.MerkleDaemon;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
+import org.provebit.daemon.MerkleDaemon;
 import org.provebit.merkle.Merkle;
 import org.provebit.ui.daemon.DaemonController.DaemonNotification;
 import org.simplesockets.client.SimpleClient;
 
 public class DaemonModel extends Observable {
-	private MerkleDaemon daemon;
 	private DaemonStatus daemonStatus;
-	private enum DaemonStatus{ONLINE, OFFLINE, TRACKING};
-	private Merkle tree; /** @TODO Using networking this model no longer holds reference to Merkle tree, only the
-						  * MerkleDaemon thread holds the reference */
+	private enum DaemonStatus{ACTIVE, SUSPENDED, TRACKING};
 	private SimpleClient daemonClient;
 	private int port;
 	private final String hostname = "localhost";
 	private DaemonProtocol clientProtocol;
+	private boolean daemonConnected;
+	private int defaultPeriod = 100;
 	
 	/**
 	 * With the addition of socket based IPC we have the following considerations
@@ -39,17 +40,19 @@ public class DaemonModel extends Observable {
 	/** @TODO Change to use network model */
 	public DaemonModel() {
 		clientProtocol = getProtocol();
+		connectToDaemon();
 		
-		if (daemonExists()) {
-			daemonClient = new SimpleClient(hostname, port, clientProtocol);
-			daemonStatus = daemonStatus.ONLINE;
-		} else {
-			daemonStatus = DaemonStatus.OFFLINE;
-			tree = new Merkle();
-			daemon = null;
-			// Setup and launch a new daemon server
+		if (!daemonConnected) { // No daemon running, start a new one
+			new MerkleDaemon(new Merkle(), defaultPeriod).start();
+			connectToDaemon();
 		}
 		
+		if (daemonConnected) {
+			daemonClient = new SimpleClient(hostname, port, clientProtocol);
+			daemonStatus = daemonStatus.ACTIVE;
+		} else {
+			throw new RuntimeException("Cannot connect to local daemon server!");
+		}
 	}
 	
 	/**
@@ -59,18 +62,24 @@ public class DaemonModel extends Observable {
 	 * @return true if connection succeeds, false o/w
 	 */
 	@SuppressWarnings("unchecked")
-	private boolean daemonExists() {
+	private void connectToDaemon() {
 		// Get last known port form well known (application folder config file) location
+		// For now the daemon starts the server on a known port (9999)
 		/** @TODO Remove hardcoded port */
-		int testPort = 9999;
-		SimpleClient heartBeatClient = new SimpleClient(hostname, testPort, clientProtocol);
-		heartBeatClient.sendRequest(new DaemonMessage<String>(DaemonMessageType.HEARTBEAT, null));
-		DaemonMessage<String> reply = (DaemonMessage<String>) heartBeatClient.getReply();
-		if (reply != null) {
-			port = testPort;
-			return true;
+		int testPort = 9999, attempts = 10;
+		SimpleClient heartbeat = new SimpleClient(hostname, testPort, clientProtocol);
+		boolean connected = false;
+		while (!connected && attempts > 0) {
+			heartbeat.sendRequest(new DaemonMessage<String>(DaemonMessageType.HEARTBEAT, null));
+			DaemonMessage<String> reply = (DaemonMessage<String>) heartbeat.getReply();
+			if (reply != null) {
+				System.out.println("Daemon server found on port " + testPort);
+				port = testPort;
+				connected = true;
+			}
+			attempts--;
 		}
-		return false;
+		daemonConnected = connected;
 	}
 	
 	/**
@@ -81,39 +90,55 @@ public class DaemonModel extends Observable {
 		return new DaemonProtocol() {
 			@Override
 			public DaemonMessage<?> handleMessage(DaemonMessage<?> request) {
-				System.out.println("Daemon client got request: " + request.type.toString());
 				return request;
 			}
 		};
 	}
 	
-	/** @TODO Change to use network model */
 	public void addFileToTree(File file, boolean recursive) {
-		tree.addTracking(file, recursive);
-		notifyChange(DaemonNotification.UPDATETRACKING);
+		Map<String,Boolean> fileMap = new HashMap<String, Boolean>();
+		fileMap.put(file.getAbsolutePath(), recursive);
+		DaemonMessage<Map<String, Boolean>> addFileRequest = new DaemonMessage<Map<String, Boolean>>(DaemonMessageType.ADDFILES, fileMap);
+		daemonClient.sendRequest(addFileRequest);
+		DaemonMessage<?> reply = (DaemonMessage<?>) daemonClient.getReply();
+		if (reply != null) {
+			notifyChange(DaemonNotification.UPDATETRACKING);
+		}
 	}
 	
-	/** @TODO Change to use network model */
 	public void removeFileFromTree(File file) {
-		tree.removeTracking(file);
-		notifyChange(DaemonNotification.UPDATETRACKING);
+		List<String> fileList = new ArrayList<String>();
+		fileList.add(file.getAbsolutePath());
+		DaemonMessage<List<String>> removeFileRequest = new DaemonMessage<List<String>>(DaemonMessageType.REMOVEFILES, fileList);
+		daemonClient.sendRequest(removeFileRequest);
+		DaemonMessage<?> reply = (DaemonMessage<?>) daemonClient.getReply();
+		if (reply != null) {
+			notifyChange(DaemonNotification.UPDATETRACKING);
+		}
 	}
 	
-	/** @TODO Change to use network model */
 	public void startDaemon(int period) {
-		if (daemon != null) return;
-		daemon = new MerkleDaemon(tree, period);
-		daemon.start();
-		daemonStatus = DaemonStatus.ONLINE;
-		notifyChange(DaemonNotification.DAEMONSTATUS);
+		DaemonMessage<Integer> setPeriodRequest;
+		DaemonMessage<String> startRequest;
+		setPeriodRequest = new DaemonMessage<Integer>(DaemonMessageType.SETPERIOD, period);
+		startRequest = new DaemonMessage<String>(DaemonMessageType.START, null);
+		daemonClient.sendRequest(setPeriodRequest);
+		daemonClient.sendRequest(startRequest);
+		DaemonMessage<?> reply = (DaemonMessage<?>) daemonClient.getReply();
+		if (reply != null) {
+			daemonStatus = DaemonStatus.ACTIVE;
+		}
 	}
 	
-	/** @TODO Change to use network model */
 	public boolean isTracking(File file) {
-		return tree.isTracking(file);
+		DaemonMessage<String> isTrackedRequest = new DaemonMessage<String>(DaemonMessageType.ISTRACKED, file.getAbsolutePath());
+		daemonClient.sendRequest(isTrackedRequest);
+		DaemonMessage<?> reply = (DaemonMessage<?>) daemonClient.getReply();
+		return (boolean) reply.data;
 	}
 	
 	/** @TODO Change to use network model */
+	// Should SUSPEND the daemon now, not destroy it
 	public void stopDaemon() {
 		if (daemon == null) return;
 		daemon.interrupt();

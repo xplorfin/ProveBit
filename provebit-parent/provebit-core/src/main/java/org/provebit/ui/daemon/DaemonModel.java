@@ -94,7 +94,11 @@ public class DaemonModel extends Observable {
 			}
 		};
 	}
-	
+	/**
+	 * Add the parameter file to the current Merkle tree
+	 * @param file - the file to be added
+	 * @param recursive
+	 */
 	public void addFileToTree(File file, boolean recursive) {
 		Map<String,Boolean> fileMap = new HashMap<String, Boolean>();
 		fileMap.put(file.getAbsolutePath(), recursive);
@@ -105,7 +109,10 @@ public class DaemonModel extends Observable {
 			notifyChange(DaemonNotification.UPDATETRACKING);
 		}
 	}
-	
+	/**
+	 * Remove the parameter file from the current Merkle tree
+	 * @param file - file to be removed
+	 */
 	public void removeFileFromTree(File file) {
 		List<String> fileList = new ArrayList<String>();
 		fileList.add(file.getAbsolutePath());
@@ -175,7 +182,7 @@ public class DaemonModel extends Observable {
 	}
 	
 	/**
-	 * 
+	 * Requests the Daemons current status using the GETSTATE DaemonMessage
 	 * @return String of current daemon status
 	 */
 	public String getDaemonStatus() {
@@ -187,7 +194,7 @@ public class DaemonModel extends Observable {
 	}
 	
 	/**
-	 * 
+	 * Requests the number of file currently being tracked by the Daemon
 	 * @return Number of files tracked by Daemon
 	 */
 	public int getNumTracked() {

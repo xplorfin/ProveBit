@@ -20,7 +20,6 @@ public class SimpleServerConnectionHandler implements Runnable {
 	}
 	
 	public void run() {
-		System.out.println("Connection handler launched");
 		ObjectInputStream socketInput;
 		ObjectOutputStream socketOutput;
 		Object request;

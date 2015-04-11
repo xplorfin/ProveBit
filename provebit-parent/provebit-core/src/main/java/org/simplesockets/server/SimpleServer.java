@@ -68,15 +68,13 @@ public class SimpleServer implements Runnable {
 		boolean bound = false;
 		while (!bound) {
 			try {
-				System.out.println("Attempting to bind port: " + port);
 				socket = new ServerSocket(port);
 				bound = true;
 			} catch (IOException e) {
-				System.out.println("Failed to bind port: " + port);
 				port = ((port+1) % 65535);
 			}
 		}
-		System.out.println("Successfuly bound port: " + port);
+		System.out.println("Server successfuly bound port: " + port);
 	}
 	
 	public void stopServer() {

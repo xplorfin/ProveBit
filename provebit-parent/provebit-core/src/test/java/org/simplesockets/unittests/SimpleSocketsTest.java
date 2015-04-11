@@ -58,11 +58,7 @@ public class SimpleSocketsTest {
 	public void testServerStartInvalidPortHigh() throws InterruptedException {
 		int port = 65536;
 		SimpleServer server = new SimpleServer(port, emptyProtocol);
-		try {
-			server.startServer();
-		} catch (Exception e) {
-			// Ignore
-		}
+		server.startServer();
 		
 		Thread.sleep(200);
 		assertFalse(server.isAlive());
@@ -72,11 +68,7 @@ public class SimpleSocketsTest {
 	public void testServerStartInvalidPortLow() throws InterruptedException {
 		int port = 1022;
 		SimpleServer server = new SimpleServer(port, emptyProtocol);
-		try {
-			server.startServer();
-		} catch (Exception e) {
-			// Ignore
-		}
+		server.startServer();
 		
 		Thread.sleep(200);
 		assertFalse(server.isAlive());
@@ -204,7 +196,6 @@ public class SimpleSocketsTest {
 				SimpleClient client = clientList.get(j);
 				String expected = message + " from client " + j;
 				String reply = (String) client.getReply();
-				System.out.println("Got reply " + reply);
 				assertEquals(reply.compareTo(expected), 0);
 			}
 		}

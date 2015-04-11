@@ -256,7 +256,6 @@ public class MerkleDaemon extends Thread {
 	 * directory
 	 */
 	private void monitorDirectory() {
-		System.out.println("Daemon server running on port " + server.getPort());
 		state = DaemonStatus.ACTIVE;
 		try {
 			while (true) {

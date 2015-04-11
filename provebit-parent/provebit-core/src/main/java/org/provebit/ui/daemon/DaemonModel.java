@@ -213,8 +213,8 @@ public class DaemonModel extends Observable {
 	}
 	
 	/**
-	 * Requests a list of Tracked Files from the Daemon using GETTRACKED DaemonMessage
-	 * @return String[] of Tracked Files
+	 * Requests a list of Tracked Files and directories from the Daemon using GETTRACKED DaemonMessage
+	 * @return String[] of Tracked Files and directories
 	 */
 	@SuppressWarnings("unchecked")
 	public String[] getTrackedFileStrings() {
@@ -222,8 +222,9 @@ public class DaemonModel extends Observable {
 		daemonClient.sendRequest(getTrackedRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		if (reply != null) {
-			List<String> trackedFileList = ((ArrayList<ArrayList<String>>) reply.data).get(0);
-			return (String[]) trackedFileList.toArray(new String[trackedFileList.size()]);
+			List<String> trackingList = ((List<List<String>>) reply.data).get(1); // Get directories first
+			trackingList.addAll(((List<List<String>>) reply.data).get(0));
+			return (String[]) trackingList.toArray(new String[trackingList.size()]);
 		}
 		return null;
 	}

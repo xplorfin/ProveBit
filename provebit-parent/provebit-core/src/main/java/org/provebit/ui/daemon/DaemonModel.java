@@ -23,7 +23,7 @@ public class DaemonModel extends Observable {
 	private final String hostname = "localhost";
 	private DaemonProtocol clientProtocol;
 	private boolean daemonConnected;
-	private int defaultPeriod = 100;
+	private int defaultPeriod = 1000;
 	
 	/**
 	 * With the addition of socket based IPC we have the following considerations
@@ -137,6 +137,7 @@ public class DaemonModel extends Observable {
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		if (reply != null) {
 			daemonStatus = DaemonStatus.ACTIVE;
+			notifyChange(DaemonNotification.DAEMONSTATUS);
 		}
 	}
 	/**
@@ -163,7 +164,9 @@ public class DaemonModel extends Observable {
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		if((boolean)reply.data == true) {
 			daemonStatus = DaemonStatus.SUSPENDED;
+			notifyChange(DaemonNotification.DAEMONSTATUS);
 		}
+		
 	}
 	
 	/**

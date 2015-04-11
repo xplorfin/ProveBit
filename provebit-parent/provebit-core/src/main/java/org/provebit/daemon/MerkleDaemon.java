@@ -323,6 +323,7 @@ public class MerkleDaemon extends Thread {
 	 */
 	public void suspendMonitoring() {
 		state = DaemonStatus.SUSPENDED;
+		System.out.println("Daemon status now: " + state.toString());
 	}
 	
 	/**
@@ -330,6 +331,7 @@ public class MerkleDaemon extends Thread {
 	 */
 	public void startMonitoring() {
 		state = DaemonStatus.ACTIVE;
+		System.out.println("Daemon status now: " + state.toString());
 	}
 	
 	public int getPort() {

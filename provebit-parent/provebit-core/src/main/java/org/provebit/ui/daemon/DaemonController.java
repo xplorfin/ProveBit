@@ -36,11 +36,11 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 		switch(e.getActionCommand()) {
 			case "startDaemon":
 				period = view.getPeriod();
-				if (period != -1 && model.getNumTracked() > 0) {
+				if (period != -1) {
 					model.startDaemon(view.getPeriod());
 				}
 				break;
-			case "stopDaemon":
+			case "suspendDaemon":
 				model.stopDaemon();
 				break;
 			case "showLog":

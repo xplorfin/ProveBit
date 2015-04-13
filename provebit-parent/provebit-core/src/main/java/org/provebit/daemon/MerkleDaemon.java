@@ -72,7 +72,7 @@ public class MerkleDaemon extends Thread {
 						break;
 					/**
 					 * Add/RemoveFiles events are currently an extremely naive implementation until we have more
-					 * time to revisit this major overhaul
+					 * time to revisit this major refactoring
 					 * 
 					 * Currently we are updating tree tracking and completely rebuilding all observers
 					 */
@@ -323,7 +323,6 @@ public class MerkleDaemon extends Thread {
 	 */
 	public void suspendMonitoring() {
 		state = DaemonStatus.SUSPENDED;
-		System.out.println("Daemon status now: " + state.toString());
 	}
 	
 	/**
@@ -331,7 +330,6 @@ public class MerkleDaemon extends Thread {
 	 */
 	public void startMonitoring() {
 		state = DaemonStatus.ACTIVE;
-		System.out.println("Daemon status now: " + state.toString());
 	}
 	
 	public int getPort() {

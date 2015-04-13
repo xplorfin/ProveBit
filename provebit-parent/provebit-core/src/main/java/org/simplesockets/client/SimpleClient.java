@@ -15,6 +15,12 @@ public class SimpleClient {
 	private ObjectOutputStream toServer;
 	private ObjectInputStream fromServer;
 	
+	/**
+	 * Create a client that will use a specified server
+	 * @param hostname - hostname of server to use
+	 * @param port - port to contact server on
+	 * @param protocol - protocol to use for communication
+	 */
 	public SimpleClient(String hostname, int port, SimpleSocketsProtocol protocol) {
 		this.hostname = hostname;
 		this.port = port;
@@ -40,6 +46,9 @@ public class SimpleClient {
 		}
 	}
 	
+	/**
+	 * Kill an active connection if one exists
+	 */
 	public void disconnect() {
 		try {
 			if (socket != null) {

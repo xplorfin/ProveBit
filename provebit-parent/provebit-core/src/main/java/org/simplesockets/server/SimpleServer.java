@@ -28,15 +28,26 @@ public class SimpleServer implements Runnable {
 		return port;
 	}
 	
+	/**
+	 * Checks if server is currently accepting connections
+	 * @return true if accepting connections, false o/w
+	 */
 	public boolean isAlive() {
 		return alive;
 	}
 	
+	/**
+	 * Spawn a new thread that runs the server
+	 */
 	public void startServer() {
 		Thread serverThread = new Thread(this);
 		serverThread.start();
 	}
 	
+	/**
+	 * Primary method
+	 * Binds socket then enters loop to continually accept and handle client connections
+	 */
 	public void run() {
 		if ((port < 1024) || (port > 65535)) {
 			throw new RuntimeException("Invalid port specified");
@@ -77,6 +88,9 @@ public class SimpleServer implements Runnable {
 		System.out.println("Server successfuly bound port: " + port);
 	}
 	
+	/**
+	 * Kill the server
+	 */
 	public void stopServer() {
 		killServer = true;
 		try {
@@ -84,5 +98,6 @@ public class SimpleServer implements Runnable {
 		} catch (IOException e) {
 			// Expecting socket exception to be thrown
 		}
+		alive = false;
 	}
 }

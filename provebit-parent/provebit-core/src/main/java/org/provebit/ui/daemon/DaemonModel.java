@@ -212,7 +212,6 @@ public class DaemonModel extends Observable {
 		DaemonMessage periodUpdateRequest = new DaemonMessage(DaemonMessageType.SETPERIOD, newPeriod);
 		daemonClient.sendRequest(periodUpdateRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
-				
 	}
 	
 	/**

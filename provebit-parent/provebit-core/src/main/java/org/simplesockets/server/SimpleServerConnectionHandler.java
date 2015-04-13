@@ -12,6 +12,11 @@ public class SimpleServerConnectionHandler implements Runnable {
 	private Socket socket;
 	private SimpleSocketsProtocol protocol;
 	
+	/**
+	 * Spawn thread to handle an incoming client connection
+	 * @param socket - socket with active client connection
+	 * @param protocol - protocol to use when handling client data
+	 */
 	public SimpleServerConnectionHandler(Socket socket, SimpleSocketsProtocol protocol) {
 		this.socket = socket;
 		this.protocol = protocol;
@@ -19,6 +24,10 @@ public class SimpleServerConnectionHandler implements Runnable {
 		thread.start();
 	}
 	
+	/**
+	 * Reads any incoming client data and calls the protocols receive method
+	 * Returns a reply if one is returned by the defined protocol
+	 */
 	public void run() {
 		ObjectInputStream socketInput;
 		ObjectOutputStream socketOutput;

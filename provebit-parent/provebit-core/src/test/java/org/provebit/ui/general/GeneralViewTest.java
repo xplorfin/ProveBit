@@ -21,13 +21,6 @@ public class GeneralViewTest extends UISpecTestCase {
 		tabGroup.selectTab("General");
 		generalPane = tabGroup.getSelectedTab();
 	}
-
-//	@Test
-//	public void testTableHeader() {
-//		assertTrue(panel.getTable().getHeader().contentEquals(new String[] {
-//				"File", "Status"
-//		}));
-//	}
 	
 	public void testTableHeader() {
 		assertTrue(generalPane.getTable().getHeader().contentEquals(new String[] {

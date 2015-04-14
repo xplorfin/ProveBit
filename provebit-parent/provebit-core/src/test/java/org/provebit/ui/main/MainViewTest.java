@@ -20,15 +20,9 @@ public class MainViewTest extends UISpecTestCase {
 	
 	public void setUp() throws Exception {
 		super.setUp();
-//		UISpec4J.setWindowInterceptionTimeLimit(1000000);
 		setAdapter(new MainClassAdapter(RunGUI.class));
 		window = getMainWindow();
 	}
-	
-//	@Test
-//	public void testGetAboutUs() {
-//		window.getMenuBar().getMenu("About").getSubMenu("About Us").contentEquals("About Us");
-//	}
 	
 	public void testAboutUs() {	
 		WindowInterceptor

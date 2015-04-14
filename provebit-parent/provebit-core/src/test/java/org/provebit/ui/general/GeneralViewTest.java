@@ -4,10 +4,14 @@ import org.junit.*;
 import org.provebit.ui.RunGUI;
 import org.uispec4j.Panel;
 import org.uispec4j.TabGroup;
+import org.uispec4j.Trigger;
 import org.uispec4j.UISpec4J;
 import org.uispec4j.UISpecTestCase;
 import org.uispec4j.Window;
+import org.uispec4j.interception.FileChooserHandler;
 import org.uispec4j.interception.MainClassAdapter;
+import org.uispec4j.interception.WindowHandler;
+import org.uispec4j.interception.WindowInterceptor;
 
 public class GeneralViewTest extends UISpecTestCase {
 	private Window window;
@@ -37,5 +41,18 @@ public class GeneralViewTest extends UISpecTestCase {
 		assertTrue(generalPane.getTable().getHeader().contentEquals(new String[] {
 				"File", "Status"
 		}));
+	}
+	
+	/**
+	 * invoke the file chooser for certify file and test its properties
+	 */
+	public void testCertifyFileDialog() {	
+		WindowInterceptor
+		// set up the trigger to invoke the pop-up dialog
+		.init(generalPane.getButton("Certify File").triggerClick())
+		.process(FileChooserHandler.init()
+				.titleEquals("Choose File to Certify")
+				.cancelSelection())
+		.run();
 	}
 }

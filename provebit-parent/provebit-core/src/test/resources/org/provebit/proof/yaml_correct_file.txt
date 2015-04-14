@@ -1,0 +1,11 @@
+{
+  Type: Document Proof,
+  Block ID: '33333333',
+  File Hash: '44444444',
+  Transaction Path: '00000000',
+  Version: '0.1',
+  proven Time: '2007-01-02 00:00:00.0',
+  Merkle Root: '22222222',
+  Ideal Time: '2007-01-01 00:00:00.0',
+  Transaction ID: '11111111'
+}

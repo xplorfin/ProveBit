@@ -29,7 +29,7 @@ public class DaemonView extends JPanel implements Observer {
 	private static final String REMOVEFILESTRING = "Remove Files...";
 	private static final String[] RECURSIVEOPTIONS = {"No","Yes"};
 	private DaemonModel model;
-	private JButton addFileButton, removeFileButton, startDaemonButton, stopDaemonButton, updateIntervalButton, showLogButton, refreshLogButton;
+	private JButton addFileButton, removeFileButton, startDaemonButton, suspendDaemonButton, updateIntervalButton, showLogButton, refreshLogButton;
 	private JLabel trackedFilesLabel, daemonStatusLabel;
 	private JList<String> fileList;
 	private JTextField runPeriodInput;
@@ -61,6 +61,7 @@ public class DaemonView extends JPanel implements Observer {
 		fileSelector.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		
 		runPeriodInput = new JTextField("");
+		runPeriodInput.setText("1");
 		daemonStatusLabel = new JLabel("Daemon status: " + model.getDaemonStatus());
 		optionFrame = new JFrame();
 		optionFrame.setVisible(false);
@@ -79,7 +80,7 @@ public class DaemonView extends JPanel implements Observer {
 		add(runPeriodInput, "width :50");
 		add(new JLabel("sec"), "wrap");
 		add(startDaemonButton, "split 3");
-		add(stopDaemonButton);
+		add(suspendDaemonButton);
 		add(updateIntervalButton, "wrap");
 		add(daemonStatusLabel, "wrap");
 		add(showLogButton, "");
@@ -98,9 +99,9 @@ public class DaemonView extends JPanel implements Observer {
 		startDaemonButton.setActionCommand("startDaemon");
 		buttons.add(startDaemonButton);
 		
-		stopDaemonButton = new JButton("Stop Daemon");
-		stopDaemonButton.setActionCommand("stopDaemon");
-		buttons.add(stopDaemonButton);
+		suspendDaemonButton = new JButton("Suspend Daemon");
+		suspendDaemonButton.setActionCommand("suspendDaemon");
+		buttons.add(suspendDaemonButton);
 		
 		showLogButton = new JButton("Show Log");
 		showLogButton.setActionCommand("showLog");
@@ -183,7 +184,7 @@ public class DaemonView extends JPanel implements Observer {
 			DaemonNotification notification = (DaemonNotification) arg;
 			switch(notification) {
 				case DAEMONSTATUS:
-					daemonStatusLabel.setText("Daemon status: " + model.getDaemonStatus());
+					daemonStatusLabel.setText("Daemon status: " + model.getDaemonStatus().toString());
 					break;
 				case SHOWLOG:
 					logFrame.setLocationRelativeTo(this);

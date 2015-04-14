@@ -11,13 +11,21 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
 import org.provebit.merkle.FileMerkle;
 import org.provebit.merkle.Merkle;
+import org.simplesockets.server.SimpleServer;
 
 public class MerkleDaemon extends Thread {
+	private enum DaemonStatus {ACTIVE, SUSPENDED};
+	private int maxPort = 65535, minPort = 1024;
+	private static final int TEMPORARYPORT = 9999;
 	private int period;
 	private List<FileAlterationObserver> observers;
 	private FileMonitor listener;
+	private SimpleServer server;
+	private FileMerkle mTree;
+	private DaemonStatus state;
 
 	/**
 	 * Daemon constructor,
@@ -31,8 +39,142 @@ public class MerkleDaemon extends Thread {
 		observers = new ArrayList<FileAlterationObserver>();
 		listener = new FileMonitor(mTree);
 		this.period = period;
+		this.mTree = mTree;
 		setDaemon(false);
 		setName("MerkleDaemon");
+		//int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1)); // Should this be random or static?
+		DaemonProtocol protocol = setupProtocol();
+		server = new SimpleServer(TEMPORARYPORT, protocol);
+		state = DaemonStatus.SUSPENDED;
+	}
+	
+	/**
+	 * Setup the DaemonProtocol
+	 * Amounts to defining the message handler method and operations to
+	 * perform for each message type
+	 * @return DaemonProtocol
+	 */
+	private DaemonProtocol setupProtocol() {
+		return new DaemonProtocol() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public DaemonMessage handleMessage(DaemonMessage request) {
+				DaemonMessage reply = null;
+				listener.log.addEntry("Network request '" + request.type.toString() + "' received");
+				switch(request.type) {
+					case START:
+						startMonitoring();
+						break;
+					case SUSPEND:
+						suspendMonitoring();
+						break;
+					case KILL:
+						killDaemon();
+						break;
+					/**
+					 * Add/RemoveFiles events are currently an extremely naive implementation until we have more
+					 * time to revisit this major refactoring
+					 * 
+					 * Currently we are updating tree tracking and completely rebuilding all observers
+					 */
+					case ADDFILES:
+						Map<File, Boolean> pathFileMap = getPathFileMap((Map<String, Boolean>) request.data);
+						suspendMonitoring();
+						mTree.addAllTracking(pathFileMap);
+						destroyObservers();
+						createObservers();
+						launchObservers();
+						startMonitoring();
+						break;
+					case REMOVEFILES:
+						List<File> filesToRemove = pathsToFiles((List<String>) request.data);
+						suspendMonitoring();
+						mTree.removeAllTracking(filesToRemove);
+						destroyObservers();
+						createObservers();
+						launchObservers();
+						startMonitoring();
+						break;
+					case SETPERIOD:
+						period = (int) request.data;
+						break;
+					case GETLOG:
+						reply = new DaemonMessage(DaemonMessageType.REPLY, getLog());
+						break;
+					case HEARTBEAT:
+						reply = new DaemonMessage(DaemonMessageType.REPLY, null);
+						break;
+					case GETTRACKED:
+						List<List<String>> tracking = new ArrayList<List<String>>();
+						tracking.add(new ArrayList<String>());
+						tracking.add(new ArrayList<String>());
+						for (File file : mTree.getTrackedFiles()) {
+							tracking.get(0).add(file.getAbsolutePath());
+						}
+						for (File file : mTree.getTrackedDirs()) {
+							tracking.get(1).add(file.getAbsolutePath());
+						}
+						reply = new DaemonMessage(DaemonMessageType.REPLY, tracking);
+						break;
+					case ISTRACKED:
+						String filePath = (String) request.data;
+						reply = new DaemonMessage(DaemonMessageType.REPLY, mTree.isTracking(new File(filePath)));
+						break;
+					case GETSTATE:
+						reply = new DaemonMessage(DaemonMessageType.REPLY, (state == DaemonStatus.ACTIVE) ? 1 : 0);
+						break;
+					case REPLY:
+						// Ignore
+						break;
+					default:
+						break;
+				}
+				if (reply == null && request.type != DaemonMessageType.KILL) {
+					reply = new DaemonMessage(DaemonMessageType.REPLY, true);
+				}
+				return reply;
+			}
+			
+		};
+	}
+	
+	/**
+	 * Simple helper that takes file absolute path strings and turns them into file objects
+	 * If the file exists add to a list of file objects
+	 * @param filePathStrings - List of absolute file path strings
+	 * @return List of files corresponding to the file path strings if the file exists
+	 * 
+	 */
+	private List<File> pathsToFiles(List<String> filePathStrings) {
+		List<File> fileList = new ArrayList<File>();
+		
+		for (String path : filePathStrings) {
+			File file = new File(path);
+			if (file.exists()) {
+				fileList.add(file);
+			}
+			fileList.add(new File(path));
+		}
+		
+		return fileList;
+	}
+	
+	/**
+	 * Takes the Map<String, Boolean> map supplied by the ADDFILES network event
+	 * and converts it into the Map<File, Boolean> map that the merkle class expects
+	 * @param pathStringMap
+	 * @return
+	 */
+	private Map<File, Boolean> getPathFileMap(Map<String, Boolean> pathStringMap) {
+		Map<File, Boolean> addFileMap = new HashMap<File, Boolean>();
+		for (String pathString : pathStringMap.keySet()) {
+			File file = new File(pathString);
+			if (file.exists()) {
+				addFileMap.put(file, pathStringMap.get(pathString));
+			}
+		}
+		
+		return addFileMap;
 	}
 
 	/**
@@ -44,7 +186,19 @@ public class MerkleDaemon extends Thread {
 		}
 		
 		createObservers();
+		launchObservers();
 		
+		server.startServer();
+		
+		/**
+		 * After the server has started and has successfully bound a port we need to
+		 * write that port to some file in the application directory so the provebit application
+		 * knows what port to connect to
+		 */
+		monitorDirectory();
+	}
+	
+	private void launchObservers() {
 		for (FileAlterationObserver observer : observers) {
 			observer.addListener(listener);
 		}
@@ -57,9 +211,14 @@ public class MerkleDaemon extends Thread {
 			e.printStackTrace();
 			Thread.currentThread().interrupt();
 		}
-		monitorDirectory();
 	}
 
+	/**
+	 * Private helper function that creates all the file alteration observers
+	 * Attempts to consolidate observer creation as much as possible by using 
+	 * IOFileFilters and directory observers instead of unique observers of each
+	 * individual file
+	 */
 	private void createObservers() {
 		for (File directory : listener.getTree().getTrackedDirs()) {
 			if (listener.getTree().isDirRecursive(directory)) {
@@ -99,26 +258,41 @@ public class MerkleDaemon extends Thread {
 	 * directory
 	 */
 	private void monitorDirectory() {
+		state = DaemonStatus.ACTIVE;
 		try {
 			while (true) {
-				for (FileAlterationObserver observer : observers) {
-					observer.checkAndNotify();
+				if (state == DaemonStatus.ACTIVE) {
+					for (FileAlterationObserver observer : observers) {
+						observer.checkAndNotify();
+					}
 				}
 				Thread.sleep(period);
 			}
 		} catch (InterruptedException ie) {
-			listener.log.addEntry("Daemon interrupted, exiting...");
+			killDaemon();
+		} finally {
+			// Future cleanup
+		}
+	}
+	
+	private void killDaemon() {
+		state = DaemonStatus.SUSPENDED;
+		listener.log.addEntry("Daemon interrupted, exiting...");
+		server.stopServer();
+		destroyObservers();
+		Thread.currentThread().interrupt();
+	}
+	
+	private void destroyObservers() {
+		for (FileAlterationObserver observer : observers) {
 			try {
-				for (FileAlterationObserver observer : observers) {
-					observer.destroy();
-				}
+				observer.destroy();
 			} catch (Exception e) {
 				listener.log.addEntry("Observer destruction failed, messy exit...");
 				e.printStackTrace();
 			}
-		} finally {
-			// Future cleanup
 		}
+		observers.clear();
 	}
 
 	/**
@@ -145,6 +319,24 @@ public class MerkleDaemon extends Thread {
 	
 	public Log getLogActual() {
 		return listener.log;
+	}
+	
+	/**
+	 * Suspend file monitoring
+	 */
+	public void suspendMonitoring() {
+		state = DaemonStatus.SUSPENDED;
+	}
+	
+	/**
+	 * Start file monitoring if state is suspended
+	 */
+	public void startMonitoring() {
+		state = DaemonStatus.ACTIVE;
+	}
+	
+	public int getPort() {
+		return server.getPort();
 	}
 	
 	/**

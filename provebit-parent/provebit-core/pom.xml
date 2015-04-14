@@ -17,7 +17,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -44,7 +44,7 @@
     	<groupId>org.uispec4j</groupId>
     	<artifactId>uispec4j</artifactId>
     	<version>2.5-RC1</version>
-    	<scope>test</scope>
+    	<classifier>jdk8</classifier>
     </dependency>
   </dependencies>
 </project>

@@ -10,7 +10,7 @@ import org.uispec4j.interception.FileChooserHandler;
 import org.uispec4j.interception.MainClassAdapter;
 import org.uispec4j.interception.WindowInterceptor;
 
-public class DaemonViewTest extends UISpecTestCase {
+public class DaemonViewTest_ extends UISpecTestCase {
 	private Window window;
 	private Panel daemonPane;
 	

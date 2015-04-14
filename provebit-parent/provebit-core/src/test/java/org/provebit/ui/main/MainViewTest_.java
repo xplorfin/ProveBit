@@ -17,7 +17,7 @@ import org.uispec4j.interception.MainClassAdapter;
 import org.uispec4j.interception.WindowHandler;
 import org.uispec4j.interception.WindowInterceptor;
 
-public class MainViewTest extends UISpecTestCase {
+public class MainViewTest_ extends UISpecTestCase {
 	
 	private Window window;
 	private TabGroup tabGroup;

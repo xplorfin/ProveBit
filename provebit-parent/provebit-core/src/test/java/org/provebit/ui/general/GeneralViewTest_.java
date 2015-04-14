@@ -13,7 +13,7 @@ import org.uispec4j.interception.MainClassAdapter;
 import org.uispec4j.interception.WindowHandler;
 import org.uispec4j.interception.WindowInterceptor;
 
-public class GeneralViewTest extends UISpecTestCase {
+public class GeneralViewTest_ extends UISpecTestCase {
 	private Window window;
 	private Panel generalPane;
 	

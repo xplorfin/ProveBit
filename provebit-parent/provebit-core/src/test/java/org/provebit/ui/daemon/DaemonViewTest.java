@@ -21,7 +21,7 @@ public class DaemonViewTest extends UISpecTestCase {
 	 */
 	public void setUp() throws Exception {
 		super.setUp();
-		UISpec4J.setWindowInterceptionTimeLimit(10000);
+		UISpec4J.setWindowInterceptionTimeLimit(100000);
 		setAdapter(new MainClassAdapter(RunGUI.class, new String[0]));
 		window = getMainWindow();
 		

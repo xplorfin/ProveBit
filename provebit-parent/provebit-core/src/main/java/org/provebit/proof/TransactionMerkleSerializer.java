@@ -50,7 +50,7 @@ public class TransactionMerkleSerializer {
 	public byte[] SerializedPathUpMerkle(byte[] transactionID, byte[] blockHeader){
 		try {
 			// This call blocks until the block is received
-			Block targetBlock = peer.getBlock(new Sha256Hash(blockHeader)).get(2,TimeUnit.MINUTES);
+			Block targetBlock = peer.getBlock(new Sha256Hash(blockHeader)).get(10,TimeUnit.SECONDS);
 			List<Transaction> transactions = targetBlock.getTransactions(); 
 			List<byte[]> transHashes = new ArrayList<byte[]>();
 			

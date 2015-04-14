@@ -15,7 +15,7 @@ public class GeneralViewTest extends UISpecTestCase {
 	
 	public void setUp() throws Exception {
 		super.setUp();
-		UISpec4J.setWindowInterceptionTimeLimit(1000000);
+		UISpec4J.setWindowInterceptionTimeLimit(10000);
 		setAdapter(new MainClassAdapter(RunGUI.class, new String[0]));
 		window = getMainWindow();
 		TabGroup tabGroup = window.getTabGroup("Main");

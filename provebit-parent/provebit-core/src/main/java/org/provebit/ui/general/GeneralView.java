@@ -1,12 +1,22 @@
 package org.provebit.ui.general;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.InsufficientMoneyException;
+import org.bitcoinj.core.Transaction;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -41,7 +51,10 @@ public class GeneralView extends JPanel implements Observer {
 		setLayout(new MigLayout("", "[]5[]", "[]5[]5[]"));
 		
 		certifyFileButton = new JButton("Certify File");
+		certifyFileButton.setActionCommand("certify");
 		verifyFileButton = new JButton("Verify File");
+		verifyFileButton.setActionCommand("verify");
+		verifyFileButton.setEnabled(false); // remove disabling when implemented
 		add(certifyFileButton, "split 2");
 		add(verifyFileButton, "pushx, wrap");
 		
@@ -67,7 +80,8 @@ public class GeneralView extends JPanel implements Observer {
 	}
 	
 	public void addController(ActionListener controller) {
-		
+		certifyFileButton.addActionListener(controller);
+		verifyFileButton.addActionListener(controller);
 	}
 
 	@Override
@@ -83,4 +97,77 @@ public class GeneralView extends JPanel implements Observer {
 		}
 	}
 
+	public void cerifyPrompt() {
+
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setApproveButtonText("Certify");
+		fileChooser.setDialogTitle("Choose File to Certify");
+		
+		int res = fileChooser.showOpenDialog(this);
+		if (res != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+		
+		File certFile = fileChooser.getSelectedFile();
+		
+		Thread hashThread = new Thread() {
+			@Override
+			public void run() {
+				byte[] digest = null;
+				try {
+					FileInputStream fis = new FileInputStream(certFile);
+					digest = org.apache.commons.codec.digest.DigestUtils.sha256(fis);
+					fis.close();
+					Transaction tx = model.proofTX(digest);
+					PostHash postHash = new PostHash(true, digest, tx, null);
+					SwingUtilities.invokeLater(postHash);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (InsufficientMoneyException e) {
+					PostHash postHash = new PostHash(false, digest, null, e);
+					SwingUtilities.invokeLater(postHash);
+				}
+
+			}
+		};
+		hashThread.start();
+	}
+	
+	private class PostHash implements Runnable {
+		private byte[] hash;
+		private boolean success;
+		private Transaction tx;
+		private InsufficientMoneyException ise;
+		
+		public PostHash(boolean success, byte[] hash, Transaction tx, InsufficientMoneyException e) {
+			this.hash = hash;
+			this.success = success;
+			this.tx = tx;
+			this.ise = e;
+		}
+		
+		@Override
+		public void run() {
+			if (success) {
+				JPanel txidDialog = new JPanel(new MigLayout());
+				txidDialog.add(new JLabel("TXID:"));
+				JTextPane txidSelectable = new JTextPane();
+				txidSelectable.setText(tx.getHash().toString());
+				txidSelectable.setEditable(false);
+				txidSelectable.setBackground(null);
+				txidSelectable.setBorder(null);
+				txidDialog.add(txidSelectable);
+				
+				JOptionPane.showMessageDialog(GeneralView.this, txidDialog, "Proof Prepared", JOptionPane.INFORMATION_MESSAGE);
+				
+			} else if (ise != null) {
+				// error message window for inefficient money
+				Coin missingValue = ise.missing;
+				JOptionPane.showMessageDialog(GeneralView.this, "You are missing "
+						+ missingValue.toFriendlyString() + " BTC "
+						+ " necessary to complete the proof transaction.",
+						"Insufficient amount", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
 }

@@ -40,6 +40,7 @@ public class TransactionMerkleSerializer {
 	 * Note: Returns null if:
 	 * 1) The transaction is not found in the block
 	 * 2) Peer times out when looking for the block
+	 * 3) The merkle root calculated does not match the merkle root in the block
 	 * 
 	 * Note: The path follows the following endianess:
 	 * 
@@ -74,6 +75,8 @@ public class TransactionMerkleSerializer {
 			if(!foundHash){
 				return null;
 			}
+			
+			// Add test to check merkle root
 			
 			// Create a Merkle tree from the hashes
 			Merkle blockMerkle = new Merkle(HashType.DOUBLE_SHA256);

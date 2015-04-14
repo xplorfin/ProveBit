@@ -14,7 +14,13 @@ public class GeneralController implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+		switch (e.getActionCommand()) {
+			case "certify":
+				view.cerifyPrompt();
+				break;
+			default:
+				break;
+		}
 		
 	}
 

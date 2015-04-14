@@ -47,5 +47,10 @@
     	<classifier>jdk8</classifier>
     	<scope>test</scope>
     </dependency>
+    <dependency>
+    	<groupId>org.yaml</groupId>
+    	<artifactId>snakeyaml</artifactId>
+    	<version>1.15</version>
+    </dependency>
   </dependencies>
 </project>

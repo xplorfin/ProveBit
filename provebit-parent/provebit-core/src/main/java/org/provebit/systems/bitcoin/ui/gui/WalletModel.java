@@ -32,117 +32,34 @@ import org.bitcoinj.script.ScriptOpCodes;
 import org.bitcoinj.utils.Threading;
 import org.bitcoinj.wallet.KeyChain;
 import org.provebit.systems.bitcoin.BitcoinDirectory;
+import org.provebit.systems.bitcoin.wallet.ApplicationWallet;
 
 public class WalletModel extends Observable {
 
-	public static final String WALLET_NAME = "bitcoin";
-
-	// make the wallet work on main Bitcoin network
-	private NetworkParameters params;
-	private PeerGroup peerGroup;
-	private Wallet wallet;
-	private WalletAppKit walletGen;
-	private WalletEventHandler weventh;
-	
-	private BlockChain chain;
-
-	private Map<String,WalletExtension> extensions;
-
-	private Date last;
-	
+	private final static ApplicationWallet appwallet = ApplicationWallet.INSTANCE;
 	
 	public WalletModel() {
-		initWallet(WALLET_NAME, BitcoinDirectory.INSTANCE.getRoot());
-	}
-
-	private void initWallet(String walletName, File directory) {
-		assert(walletName != null);
-		if (walletName.toLowerCase().startsWith("testnet")) {
-			params = TestNet3Params.get();
-			System.out.println(walletName + " is a testnet wallet");
-		}
-		else {
-			params = MainNetParams.get();
-		}
-		walletGen = new WalletAppKit(params, directory,  walletName);
-		
-		// configure wallet service
-		walletGen.setBlockingStartup(false);
-
-		// and launch
-		walletGen.startAsync();
-		walletGen.awaitRunning();
-		
-		// post configuration
-		peerGroup = walletGen.peerGroup();
-		chain = walletGen.chain();
-		peerGroup.setMaxConnections(12);
-		wallet = walletGen.wallet();
-		wallet.allowSpendingUnconfirmedTransactions();
-		weventh = new WalletEventHandler();
-		wallet.addEventListener(weventh);
-		extensions = wallet.getExtensions();
-	}
-	
-	
-	/**
-	 * Sends bitcoin
-	 * @param btc - amount of bitcoin to send
-	 * @param destAddress - what address to send to
-	 * @throws AddressFormatException
-	 * @throws InsufficientMoneyException
-	 */
-	public void simpleSendCoins(Coin btc, String destAddress) 
-			throws AddressFormatException, InsufficientMoneyException {
-		Address destination = new Address(params, destAddress);
-		
-		// TODO do something about failed sends
-		SendResult res = wallet.sendCoins(peerGroup, destination, btc);
-		res.broadcastComplete.addListener(new Runnable() {
-			@Override
-			public void run() {
-				// TODO inform UI that transaction is sent
-			}
-			
-		}, Threading.USER_THREAD);
-	}
-	
-	public Transaction proofTX(byte[] hash) throws InsufficientMoneyException {
-		if (hash.length != 32) {
-			throw new RuntimeException("not a hash");
-		}
-		
-		byte[] embedData = new byte[40];
-		byte[] id = null;
-		try {
-			id = "ProveBit".getBytes("US-ASCII");
-		} catch (UnsupportedEncodingException e) {
-			// should not happen
-			e.printStackTrace();
-		}
-		assert(id.length == 8);
-		System.arraycopy(id, 0, embedData, 0, id.length);
-		System.arraycopy(hash, 0, embedData, id.length, hash.length);
-		
-		Transaction dataTx = new Transaction(params);
-		dataTx.addOutput(Coin.ZERO, new ScriptBuilder().op(ScriptOpCodes.OP_RETURN).data(embedData).build());
-		Wallet.SendRequest srq = Wallet.SendRequest.forTx(dataTx);
-		//wallet.completeTx(srq); // remove later
-		Wallet.SendResult res = wallet.sendCoins(srq);
-		return res.tx;
+		appwallet.addEventListener(new WalletEventHandler());
 	}
 	
 	private Coin lastBalance = null;
 	
+	public void simpleSendCoins(Coin amount, String destAddress) throws AddressFormatException, InsufficientMoneyException {
+		appwallet.simpleSendCoins(amount, destAddress);
+	}
+	
+	public Transaction proofTX(byte[] hash) throws InsufficientMoneyException {
+		return appwallet.proofTX(hash);
+	}
+	
 	public Coin getBalance() {
-		Coin balance = wallet.getBalance();
-		return balance;
+		return appwallet.getBalance();
 	}
 	
 	private Address lastAddress = null;
 	
 	public Address getReceivingAddress() {
-		return wallet.currentReceiveAddress();
+		return appwallet.getReceivingAddress();
 	}
 	
 	private class WalletEventHandler implements WalletEventListener {
@@ -218,4 +135,5 @@ public class WalletModel extends Observable {
 		});
 
 	}
+
 }

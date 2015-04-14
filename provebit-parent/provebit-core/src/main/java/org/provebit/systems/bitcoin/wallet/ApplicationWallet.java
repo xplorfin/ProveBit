@@ -54,7 +54,7 @@ public enum ApplicationWallet {
 
 		// and launch
 		walletGen.startAsync();
-		walletGen.awaitRunning();
+		// walletGen.awaitRunning();
 		
 		// post configuration
 		peerGroup = walletGen.peerGroup();

@@ -1,6 +1,11 @@
 package org.provebit.daemon;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -349,8 +354,7 @@ public class DaemonTest {
     	daemon.join();
     }
     
-    @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testDaemonNetworkHeartBeat() throws InterruptedException {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
@@ -362,10 +366,10 @@ public class DaemonTest {
     	DaemonMessage reply = (DaemonMessage) client.getReply();
     	assertNotNull(reply);
     	daemon.interrupt();
+    	daemon.join();
     }
     
-    @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testDaemonNetworkStartStopSuccess() throws InterruptedException {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
@@ -382,10 +386,10 @@ public class DaemonTest {
     	reply = (DaemonMessage) client.getReply();
     	assertNotNull(reply);
     	daemon.interrupt();
+    	daemon.join();
     }
     
-    @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testDaemonNetworkKill() throws InterruptedException {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
@@ -403,8 +407,7 @@ public class DaemonTest {
     	assertNull(client.getReply());
     }
     
-    @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testDaemonNetworkAddFiles() throws InterruptedException, IOException {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
@@ -423,10 +426,10 @@ public class DaemonTest {
     	String logData = (String) reply.data;
     	assertTrue(logData.contains("FCHANGE : " + file1.getAbsolutePath()));
     	daemon.interrupt();
+    	daemon.join();
     }
     
-    @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testDaemonNetworkRemoveFiles() throws InterruptedException, IOException {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
@@ -456,10 +459,10 @@ public class DaemonTest {
     	logData = (String) reply.data;
     	assertTrue(!logData.contains("FDELETE"));
     	daemon.interrupt();
+    	daemon.join();
     }
     
-    @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testDaemonNetworkSetPeriod() throws InterruptedException, IOException {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
@@ -516,6 +519,7 @@ public class DaemonTest {
     	assertTrue(log.contains(MonitorEvent.DDELETE.toString()));
     	assertTrue(log.contains(MonitorEvent.FDELETE.toString()));
     	daemon.interrupt();
+    	daemon.join();
     }
     
     @SuppressWarnings("unchecked")
@@ -548,10 +552,10 @@ public class DaemonTest {
     	assertTrue(trackedFiles.get(0).size() == 1);
     	assertTrue(trackedFiles.get(1).size() == 1);
     	daemon.interrupt();
+    	daemon.join();
     }
     
-    @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testDaemonNetworkIsTracked() throws InterruptedException {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
@@ -570,10 +574,10 @@ public class DaemonTest {
     	reply = (DaemonMessage) client.getReply();
     	assertFalse((boolean) reply.data);
     	daemon.interrupt();
+    	daemon.join();
     }
     
-    @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testDaemonNetworkGetState() throws InterruptedException {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
@@ -590,5 +594,6 @@ public class DaemonTest {
     	reply = (DaemonMessage) client.getReply();
     	assertEquals((int) reply.data, 0);
     	daemon.interrupt();
+    	daemon.join();
     }
 }

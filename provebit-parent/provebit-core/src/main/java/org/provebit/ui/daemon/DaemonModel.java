@@ -1,6 +1,7 @@
 package org.provebit.ui.daemon;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,27 +25,19 @@ public class DaemonModel extends Observable {
 	private final String hostname = "localhost";
 	private DaemonProtocol clientProtocol;
 	private boolean daemonConnected;
-	private int defaultPeriod = 1000;
-	
-	/**
-	 * With the addition of socket based IPC we have the following considerations
-	 * 
-	 * When DaemonModel is instantiated, we need to see if there is already a MerkleDaemon running
-	 * somewhere on the system, this should be done with a heartbeat to hostname localhost, on a known port
-	 * 
-	 * If the heartbeat fails, then the server is not running, thus we need to start it via startDaemon
-	 * If the heartbeat succeeds, then we do not need to launch a daemon via startDaemon
-	 * All interactions need to be updated to use the network based model instead of directly accessing the daemon
-	 * as the daemon is not necessarily running in the scope of the jvm currently running this application
-	 */
-	
-	/** @TODO Change to use network model */
+
 	public DaemonModel() {
 		clientProtocol = getProtocol();
 		connectToDaemon();
 		
 		if (!daemonConnected) { // No daemon running, start a new one
-			new MerkleDaemon(new FileMerkle(HashType.SHA256), defaultPeriod).start();
+			try {
+				launchNewDaemon();
+			} catch (IOException | InterruptedException e) {
+				System.out.println("Failed to launch new JVM with daemon");
+				e.printStackTrace();
+			}
+			System.out.println("LAUNCHED");
 			connectToDaemon();
 		}
 		
@@ -54,6 +47,24 @@ public class DaemonModel extends Observable {
 		} else {
 			throw new RuntimeException("Cannot connect to local daemon server!");
 		}
+	}
+	
+	/**
+	 * EARLY CODE
+	 * Need to ensure robustness across platforms
+	 * Found: http://stackoverflow.com/questions/1229605/is-this-really-the-best-way-to-start-a-second-jvm-from-java-code
+	 * 
+	 * Launches a new JVM that executes the daemon
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	private void launchNewDaemon() throws IOException, InterruptedException {
+		String separator = System.getProperty("file.separator");
+		String classpath = System.getProperty("java.class.path");
+		String path = System.getProperty("java.home") + separator + "bin" + separator + "java";
+		ProcessBuilder processBuilder =  new ProcessBuilder(path, "-cp", classpath, LaunchDaemon.class.getName());
+		Process process = processBuilder.start();
+		process.waitFor();
 	}
 	
 	/**

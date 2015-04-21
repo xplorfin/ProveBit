@@ -109,7 +109,7 @@ public class Merkle {
      * @return 
      */
     public boolean existsAsLeaf(byte[] hash) {
-    	int index = Collections.binarySearch(recentLeaves, hash, new FileHashComparator());
+    	int index = findLeafIndex(hash); //Collections.binarySearch(recentLeaves, hash, new FileHashComparator());
     	return (index >= 0) ? true : false;
     }
     
@@ -160,7 +160,19 @@ public class Merkle {
     	if(existsAsLeaf(startingHash)){
     		int currentIndex = findLeafIndex(startingHash);
     		while(currentIndex != 0){
-    			merklePath.add(new MerklePathStep(isLeftNode(currentIndex), tree[currentIndex]));
+    			boolean nodeOnLeft = isLeftNode(currentIndex);
+    			byte[] sibling;
+    			if (nodeOnLeft) {
+    				if (tree[currentIndex+1] == null) // odd one out
+    					sibling = tree[currentIndex];
+    				else // regular case
+    					sibling = tree[currentIndex+1];
+    			}
+    			else {
+    				sibling = tree[currentIndex -1];
+    			}
+    			// not nodeOnLeft because sibling is on other side
+    			merklePath.add(new MerklePathStep(!nodeOnLeft, sibling));
     			currentIndex = getParent(currentIndex);
     		}
     	}
@@ -284,7 +296,9 @@ public class Merkle {
             		break;
             	case DOUBLE_SHA256:
             		md.update(newHash);
-            		md.update(md.digest());
+            		byte[] intermediate = md.digest();
+            		md.reset();
+            		md.update(intermediate);
             		break;
             		
             }

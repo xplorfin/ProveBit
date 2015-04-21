@@ -38,7 +38,7 @@ public class DaemonModel extends Observable {
 				e.printStackTrace();
 			}
 			System.out.println("LAUNCHED");
-			connectToDaemon();
+			//connectToDaemon();
 		}
 		
 		if (daemonConnected) {
@@ -63,8 +63,18 @@ public class DaemonModel extends Observable {
 		String classpath = System.getProperty("java.class.path");
 		String path = System.getProperty("java.home") + separator + "bin" + separator + "java";
 		ProcessBuilder processBuilder =  new ProcessBuilder(path, "-cp", classpath, LaunchDaemon.class.getName());
-		Process process = processBuilder.start();
-		process.waitFor();
+		processBuilder.start();
+		waitOnDaemon();
+	}
+	
+	/**
+	 * Continue to retry connection to newly launched daemon process
+	 * until connection succeeds
+	 */
+	private void waitOnDaemon() {
+		while(!daemonConnected) {
+			connectToDaemon();
+		}
 	}
 	
 	/**

@@ -596,4 +596,32 @@ public class DaemonTest {
     	daemon.interrupt();
     	daemon.join();
     }
+    
+    @Test
+    public void testDaemonNetworkReset() throws InterruptedException, IOException {
+    	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
+    	fileMap.put(file1.getAbsolutePath(), true);
+    	DaemonMessage addFileRequest = new DaemonMessage(DaemonMessageType.ADDFILES, fileMap);
+    	client.sendRequest(addFileRequest);
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(file1, "data to see");
+    	Thread.sleep(TESTSLEEP);
+    	DaemonMessage getLog = new DaemonMessage(DaemonMessageType.GETLOG, null);
+    	client.sendRequest(getLog);
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
+    	assertTrue(((String)reply.data).contains("FCHANGE"));
+    	DaemonMessage reset = new DaemonMessage(DaemonMessageType.RESET, null);
+    	client.sendRequest(reset);
+    	Thread.sleep(TESTSLEEP);
+    	FileUtils.write(file1, "new data to not see");
+    	client.sendRequest(getLog);
+    	reply = (DaemonMessage) client.getReply();
+    	assertFalse(((String)reply.data).contains("FCHANGE"));
+    	daemon.interrupt();
+    	daemon.join();
+    }
 }

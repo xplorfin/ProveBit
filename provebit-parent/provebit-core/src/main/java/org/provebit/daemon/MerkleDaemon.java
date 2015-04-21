@@ -13,6 +13,7 @@ import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
 import org.provebit.merkle.FileMerkle;
+import org.provebit.merkle.HashType;
 import org.provebit.merkle.Merkle;
 import org.simplesockets.server.SimpleServer;
 
@@ -123,6 +124,9 @@ public class MerkleDaemon extends Thread {
 					case GETSTATE:
 						reply = new DaemonMessage(DaemonMessageType.REPLY, (state == DaemonStatus.ACTIVE) ? 1 : 0);
 						break;
+					case RESET:
+						reset();
+						break;
 					case REPLY:
 						// Ignore
 						break;
@@ -136,6 +140,17 @@ public class MerkleDaemon extends Thread {
 			}
 			
 		};
+	}
+	
+	/**
+	 * Reset the entire daemon and all dependent components
+	 * to initial launch state
+	 */
+	private void reset() {
+		observers = new ArrayList<FileAlterationObserver>();
+		listener = new FileMonitor(mTree);
+		this.mTree = new FileMerkle(HashType.SHA256);
+		state = DaemonStatus.SUSPENDED;
 	}
 	
 	/**

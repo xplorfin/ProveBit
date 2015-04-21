@@ -19,6 +19,7 @@ public interface DaemonProtocol extends SimpleSocketsProtocol {
 	 * HEARTBEAT : String (ignored) \ REPLY : String (null)
 	 * ISTRACKED : String (absolute file path) \ REPLY : Boolean
 	 * GETSTATE : String (ignored) \ REPLY : Integer (0 means suspended, 1 means active)
+	 * RESET : String (ignored)
 	 */
 	public class DaemonMessage implements Serializable {
 		private static final long serialVersionUID = 2515667167455084448L;
@@ -36,7 +37,8 @@ public interface DaemonProtocol extends SimpleSocketsProtocol {
 									   HEARTBEAT,  
 									   GETTRACKED, // Get lists of tracked files and directories 
 									   ISTRACKED, // Check if something is being tracked
-									   GETSTATE // Get current state (ACTIVE/SUSPENDED) of daemon
+									   GETSTATE, // Get current state (ACTIVE/SUSPENDED) of daemon
+									   RESET, // Completely reset the daemon to initial launch configuration
 									   };
 		public DaemonMessage(DaemonMessageType type, Object data) {
 			this.type = type;

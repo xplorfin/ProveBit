@@ -159,26 +159,33 @@ public class Merkle {
     	List<MerklePathStep> merklePath = new ArrayList<MerklePathStep> ();
     	if(existsAsLeaf(startingHash)){
     		int currentIndex = findLeafIndex(startingHash);
-    		while(currentIndex != 0){
-    			boolean nodeOnLeft = isLeftNode(currentIndex);
-    			byte[] sibling;
-    			if (nodeOnLeft) {
-    				if (tree[currentIndex+1] == null) // odd one out
-    					sibling = tree[currentIndex];
-    				else // regular case
-    					sibling = tree[currentIndex+1];
-    			}
-    			else {
-    				sibling = tree[currentIndex -1];
-    			}
+    		while(currentIndex != 0){	
+    			int siblingIndex = getSibling(currentIndex);
+    			byte[] sibling = tree[siblingIndex];
+    			boolean siblingOnLeft = isLeftNode(siblingIndex);
     			// not nodeOnLeft because sibling is on other side
-    			merklePath.add(new MerklePathStep(!nodeOnLeft, sibling));
+    			merklePath.add(new MerklePathStep(siblingOnLeft, sibling));
     			currentIndex = getParent(currentIndex);
     		}
     	}
     	
     	return merklePath;
     }
+
+	protected int getSibling(int nodeIndex) {
+		boolean nodeOnLeft = isLeftNode(nodeIndex);
+		int sibling;
+		if (nodeOnLeft) {
+			if (tree[nodeIndex+1] == null) // odd one out
+				sibling = nodeIndex;
+			else // regular case
+				sibling = nodeIndex + 1;
+		}
+		else {
+			sibling = nodeIndex - 1;
+		}
+		return sibling;
+	}
     
     /**
      * Function that takes in a list of merkle steps and checks whether the path is valid
@@ -200,7 +207,7 @@ public class Merkle {
         				validPath = false;
         			}
         			
-        			treeIndex = getParent(treeIndex);
+        			treeIndex = getSibling(getParent(treeIndex));
         		}
     		} else {
     			validPath = false;

@@ -283,14 +283,14 @@ public class FileMerkleTest {
     	byte[][] tree = mtree.getTree();
     	byte[] startingHash = tree[9];
     	List<MerklePathStep> path = mtree.findPath(startingHash);
-    	assertTrue(path.get(0).onLeft());
-    	assertEquals(path.get(0).getHash(), tree[9]);
+    	assertFalse(path.get(0).onLeft());
+    	assertEquals(path.get(0).getHash(), tree[10]);
     	
-    	assertFalse(path.get(1).onLeft());
-    	assertEquals(path.get(1).getHash(), tree[4]);
+    	assertTrue(path.get(1).onLeft());
+    	assertEquals(path.get(1).getHash(), tree[3]);
     	
-    	assertTrue(path.get(2).onLeft());
-    	assertEquals(path.get(2).getHash(), tree[1]);
+    	assertFalse(path.get(2).onLeft());
+    	assertEquals(path.get(2).getHash(), tree[2]);
     }
     
     @Test

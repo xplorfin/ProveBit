@@ -4,7 +4,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -18,9 +17,9 @@ import org.provebit.merkle.MerkleUtils.FileHashComparator;
  * @organization ProveBit
  * @version 0.1
  * 
- * @TODO: Add method to flip the endian-ness of the hashes (to conform to Bitcoin)
- * @TODO: Add saving/loading trees from files
- * @TODO: Figure out fancy indexing scheme for last two levels so tree doesn't have
+ * TODO: Add method to flip the endian-ness of the hashes (to conform to Bitcoin)
+ * TODO: Add saving/loading trees from files
+ * TODO: Figure out fancy indexing scheme for last two levels so tree doesn't have
  *        to be allocated as if it were complete
  *        Current allocation wastes O(N) tree nodes
  */
@@ -32,6 +31,7 @@ public class Merkle {
     protected boolean exists;
     protected HashType hashAlgorithm;
     protected List<byte[]> recentLeaves; // -Sorted- list of leaves in most recent tree construction
+    private static final String ZERO_64 = "0000000000000000000000000000000000000000000000000000000000000000";
 
     /**
      * Default constructor
@@ -95,7 +95,7 @@ public class Merkle {
     public byte[] getRootHash() {
     	byte[] root = null;
         try {
-			root = (tree != null) ? tree[0] : Hex.decodeHex("0000000000000000000000000000000000000000000000000000000000000000".toCharArray());
+			root = (tree != null) ? tree[0] : Hex.decodeHex(ZERO_64.toCharArray());
 		} catch (DecoderException e) {
 			e.printStackTrace();
 		}

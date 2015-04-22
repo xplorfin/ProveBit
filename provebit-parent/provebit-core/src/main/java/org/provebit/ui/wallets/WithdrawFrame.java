@@ -1,14 +1,15 @@
 package org.provebit.ui.wallets;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
 public class WithdrawFrame extends JFrame{
-	
+	private static final long serialVersionUID = -8222307005319903652L;
+
 	public WithdrawFrame(WalletController controller){
 		this.setLayout(new MigLayout("","[]10[]", "[]20[]20[]40[]"));
 		this.setTitle("Send from Provebit wallet");

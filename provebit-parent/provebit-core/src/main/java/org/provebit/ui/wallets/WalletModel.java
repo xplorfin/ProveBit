@@ -7,6 +7,7 @@ public class WalletModel extends Observable {
 		
 	}
 	
+	@SuppressWarnings("unused")
 	private void notifyChange() {
 		setChanged();
 		notifyObservers();

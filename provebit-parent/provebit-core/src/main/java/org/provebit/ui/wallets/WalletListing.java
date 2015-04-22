@@ -6,11 +6,11 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
 
 public class WalletListing extends JPanel{
+	private static final long serialVersionUID = 6962132669085030855L;
 	private JButton sendButton;
 	private JLabel nameField, balanceField, addressField;
 

@@ -1,13 +1,12 @@
 package org.provebit.ui.general;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionListener;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
 import java.util.Observable;
 import java.util.Observer;
 
@@ -21,9 +20,8 @@ import org.bitcoinj.core.Transaction;
 import net.miginfocom.swing.MigLayout;
 
 public class GeneralView extends JPanel implements Observer {
-	
+	private static final long serialVersionUID = 2795934197957164906L;
 	private GeneralModel model;
-	
 	private JButton certifyFileButton;
 	private JButton verifyFileButton;
 	private JLabel status;

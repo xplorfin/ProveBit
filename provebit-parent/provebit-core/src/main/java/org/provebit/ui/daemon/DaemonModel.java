@@ -11,9 +11,7 @@ import java.util.Observable;
 import org.provebit.daemon.DaemonProtocol;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
-import org.provebit.daemon.MerkleDaemon;
-import org.provebit.merkle.FileMerkle;
-import org.provebit.merkle.HashType;
+
 import org.provebit.ui.daemon.DaemonController.DaemonNotification;
 import org.simplesockets.client.SimpleClient;
 
@@ -83,7 +81,6 @@ public class DaemonModel extends Observable {
 	 * If connection is successful the port member will be set to the servers port
 	 * @return true if connection succeeds, false o/w
 	 */
-	@SuppressWarnings("unchecked")
 	private void connectToDaemon() {
 		// Get last known port form well known (application folder config file) location
 		// For now the daemon starts the server on a known port (9999)
@@ -193,14 +190,14 @@ public class DaemonModel extends Observable {
 	
 	/**
 	 * Kills the Daemon using the KILL Daemon Message
-	 * WARNING: Unsafe!
+	 * WARNING: Unsafe at the moment, use caution
 	 * 
 	 */
 	public void killDaemon() {
 		DaemonMessage killRequest = new DaemonMessage(DaemonMessageType.KILL, null);
 		daemonClient.sendRequest(killRequest);
 		// Daemon should not reply
-		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
+		
 		
 	}
 	/**
@@ -246,6 +243,9 @@ public class DaemonModel extends Observable {
 		DaemonMessage periodUpdateRequest = new DaemonMessage(DaemonMessageType.SETPERIOD, newPeriod);
 		daemonClient.sendRequest(periodUpdateRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
+		if ((boolean)reply.data) {
+			
+		}
 	}
 	
 	/**

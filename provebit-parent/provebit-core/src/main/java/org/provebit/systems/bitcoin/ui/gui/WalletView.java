@@ -2,7 +2,7 @@ package org.provebit.systems.bitcoin.ui.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.LayoutManager;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Observable;
@@ -24,7 +24,7 @@ import org.bitcoinj.core.Transaction;
 import net.miginfocom.swing.MigLayout;
 
 public class WalletView extends JPanel implements Observer {
-
+	private static final long serialVersionUID = -7980344644249889378L;
 	private JButton sendButton;
 	private JButton proveButton;
 	private WalletModel model;

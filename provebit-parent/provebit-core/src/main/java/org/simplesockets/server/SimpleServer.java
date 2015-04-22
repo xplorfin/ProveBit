@@ -62,7 +62,7 @@ public class SimpleServer implements Runnable {
 				connection = socket.accept();
 				new SimpleServerConnectionHandler(connection, protocol);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				
 				if (!(e instanceof SocketException)) {
 					e.printStackTrace();
 				}

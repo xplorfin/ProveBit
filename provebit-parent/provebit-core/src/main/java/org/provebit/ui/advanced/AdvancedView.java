@@ -1,30 +1,27 @@
 package org.provebit.ui.advanced;
 
 import java.awt.event.ActionListener;
+
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
 import net.miginfocom.swing.MigLayout;
 
 public class AdvancedView extends JPanel implements Observer {
+	private static final long serialVersionUID = 3810351363941511450L;
 	AdvancedModel model;
 	private static final String[] TESTDROPDOWNDATA = {"SHA256", "SHA3"};
 	private static final String warning = "Warning: Do not edit these settings if you don't know what to do.";
-	private JComboBox advancedDropDown;
-	private JRadioButton advancedFirst;
-	private JRadioButton advancedSecond;
+	private JComboBox<String> advancedDropDown;
 	private JButton configButton;
 	private JLabel warningLabel;
 	private JLabel chooseHashLabel;
-	private ButtonGroup radioGroup;
+	
 	
 	public AdvancedView(AdvancedModel model) {
 		this.model = model;
@@ -32,18 +29,8 @@ public class AdvancedView extends JPanel implements Observer {
 		
 		warningLabel = new JLabel(warning);
 		add(warningLabel,"wrap");
-		/*
-		advancedFirst = new JRadioButton("Option 1");
-		advancedSecond = new JRadioButton("Option 2");
 		
-		radioGroup = new ButtonGroup();
-		radioGroup.add(advancedFirst);
-		radioGroup.add(advancedSecond);
-		
-		add(advancedFirst,"wrap");
-		add(advancedSecond, "wrap");
-		*/
-		advancedDropDown = new JComboBox(TESTDROPDOWNDATA);
+		advancedDropDown = new JComboBox<String>(TESTDROPDOWNDATA);
 		advancedDropDown.setSelectedIndex(0);
 		chooseHashLabel = new JLabel("Change crypto hash:");
 		add(chooseHashLabel, "split");

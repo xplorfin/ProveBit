@@ -10,15 +10,11 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-
-import net.miginfocom.swing.MigLayout;
 
 import org.provebit.ui.AdvancedTab;
 import org.provebit.ui.DaemonTab;
@@ -26,6 +22,7 @@ import org.provebit.ui.GeneralTab;
 import org.provebit.ui.WalletsTab;
 
 public class MainView extends JFrame implements Observer {
+	private static final long serialVersionUID = 5472827135842556415L;
 	private MainModel model;
 	private JTabbedPane tabbedPane; 
 	private JMenuBar menuBar;

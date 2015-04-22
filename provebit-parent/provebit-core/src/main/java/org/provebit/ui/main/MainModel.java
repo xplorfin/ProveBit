@@ -7,6 +7,7 @@ public class MainModel extends Observable {
 		// Empty for now
 	}
 	
+	@SuppressWarnings("unused")
 	private void notifyChange() {
 		setChanged();
 		notifyObservers();

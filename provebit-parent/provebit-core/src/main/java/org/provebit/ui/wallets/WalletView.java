@@ -1,22 +1,17 @@
 package org.provebit.ui.wallets;
 
 import java.awt.FlowLayout;
-
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.BoxLayout;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListModel;
-
-import net.miginfocom.swing.MigLayout;
 
 public class WalletView extends JPanel implements Observer {
 	private static final long serialVersionUID = 1428328297228370330L;
 	private WalletModel model;
+	private WalletController controller;
 	private ArrayList<JPanel> walletsViews;
 	private JScrollPane listScrollPane;
 	
@@ -25,8 +20,8 @@ public class WalletView extends JPanel implements Observer {
 	public WalletView(WalletModel model) {
 		this.model = model;
 		setLayout(new FlowLayout(FlowLayout.LEFT));
-		//this.setLayout(new MigLayout("","[]",""));
-		WalletController controller = new WalletController(model, this);
+		
+		this.controller = new WalletController(model, this);
 		
 		walletsViews = new ArrayList<JPanel>();
 		// TODO actually add the scroll pane

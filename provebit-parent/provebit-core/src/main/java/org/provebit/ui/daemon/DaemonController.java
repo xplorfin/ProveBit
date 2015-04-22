@@ -3,13 +3,10 @@ package org.provebit.ui.daemon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
-import org.provebit.daemon.Log;
 
 public class DaemonController implements ActionListener, ListSelectionListener {
 	public enum DaemonNotification{DAEMONSTATUS, SHOWLOG, SHOWFILESELECT, UPDATETRACKING}; // Enum to hold notification types for observers

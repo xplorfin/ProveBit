@@ -89,6 +89,8 @@ public class GeneralView extends JPanel implements Observer {
 	}
 	
 	private class StatusTableModel extends DefaultTableModel {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public boolean isCellEditable(int row, int col){
 			return false;

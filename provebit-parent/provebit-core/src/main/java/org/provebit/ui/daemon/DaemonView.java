@@ -39,7 +39,6 @@ public class DaemonView extends JPanel implements Observer {
 	private JTextPane logTextPane;
 	private JFileChooser fileSelector;
 	private JScrollPane logScrollPane;
-	private JOptionPane recursiveOptionPane;
 	private List<JButton> buttons;
 	
 	/**

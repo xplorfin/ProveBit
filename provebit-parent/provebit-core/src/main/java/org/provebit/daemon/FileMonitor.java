@@ -8,7 +8,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.provebit.merkle.FileMerkle;
-import org.provebit.merkle.Merkle;
 import org.provebit.utils.ApplicationDirectory;
 
 public class FileMonitor implements FileAlterationListener {

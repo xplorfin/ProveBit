@@ -19,7 +19,9 @@ import org.simplesockets.server.SimpleServer;
 
 public class MerkleDaemon extends Thread {
 	private enum DaemonStatus {ACTIVE, SUSPENDED};
-	private int maxPort = 65535, minPort = 1024;
+	
+	// TODO: Decide on port connection implementation
+	//private int maxPort = 65535, minPort = 1024;
 	private static final int TEMPORARYPORT = 9999;
 	private int period;
 	private List<FileAlterationObserver> observers;

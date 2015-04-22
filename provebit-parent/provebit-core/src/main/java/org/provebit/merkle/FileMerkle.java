@@ -1,16 +1,10 @@
 package org.provebit.merkle;
 
 import java.io.File;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.provebit.merkle.MerkleUtils.FileHashComparator;
 
 /**
  * This class constructs a Merkle tree from files within a given directory

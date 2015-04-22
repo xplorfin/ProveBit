@@ -6,10 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.provebit.merkle.MerkleUtils.FileHashComparator;
 
 /**
  * This class constructs a Merkle tree given a list of files

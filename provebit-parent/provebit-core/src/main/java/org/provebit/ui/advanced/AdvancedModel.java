@@ -8,6 +8,7 @@ public class AdvancedModel extends Observable {
 		
 	}
 	
+	@SuppressWarnings("unused")
 	private void notifyChange() {
 		setChanged();
 		notifyObservers();

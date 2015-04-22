@@ -67,6 +67,9 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 					model.updatePeriod(period);
 				}
 				break;
+			case "killDaemon":
+				model.killDaemon();
+				break;
 			default:
 				break;
 		}

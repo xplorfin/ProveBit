@@ -29,7 +29,7 @@ public class DaemonView extends JPanel implements Observer {
 	private static final String REMOVEFILESTRING = "Remove Files...";
 	private static final String[] RECURSIVEOPTIONS = {"No","Yes"};
 	private DaemonModel model;
-	private JButton addFileButton, removeFileButton, startDaemonButton, suspendDaemonButton, updateIntervalButton, showLogButton, refreshLogButton;
+	private JButton addFileButton, removeFileButton, startDaemonButton, suspendDaemonButton, updateIntervalButton, showLogButton, refreshLogButton, killDaemonButton;
 	private JLabel trackedFilesLabel, daemonStatusLabel;
 	private JList<String> fileList;
 	private JTextField runPeriodInput;
@@ -79,9 +79,10 @@ public class DaemonView extends JPanel implements Observer {
 		add(new JLabel("Daemon Run Period: "), "split 3");
 		add(runPeriodInput, "width :50");
 		add(new JLabel("sec"), "wrap");
-		add(startDaemonButton, "split 3");
+		add(startDaemonButton, "split 4");
 		add(suspendDaemonButton);
 		add(updateIntervalButton, "wrap");
+		add(killDaemonButton, "wrap");
 		add(daemonStatusLabel, "wrap");
 		add(showLogButton, "");
 	}
@@ -114,6 +115,11 @@ public class DaemonView extends JPanel implements Observer {
 		updateIntervalButton = new JButton("Update Interval");
 		updateIntervalButton.setActionCommand("updateInterval");
 		buttons.add(updateIntervalButton);
+		
+		killDaemonButton = new JButton("Kill Daemon");
+		killDaemonButton.setActionCommand("killDaemon");
+		killDaemonButton.setEnabled(false);
+		buttons.add(killDaemonButton);
 	}
 
 	private void setupList() {

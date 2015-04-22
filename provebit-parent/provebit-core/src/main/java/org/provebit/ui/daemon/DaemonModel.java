@@ -192,6 +192,18 @@ public class DaemonModel extends Observable {
 	}
 	
 	/**
+	 * Kills the Daemon using the KILL Daemon Message
+	 * WARNING: Unsafe!
+	 * 
+	 */
+	public void killDaemon() {
+		DaemonMessage killRequest = new DaemonMessage(DaemonMessageType.KILL, null);
+		daemonClient.sendRequest(killRequest);
+		// Daemon should not reply
+		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
+		
+	}
+	/**
 	 * Fetches log from Daemon Process using GETLOG DaemonMessage
 	 * @return String representation of Daemon Log
 	 */

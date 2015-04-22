@@ -148,7 +148,7 @@ public class MerkleDaemon extends Thread {
 	 * Reset the entire daemon and all dependent components
 	 * to initial launch state
 	 */
-	private void reset() {
+	private synchronized void reset() {
 		observers = new ArrayList<FileAlterationObserver>();
 		listener = new FileMonitor(mTree);
 		this.mTree = new FileMerkle(HashType.SHA256);
@@ -215,7 +215,7 @@ public class MerkleDaemon extends Thread {
 		monitorDirectory();
 	}
 	
-	private void launchObservers() {
+	private synchronized void launchObservers() {
 		for (FileAlterationObserver observer : observers) {
 			observer.addListener(listener);
 		}
@@ -236,7 +236,7 @@ public class MerkleDaemon extends Thread {
 	 * IOFileFilters and directory observers instead of unique observers of each
 	 * individual file
 	 */
-	private void createObservers() {
+	private synchronized void createObservers() {
 		for (File directory : listener.getTree().getTrackedDirs()) {
 			if (listener.getTree().isDirRecursive(directory)) {
 				observers.add(new FileAlterationObserver(directory));
@@ -292,7 +292,7 @@ public class MerkleDaemon extends Thread {
 		}
 	}
 	
-	private void killDaemon() {
+	private synchronized void killDaemon() {
 		state = DaemonStatus.SUSPENDED;
 		listener.log.addEntry("Daemon interrupted, exiting...");
 		server.stopServer();
@@ -300,7 +300,7 @@ public class MerkleDaemon extends Thread {
 		Thread.currentThread().interrupt();
 	}
 	
-	private void destroyObservers() {
+	private synchronized void destroyObservers() {
 		for (FileAlterationObserver observer : observers) {
 			try {
 				observer.destroy();
@@ -317,7 +317,7 @@ public class MerkleDaemon extends Thread {
 	 * 
 	 * @return Currently constructed merkle tree
 	 */
-	public Merkle getTree() {
+	public synchronized Merkle getTree() {
 		return listener.getTree();
 	}
 
@@ -326,33 +326,33 @@ public class MerkleDaemon extends Thread {
 	 * 
 	 * @return number of events since launch
 	 */
-	public int getEvents() {
+	public synchronized int getEvents() {
 		return listener.getNumEvents();
 	}
 
-	public String getLog() {
+	public synchronized String getLog() {
 		return listener.getLogEntries();
 	}
 	
-	public Log getLogActual() {
+	public synchronized Log getLogActual() {
 		return listener.log;
 	}
 	
 	/**
 	 * Suspend file monitoring
 	 */
-	public void suspendMonitoring() {
+	public synchronized void suspendMonitoring() {
 		state = DaemonStatus.SUSPENDED;
 	}
 	
 	/**
 	 * Start file monitoring if state is suspended
 	 */
-	public void startMonitoring() {
+	public synchronized void startMonitoring() {
 		state = DaemonStatus.ACTIVE;
 	}
 	
-	public int getPort() {
+	public synchronized int getPort() {
 		return server.getPort();
 	}
 	
@@ -360,7 +360,7 @@ public class MerkleDaemon extends Thread {
 	 * Changes the refresh period
 	 * @param newPeriod - New refresh period to use
 	 */
-	public void updatePeriod(int newPeriod) {
+	public synchronized void updatePeriod(int newPeriod) {
 		period = newPeriod;
 	}
 }

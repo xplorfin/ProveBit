@@ -19,7 +19,8 @@ import java.util.Map;
  *        Current allocation wastes O(N) tree nodes
  */
 public class FileMerkle extends Merkle {
-    private List<File> trackedFiles; // List of files being tracked
+	private static final long serialVersionUID = 4565319839143960668L;
+	private List<File> trackedFiles; // List of files being tracked
     private Map<File, Boolean> trackedDirectories; // List of directories being tracked and whether
     											   // or not they are recursively tracked
 

@@ -1,5 +1,6 @@
 package org.provebit.merkle;
 
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -21,8 +22,9 @@ import org.apache.commons.codec.binary.Hex;
  *        to be allocated as if it were complete
  *        Current allocation wastes O(N) tree nodes
  */
-public class Merkle {
-    protected byte[][] tree;
+public class Merkle implements Serializable {
+	private static final long serialVersionUID = 3602863826872676332L;
+	protected byte[][] tree;
     protected int height; // Root is level 0
     protected int numLeaves;
     protected int totalNodes;
@@ -349,5 +351,9 @@ public class Merkle {
         for (int i = 0; i < tree.length; i++) {
             tree[i] = null;
         }
+    }
+    
+    public HashType getHashAlgorithm() {
+    	return hashAlgorithm;
     }
 }

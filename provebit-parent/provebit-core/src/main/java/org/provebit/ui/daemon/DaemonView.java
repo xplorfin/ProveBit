@@ -132,7 +132,7 @@ public class DaemonView extends JPanel implements Observer {
 	
 	private void setupLogFrame() {
 		logFrame = new JFrame("Daemon Log");
-		logFrame.setSize(500, 800);
+		logFrame.setSize(500, 650);
 		logPanel = new JPanel(new MigLayout());
 		logTextPane = new JTextPane();
 		logPanel.add(refreshLogButton, "span, wrap");

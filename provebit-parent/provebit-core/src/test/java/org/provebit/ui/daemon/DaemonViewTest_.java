@@ -1,27 +1,19 @@
 package org.provebit.ui.daemon;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.provebit.ui.RunGUI;
-import org.uispec4j.ListBox;
 import org.uispec4j.Panel;
 import org.uispec4j.TabGroup;
 import org.uispec4j.UISpec4J;
 import org.uispec4j.UISpecTestCase;
 import org.uispec4j.Window;
-import org.uispec4j.interception.FileChooserHandler;
 import org.uispec4j.interception.MainClassAdapter;
-import org.uispec4j.interception.WindowInterceptor;
 
 @RunWith(JUnit4.class)
 public class DaemonViewTest_ extends UISpecTestCase {
@@ -57,23 +49,23 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	/**
 	 * invoke and test the file chooser for adding file to daemon
 	 */
-	@Test
-	public void testAddFile() throws IOException{
-		File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
-    	FileUtils.write(tempFile, "temp data");
-    	
-		WindowInterceptor
-		// set up the trigger to invoke the pop-up dialog
-		.init(daemonPane.getButton("Add Files to Monitor...").triggerClick())
-		.process(FileChooserHandler.init()
-				.titleEquals("Open")
-				.assertAcceptsFilesAndDirectories()
-//				.select(tempFile.getAbsolutePath()))
-				.select("/home/qding5/test.txt"))
-		.run();
-		
-		ListBox listBox = daemonPane.getListBox();
-//		assertTrue(listBox.contains((tempFile.getAbsolutePath())));
-		assertTrue(listBox.contains("/home/qding5/test.txt"));
-	}
+//	@Test
+//	public void testAddFile() throws IOException{
+//		File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
+//    	FileUtils.write(tempFile, "temp data");
+//    	
+//		WindowInterceptor
+//		// set up the trigger to invoke the pop-up dialog
+//		.init(daemonPane.getButton("Add Files to Monitor...").triggerClick())
+//		.process(FileChooserHandler.init()
+//				.titleEquals("Open")
+//				.assertAcceptsFilesAndDirectories()
+////				.select(tempFile.getAbsolutePath()))
+//				.select("/home/qding5/test.txt"))
+//		.run();
+//		
+//		ListBox listBox = daemonPane.getListBox();
+////		assertTrue(listBox.contains((tempFile.getAbsolutePath())));
+//		assertTrue(listBox.contains("/home/qding5/test.txt"));
+//	}
 }

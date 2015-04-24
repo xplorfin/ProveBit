@@ -1,37 +1,19 @@
 package org.provebit.systems.bitcoin.ui.gui;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 
 import javax.swing.SwingUtilities;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.InsufficientMoneyException;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.Wallet;
-import org.bitcoinj.core.Wallet.SendResult;
 import org.bitcoinj.core.WalletEventListener;
-import org.bitcoinj.core.WalletExtension;
-import org.bitcoinj.kits.WalletAppKit;
-import org.bitcoinj.params.MainNetParams;
-import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.script.Script;
-import org.bitcoinj.script.ScriptBuilder;
-import org.bitcoinj.script.ScriptOpCodes;
-import org.bitcoinj.utils.Threading;
-import org.bitcoinj.wallet.KeyChain;
-import org.provebit.systems.bitcoin.BitcoinDirectory;
 import org.provebit.systems.bitcoin.wallet.ApplicationWallet;
 
 public class WalletModel extends Observable {
@@ -44,7 +26,8 @@ public class WalletModel extends Observable {
 	
 	private Coin lastBalance = null;
 	
-	public void simpleSendCoins(Coin amount, String destAddress) throws AddressFormatException, InsufficientMoneyException {
+	public void simpleSendCoins(Coin amount, String destAddress)
+			throws AddressFormatException, InsufficientMoneyException {
 		appwallet.simpleSendCoins(amount, destAddress);
 	}
 	

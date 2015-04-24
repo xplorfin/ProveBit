@@ -1,25 +1,18 @@
 package org.provebit.proof.keysys.bitcoin;
 
-import java.io.File;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Date;
 
-import org.provebit.proof.keysys.AbstractKeyNode;
-import org.provebit.proof.keysys.KeyNotFoundException;
-import org.provebit.systems.bitcoin.wallet.BlockchainManager;
-import org.provebit.systems.bitcoin.wallet.CompleteHeaderStore;
 import org.bitcoinj.core.Block;
-import org.bitcoinj.core.BlockChain;
-import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Utils;
-import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
-import org.bitcoinj.store.SPVBlockStore;
+import org.provebit.proof.keysys.AbstractKeyNode;
+import org.provebit.proof.keysys.KeyNotFoundException;
+import org.provebit.systems.bitcoin.wallet.BlockchainManager;
 
 public class Blockchain extends AbstractKeyNode {
 	private static Blockchain instance = getInstance();

@@ -32,6 +32,8 @@ public enum ApplicationWallet {
 	private PeerGroup peerGroup;
 	private org.bitcoinj.core.Wallet wallet;
 	private WalletAppKit walletGen;
+	// TODO: unused 'chain' member variable
+	@SuppressWarnings("unused")
 	private BlockChain chain;
 	
 	private ApplicationWallet() {

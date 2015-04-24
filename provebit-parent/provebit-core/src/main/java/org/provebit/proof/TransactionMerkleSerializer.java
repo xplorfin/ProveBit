@@ -15,7 +15,6 @@ import org.provebit.merkle.HashType;
 import org.provebit.merkle.Merkle;
 import org.provebit.merkle.MerkleStepSerializer;
 import org.provebit.systems.bitcoin.wallet.BlockchainManager;
-import org.spongycastle.util.Arrays;
 
 /**
  * TransactionMerkleSerializer This class serializes the path up a transaction merkle tree

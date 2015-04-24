@@ -25,14 +25,12 @@ import org.slf4j.LoggerFactory;
  */
 public class CompleteHeaderStore implements BlockStore {
 	private static final Logger log = LoggerFactory.getLogger(CompleteHeaderStore.class);
-
 	protected NetworkParameters params;
-	
 	protected ReentrantLock lock = Threading.lock("CompleteHeaderStore");
 	
-	
-	
 	protected Map<Sha256Hash, StoredBlock> cache = new LinkedHashMap<Sha256Hash, StoredBlock>() {
+		private static final long serialVersionUID = 6336050897666612846L;
+
 		@Override
 		protected boolean removeEldestEntry(Map.Entry<Sha256Hash, StoredBlock> entry) {
 			return size() > 4000;
@@ -41,6 +39,8 @@ public class CompleteHeaderStore implements BlockStore {
 	
 	private static final Object MISS = new Object();
 	protected Map<Sha256Hash, Object> missCache = new LinkedHashMap<Sha256Hash, Object>() {
+		private static final long serialVersionUID = 6138042289841899182L;
+
 		@Override
 		protected boolean removeEldestEntry(Map.Entry<Sha256Hash, Object> entry) {
 			return size() > 200;

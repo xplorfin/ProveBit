@@ -9,6 +9,8 @@ import org.provebit.ui.wallets.WalletView;
 public class WalletsTab {
 	private WalletModel model;
 	private WalletView view;
+	// TODO: unused 'controller' member variable
+	@SuppressWarnings("unused")
 	private WalletController controller;
 
 	public WalletsTab() {

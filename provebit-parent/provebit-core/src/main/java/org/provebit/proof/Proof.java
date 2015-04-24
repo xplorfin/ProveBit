@@ -1,18 +1,22 @@
 package org.provebit.proof;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * @author Shishir Kanodia
+ * @author Shishir Kanodia, Noah Malmed
  *
  */
 public class Proof {
@@ -35,6 +39,27 @@ public class Proof {
 		merkleRoot = root;
 		blockID = bID;
 		this.fileHash = fileHash;
+	}
+	
+	public Proof(File yamlFile) throws FileNotFoundException{
+		InputStream yamlInput = new FileInputStream(yamlFile);
+		Yaml parser = new Yaml();		
+		Object parsedYaml = parser.load(yamlInput);
+		if(parsedYaml instanceof Map<?, ?>){
+			Map<String,String> yamlMap = (Map<String,String>)parsedYaml;
+			idealTime = Timestamp.valueOf(yamlMap.get("Ideal Time"));
+			provenTime = Timestamp.valueOf(yamlMap.get("Proven Time"));
+			try {
+				transactionPath = Hex.decodeHex(yamlMap.get("Transaction Path").toCharArray());
+				transactionID = Hex.decodeHex(yamlMap.get("Transaction ID").toCharArray());
+				merkleRoot = Hex.decodeHex(yamlMap.get("Merkle Root").toCharArray());
+				blockID = Hex.decodeHex(yamlMap.get("Block ID").toCharArray());
+				fileHash = Hex.decodeHex(yamlMap.get("File Hash").toCharArray());
+			} catch (DecoderException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	/**
@@ -98,13 +123,29 @@ public class Proof {
 		this.fileHash = fileHash;
 	}
 	
+	public Timestamp getIdealTime() {
+		return idealTime;
+	}
+
+	public void setIdealTime(Timestamp idealTime) {
+		this.idealTime = idealTime;
+	}
+
+	public Timestamp getProvenTime() {
+		return provenTime;
+	}
+
+	public void setProvenTime(Timestamp provenTime) {
+		this.provenTime = provenTime;
+	}
+	
 	public void writeProofToFile(String file){
 
 		Map<String, String> mapRep = new HashMap<String, String>();
 		mapRep.put("Type", type);
 		mapRep.put("Version", version);
 		mapRep.put("Ideal Time", idealTime.toString());
-		mapRep.put("proven Time", provenTime.toString());
+		mapRep.put("Proven Time", provenTime.toString());
 		mapRep.put("Transaction Path", Hex.encodeHexString(transactionPath));
 		mapRep.put("Transaction ID", Hex.encodeHexString(transactionID));
 		mapRep.put("Merkle Root", Hex.encodeHexString(merkleRoot));

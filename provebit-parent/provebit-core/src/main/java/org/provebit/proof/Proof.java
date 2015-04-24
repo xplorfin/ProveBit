@@ -27,6 +27,7 @@ import org.yaml.snakeyaml.Yaml;
 public class Proof {
 
 	private String type = "Document Proof";
+	private String fileName;
 	private final String version = "0.1";
 	private Timestamp idealTime;
 	private Timestamp provenTime;
@@ -48,7 +49,8 @@ public class Proof {
 	 * @param bID
 	 * @param fileHash
 	 */
-	public Proof(Timestamp iTime, Timestamp pTime, byte[] path, byte[] transID, byte[] root, byte[] bID, byte[] fileHash){
+	public Proof(String fileName, Timestamp iTime, Timestamp pTime, byte[] path, byte[] transID, byte[] root, byte[] bID, byte[] fileHash){
+		this.fileName = fileName;
 		fullProof = true;
 		idealTime = iTime;
 		provenTime = pTime;
@@ -66,7 +68,8 @@ public class Proof {
 	 * @param merkleRoot
 	 * @param fileHash
 	 */
-	public Proof(Timestamp iTime, byte[] transID, byte[] merkleRoot, byte[] fileHash){
+	public Proof(String fileName, Timestamp iTime, byte[] transID, byte[] merkleRoot, byte[] fileHash){
+		this.fileName = fileName;
 		fullProof = false;
 		idealTime = iTime;
 		transactionID = transID;
@@ -105,6 +108,7 @@ public class Proof {
 			transactionPath = Hex.decodeHex(yamlMap.get("Transaction Path").toCharArray());
 			blockID = Hex.decodeHex(yamlMap.get("Block ID").toCharArray());
 		}
+		fileName = yamlMap.get("File Name");
 		idealTime = Timestamp.valueOf(yamlMap.get("Ideal Time"));		
 		transactionID = Hex.decodeHex(yamlMap.get("Transaction ID").toCharArray());
 		merkleRoot = Hex.decodeHex(yamlMap.get("Merkle Root").toCharArray());		
@@ -126,6 +130,10 @@ public class Proof {
 	
 	public boolean isFullProof(){
 		return fullProof;
+	}
+	
+	public String getFileName(){
+		return fileName;
 	}
 	
 	/**
@@ -184,6 +192,7 @@ public class Proof {
 			mapRep.put("Transaction Path", Hex.encodeHexString(transactionPath));
 			mapRep.put("Block ID", Hex.encodeHexString(blockID));
 		}
+		mapRep.put("File Name", fileName);
 		mapRep.put("Type", type);
 		mapRep.put("Version", version);
 		mapRep.put("Ideal Time", idealTime.toString());		

@@ -4,5 +4,6 @@
   Version: '0.1',
   Merkle Root: '22222222',
   Ideal Time: '2007-01-01 10:11:12.123',
-  Transaction ID: '11111111'
+  Transaction ID: '11111111',
+  File Name: testFile.txt
 }

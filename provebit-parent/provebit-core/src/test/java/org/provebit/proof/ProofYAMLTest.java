@@ -38,7 +38,7 @@ public class ProofYAMLTest {
 		byte [] root = Hex.decodeHex("22222222".toCharArray());
 		byte [] bID = Hex.decodeHex("33333333".toCharArray());
 		byte [] fileHash = Hex.decodeHex("44444444".toCharArray());
-		Proof testP = new Proof(iTime, pTime, path, transID, root, bID, fileHash );
+		Proof testP = new Proof("testFile.txt", iTime, pTime, path, transID, root, bID, fileHash );
 		testP.writeProofToFile(writeFile);
 		
 		File write = new File(writeFile);
@@ -71,7 +71,7 @@ public class ProofYAMLTest {
 		byte [] root = Hex.decodeHex("22222222".toCharArray());
 		byte [] fileHash = Hex.decodeHex("44444444".toCharArray());
 		
-		Proof testP = new Proof(iTime, transID, root, fileHash);
+		Proof testP = new Proof("testFile.txt", iTime, transID, root, fileHash);
 		testP.writeProofToFile(writeFile);
 		
 		File write = new File(writeFile);

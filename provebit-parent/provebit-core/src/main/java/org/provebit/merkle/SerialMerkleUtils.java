@@ -42,5 +42,21 @@ public class SerialMerkleUtils {
 		return merkle;
 	}
 	
-	
+	/**
+	 * Recovers FileMerkle object from file
+	 * @param file - File to read FileMerkle from
+	 * @return FileMerkle object recovered from file or null if recovery failed
+	 */
+	public static FileMerkle readFileMerkleFromFile(File file) {
+		FileMerkle merkle = null;
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+			merkle = (FileMerkle) ois.readObject();
+			ois.close();
+		} catch (IOException | ClassNotFoundException e) {
+			System.err.println("Merkle recovery failed, stack trace follows");
+			e.printStackTrace();
+		}
+		return merkle;
+	}
 }

@@ -16,7 +16,7 @@ import org.apache.commons.codec.binary.Hex;
  * @organization ProveBit
  * @version 0.1
  * 
- * TODO: Add method to flip the endian-ness of the hashes (to conform to Bitcoin)
+ * TODO:[DONE] Add method to flip the endian-ness of the hashes (to conform to Bitcoin)
  * TODO: Add saving/loading trees from files
  * TODO: Figure out fancy indexing scheme for last two levels so tree doesn't have
  *        to be allocated as if it were complete
@@ -355,5 +355,19 @@ public class Merkle implements Serializable {
     
     public HashType getHashAlgorithm() {
     	return hashAlgorithm;
+    }
+    /**
+     * Function for flipping the Endian-ness of byte[]
+     * @param input - byte[] to have endian-ness swapped
+     * @return new byte[] of input with bytes swapped
+     */
+    protected byte[] flipByteEndianness(byte[] input) {
+    	byte[] output = new byte[input.length];
+    	for (int i = 0; i < input.length; i++) {
+    		int j = input.length - (i+1);  
+    		output[i] = input[j];
+    	}
+		return output;
+    	
     }
 }

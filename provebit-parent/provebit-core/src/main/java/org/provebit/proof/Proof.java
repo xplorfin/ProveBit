@@ -17,6 +17,11 @@ import org.yaml.snakeyaml.Yaml;
 
 /**
  * @author Shishir Kanodia, Noah Malmed
+ * 
+ * Note: A proof can be partial or full. 
+ * A partial proof does not contain a transaction path, blockID or proof time,
+ *  and is meant to represent a proof before it has been pushed onto the blockChain.
+ * A full proof has all information and represents a proof after it has been pushed onto the blockchain
  *
  */
 public class Proof {
@@ -31,7 +36,20 @@ public class Proof {
 	private byte[] blockID;
 	private byte[] fileHash;
 	
+	private boolean fullProof;
+	
+	/**
+	 * Full Proof constructor: Takes parameters for all values
+	 * @param iTime
+	 * @param pTime
+	 * @param path
+	 * @param transID
+	 * @param root
+	 * @param bID
+	 * @param fileHash
+	 */
 	public Proof(Timestamp iTime, Timestamp pTime, byte[] path, byte[] transID, byte[] root, byte[] bID, byte[] fileHash){
+		fullProof = true;
 		idealTime = iTime;
 		provenTime = pTime;
 		transactionPath = path;
@@ -41,25 +59,73 @@ public class Proof {
 		this.fileHash = fileHash;
 	}
 	
-	public Proof(File yamlFile) throws FileNotFoundException{
+	/**
+	 * Partial proof constructor: Takes parameters for only partial proof values
+	 * @param iTime
+	 * @param transID
+	 * @param merkleRoot
+	 * @param fileHash
+	 */
+	public Proof(Timestamp iTime, byte[] transID, byte[] merkleRoot, byte[] fileHash){
+		fullProof = false;
+		idealTime = iTime;
+		transactionID = transID;
+		this.merkleRoot = merkleRoot;
+		this.fileHash= fileHash;
+	}
+	
+	/**
+	 * File constructor - Constructs a proof (full or partial) from a yaml file
+	 * @param yamlFile
+	 * @throws FileNotFoundException
+	 * @throws DecoderException
+	 */
+	public Proof(File yamlFile) throws FileNotFoundException, DecoderException{
 		InputStream yamlInput = new FileInputStream(yamlFile);
 		Yaml parser = new Yaml();		
 		Object parsedYaml = parser.load(yamlInput);
 		if(parsedYaml instanceof Map<?, ?>){
+			// Because we are the ones who put the data there we can expect it be in this form
+			@SuppressWarnings("unchecked")
 			Map<String,String> yamlMap = (Map<String,String>)parsedYaml;
-			idealTime = Timestamp.valueOf(yamlMap.get("Ideal Time"));
-			provenTime = Timestamp.valueOf(yamlMap.get("Proven Time"));
-			try {
-				transactionPath = Hex.decodeHex(yamlMap.get("Transaction Path").toCharArray());
-				transactionID = Hex.decodeHex(yamlMap.get("Transaction ID").toCharArray());
-				merkleRoot = Hex.decodeHex(yamlMap.get("Merkle Root").toCharArray());
-				blockID = Hex.decodeHex(yamlMap.get("Block ID").toCharArray());
-				fileHash = Hex.decodeHex(yamlMap.get("File Hash").toCharArray());
-			} catch (DecoderException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			// If Proven Time is defined then it is a full proof
+			fullProof = yamlMap.containsKey("Proven Time");
+			parseMap(yamlMap);
 		}
+	}
+	
+	/**
+	 * Helper function to parse a map pulled from a yaml file
+	 * @param yamlMap
+	 * @throws DecoderException
+	 */
+	private void parseMap(Map<String,String> yamlMap) throws DecoderException{
+		if(fullProof){
+			provenTime = Timestamp.valueOf(yamlMap.get("Proven Time"));
+			transactionPath = Hex.decodeHex(yamlMap.get("Transaction Path").toCharArray());
+			blockID = Hex.decodeHex(yamlMap.get("Block ID").toCharArray());
+		}
+		idealTime = Timestamp.valueOf(yamlMap.get("Ideal Time"));		
+		transactionID = Hex.decodeHex(yamlMap.get("Transaction ID").toCharArray());
+		merkleRoot = Hex.decodeHex(yamlMap.get("Merkle Root").toCharArray());		
+		fileHash = Hex.decodeHex(yamlMap.get("File Hash").toCharArray());
+}
+	
+	/**
+	 * 
+	 * @param provenTime
+	 * @param transactionPath
+	 * @param blockID
+	 */
+	public void completeProof(Timestamp provenTime, byte[] transactionPath, byte[] blockID){
+		fullProof = true;
+		this.provenTime = provenTime;
+		this.transactionPath = transactionPath;
+		this.blockID = blockID;
+	}
+	
+	public boolean isFullProof(){
+		return fullProof;
 	}
 	
 	/**
@@ -68,88 +134,61 @@ public class Proof {
 	public byte[] getTransaction_path() {
 		return transactionPath;
 	}
-	/**
-	 * @param transaction_path the transaction_path to set
-	 */
-	public void setTransaction_path(byte[] transaction_path) {
-		this.transactionPath = transaction_path;
-	}
+
 	/**
 	 * @return the transactionID
 	 */
 	public byte[] getTransactionID() {
 		return transactionID;
 	}
-	/**
-	 * @param transactionID the transactionID to set
-	 */
-	public void setTransactionID(byte[] transactionID) {
-		this.transactionID = transactionID;
-	}
+
 	/**
 	 * @return the merkleroot
 	 */
 	public byte[] getMerkleroot() {
 		return merkleRoot;
 	}
-	/**
-	 * @param merkleroot the merkleroot to set
-	 */
-	public void setMerkleroot(byte[] merkleroot) {
-		merkleRoot = merkleroot;
-	}
+
 	/**
 	 * @return the blockId
 	 */
 	public byte[] getBlockId() {
 		return blockID;
 	}
-	/**
-	 * @param blockId the blockId to set
-	 */
-	public void setBlockId(byte[] blockId) {
-		blockID = blockId;
-	}
+
 	/**
 	 * @return the fileHash
 	 */
 	public byte[] getFileHash() {
 		return fileHash;
 	}
-	/**
-	 * @param fileHash the fileHash to set
-	 */
-	public void setFileHash(byte[] fileHash) {
-		this.fileHash = fileHash;
-	}
 	
 	public Timestamp getIdealTime() {
 		return idealTime;
 	}
 
-	public void setIdealTime(Timestamp idealTime) {
-		this.idealTime = idealTime;
-	}
 
 	public Timestamp getProvenTime() {
 		return provenTime;
 	}
 
-	public void setProvenTime(Timestamp provenTime) {
-		this.provenTime = provenTime;
-	}
-	
+	/**
+	 * Function to write a proof (full or partial) to a file
+	 * @param file
+	 */
 	public void writeProofToFile(String file){
 
 		Map<String, String> mapRep = new HashMap<String, String>();
+		if (fullProof){
+			mapRep.put("Proven Time", provenTime.toString());
+			mapRep.put("Transaction Path", Hex.encodeHexString(transactionPath));
+			mapRep.put("Block ID", Hex.encodeHexString(blockID));
+		}
 		mapRep.put("Type", type);
 		mapRep.put("Version", version);
-		mapRep.put("Ideal Time", idealTime.toString());
-		mapRep.put("Proven Time", provenTime.toString());
-		mapRep.put("Transaction Path", Hex.encodeHexString(transactionPath));
+		mapRep.put("Ideal Time", idealTime.toString());		
 		mapRep.put("Transaction ID", Hex.encodeHexString(transactionID));
-		mapRep.put("Merkle Root", Hex.encodeHexString(merkleRoot));
-		mapRep.put("Block ID", Hex.encodeHexString(blockID));
+		mapRep.put("Merkle Root", Hex.encodeHexString(merkleRoot));		
 		mapRep.put("File Hash", Hex.encodeHexString(fileHash));
 		
 

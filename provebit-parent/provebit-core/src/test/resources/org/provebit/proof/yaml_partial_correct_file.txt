@@ -1,9 +1,6 @@
 {
-  Block ID: '33333333',
   Type: Document Proof,
-  Proven Time: '2007-01-02 10:11:15.111',
   File Hash: '44444444',
-  Transaction Path: '00000000',
   Version: '0.1',
   Merkle Root: '22222222',
   Ideal Time: '2007-01-01 10:11:12.123',

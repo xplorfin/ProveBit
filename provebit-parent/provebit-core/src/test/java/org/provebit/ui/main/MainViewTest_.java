@@ -22,7 +22,7 @@ public class MainViewTest_ extends UISpecTestCase {
 	 */
 	public void setUp() throws Exception {
 		super.setUp();
-		UISpec4J.setWindowInterceptionTimeLimit(100000);
+		UISpec4J.setWindowInterceptionTimeLimit(10000);
 		setAdapter(new MainClassAdapter(RunGUI.class));
 		window = getMainWindow();
 	}

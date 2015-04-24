@@ -1,13 +1,6 @@
 package org.provebit.ui.main;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.provebit.ui.RunGUI;
-import org.uispec4j.Button;
-import org.uispec4j.Panel;
 import org.uispec4j.TabGroup;
 import org.uispec4j.Trigger;
 import org.uispec4j.UISpec4J;

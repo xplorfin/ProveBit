@@ -332,7 +332,7 @@ public class FileMerkleTest {
     }
     
     @Test
-    public void testCheckStepSerializer(){
+    public void testCheckStepSerializer() {
     	FileMerkle mtree = new FileMerkle(HashType.SHA256);
     	mtree.addTracking(completeDirPath, false);
     	mtree.makeTree();
@@ -349,5 +349,14 @@ public class FileMerkleTest {
     	}
     }
     
-    
+    @Test
+    public void testSerialization() {
+    	FileMerkle mTree = new FileMerkle(HashType.SHA256);
+    	mTree.addTracking(completeDirPath, false);
+    	mTree.makeTree();
+    	SerialMerkleUtils.writeToFile(mTree, new File(completeDirPath, "saveTree"));
+    	FileMerkle recoveryTree = SerialMerkleUtils.readFileMerkleFromFile(new File(completeDirPath, "saveTree"));
+    	assertTrue(Hex.encodeHexString(recoveryTree.getRootHash()).equals(Hex.encodeHexString(mTree.getRootHash())));
+    	FileUtils.deleteQuietly(new File(completeDirPath, "saveTree"));
+    }
 }

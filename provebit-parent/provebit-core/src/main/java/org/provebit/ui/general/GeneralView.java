@@ -30,7 +30,6 @@ public class GeneralView extends JPanel implements Observer {
 	private GeneralModel model;
 	private JButton certifyFileButton;
 	private JButton verifyFileButton;
-	private JLabel status;
 	private JTable statTable;
 	private String[] columnNames;
 	private StatusTableModel tableModel;
@@ -67,9 +66,6 @@ public class GeneralView extends JPanel implements Observer {
 		verifyFileButton.setEnabled(false); // remove disabling when implemented
 		add(certifyFileButton, "split 2");
 		add(verifyFileButton, "pushx, wrap");
-		
-		status = new JLabel("Status of ProveBit: you have 1 file(s) being proved");
-		add(status, "span");
 		
 		addStatusTable();
 		

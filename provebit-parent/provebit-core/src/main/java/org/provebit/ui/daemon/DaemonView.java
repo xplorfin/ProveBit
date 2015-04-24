@@ -135,6 +135,7 @@ public class DaemonView extends JPanel implements Observer {
 		logFrame.setSize(500, 650);
 		logPanel = new JPanel(new MigLayout());
 		logTextPane = new JTextPane();
+		logTextPane.setEditable(false);
 		logPanel.add(refreshLogButton, "span, wrap");
 		logScrollPane = new JScrollPane(logTextPane);
 		logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);

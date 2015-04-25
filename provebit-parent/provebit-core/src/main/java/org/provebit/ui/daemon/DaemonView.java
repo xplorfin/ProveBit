@@ -117,7 +117,7 @@ public class DaemonView extends JPanel implements Observer {
 		
 		killDaemonButton = new JButton("Kill Daemon");
 		killDaemonButton.setActionCommand("killDaemon");
-		killDaemonButton.setEnabled(false);
+		//killDaemonButton.setEnabled(false);
 		buttons.add(killDaemonButton);
 	}
 
@@ -212,7 +212,13 @@ public class DaemonView extends JPanel implements Observer {
 	 * Update the list of tracked files
 	 */
 	private void updateTrackingList() {
-		fileList.setListData(model.getTrackedFileStrings());
+		String[] trackingList = model.getTrackedFileStrings();
+		if (trackingList != null) {
+			fileList.setListData(trackingList);
+		} else {
+			fileList.setListData(new String[0]);
+		}
+		//fileList.setListData(model.getTrackedFileStrings());
 	}
 	
 	/**

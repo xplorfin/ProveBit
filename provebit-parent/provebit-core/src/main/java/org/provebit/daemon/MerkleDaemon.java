@@ -315,11 +315,11 @@ public class MerkleDaemon extends Thread {
 	
 	private void killDaemon() {
 		shouldRun = false;
+		listener.save();
 		state = DaemonStatus.SUSPENDED;
 		listener.log.addEntry("Daemon interrupted, exiting...");	
 		server.stopServer();	
 		destroyObservers();
-		listener.save();
 	}
 	
 	private void destroyObservers() {

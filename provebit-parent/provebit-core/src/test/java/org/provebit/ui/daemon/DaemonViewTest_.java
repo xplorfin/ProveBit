@@ -103,10 +103,11 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	}
 	
 	@Test
-	public void bTestDeleteFile() {
+	public void bTestDeleteFile() throws InterruptedException {
 		ListBox listBox = daemonPane.getListBox();
 		listBox.select(filePath);
 		daemonPane.getButton("Remove Selected Files").click();
+		Thread.sleep(500);
 		assertTrue(listBox.isEmpty());
 	}
 	
@@ -125,6 +126,7 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		DaemonMessage logRequest = new DaemonMessage(DaemonMessageType.GETLOG, null);
 		daemonClient.sendRequest(logRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
+		System.out.println(reply);
 		String[] testStrings = ((String) reply.data).split(" ");
 		assertTrue(Arrays.asList(testStrings).contains("'GETTRACKED'"));
 	}

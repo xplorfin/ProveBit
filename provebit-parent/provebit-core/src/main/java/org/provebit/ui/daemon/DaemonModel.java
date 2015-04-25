@@ -11,13 +11,12 @@ import java.util.Observable;
 import org.provebit.daemon.DaemonProtocol;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
-
 import org.provebit.ui.daemon.DaemonController.DaemonNotification;
 import org.simplesockets.client.SimpleClient;
 
 public class DaemonModel extends Observable {
 	private DaemonStatus daemonStatus;
-	private enum DaemonStatus{ACTIVE, SUSPENDED, TRACKING};
+	private enum DaemonStatus{ACTIVE, SUSPENDED, OFFLINE, TRACKING};
 	private SimpleClient daemonClient;
 	private int port;
 	private final String hostname = "localhost";
@@ -36,15 +35,15 @@ public class DaemonModel extends Observable {
 				e.printStackTrace();
 			}
 			System.out.println("LAUNCHED");
-			//connectToDaemon();
 		}
 		
-		if (daemonConnected) {
-			daemonClient = new SimpleClient(hostname, port, clientProtocol);
-			daemonStatus = DaemonStatus.ACTIVE;
-		} else {
+		if (!daemonConnected) {
 			throw new RuntimeException("Cannot connect to local daemon server!");
 		}
+	}
+	
+	private void createDaemonClient() {
+		daemonClient = new SimpleClient(hostname, port, clientProtocol);
 	}
 	
 	/**
@@ -95,6 +94,7 @@ public class DaemonModel extends Observable {
 				System.out.println("Daemon server found on port " + testPort);
 				port = testPort;
 				connected = true;
+				createDaemonClient();
 			}
 			attempts--;
 		}
@@ -147,6 +147,13 @@ public class DaemonModel extends Observable {
 	 * @param period
 	 */
 	public void startDaemon(int period) {
+		if (daemonStatus == DaemonStatus.OFFLINE) {
+			try {
+				launchNewDaemon();
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		DaemonMessage setPeriodRequest;
 		DaemonMessage startRequest;
 		setPeriodRequest = new DaemonMessage(DaemonMessageType.SETPERIOD, period);
@@ -155,7 +162,7 @@ public class DaemonModel extends Observable {
 		daemonClient.sendRequest(startRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		if (reply != null) {
-			daemonStatus = DaemonStatus.ACTIVE;
+			getDaemonStatus();
 			notifyChange(DaemonNotification.DAEMONSTATUS);
 		}
 	}
@@ -168,7 +175,10 @@ public class DaemonModel extends Observable {
 		DaemonMessage isTrackedRequest = new DaemonMessage(DaemonMessageType.ISTRACKED, file.getAbsolutePath());
 		daemonClient.sendRequest(isTrackedRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
-		return (boolean) reply.data;
+		if (reply != null) {
+			return (boolean) reply.data;
+		}
+		return false;
 	}
 	
 	/**
@@ -176,36 +186,26 @@ public class DaemonModel extends Observable {
 	 * 
 	 */
 	public void stopDaemon() {
-		if (getDaemonStatus().equals(DaemonStatus.SUSPENDED.toString())) return;
-		
 		DaemonMessage suspendRequest = new DaemonMessage(DaemonMessageType.SUSPEND, null);
 		daemonClient.sendRequest(suspendRequest);
-		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
-		if((boolean)reply.data == true) {
-			daemonStatus = DaemonStatus.SUSPENDED;
-			notifyChange(DaemonNotification.DAEMONSTATUS);
-		}
-		
+		getDaemonStatus();
+		notifyChange(DaemonNotification.DAEMONSTATUS);		
 	}
 	
 	/**
 	 * Kills the Daemon using the KILL Daemon Message
-	 * WARNING: Unsafe at the moment, use caution
-	 * 
 	 */
 	public void killDaemon() {
 		DaemonMessage killRequest = new DaemonMessage(DaemonMessageType.KILL, null);
 		daemonClient.sendRequest(killRequest);
-		// Daemon should not reply
-		
-		
+		getDaemonStatus();
+		notifyChange(DaemonNotification.DAEMONSTATUS);
 	}
 	/**
 	 * Fetches log from Daemon Process using GETLOG DaemonMessage
 	 * @return String representation of Daemon Log
 	 */
 	public String getDaemonLog() {
-		
 		DaemonMessage logRequest = new DaemonMessage(DaemonMessageType.GETLOG, null);
 		daemonClient.sendRequest(logRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
@@ -223,7 +223,11 @@ public class DaemonModel extends Observable {
 		DaemonMessage stateRequest = new DaemonMessage(DaemonMessageType.GETSTATE, null);
 		daemonClient.sendRequest(stateRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
-		daemonStatus = ((int)reply.data == 0) ? DaemonStatus.SUSPENDED : DaemonStatus.ACTIVE;
+		if (reply == null) {
+			daemonStatus = DaemonStatus.OFFLINE;
+		} else {
+			daemonStatus = ((int)reply.data == 0) ? DaemonStatus.SUSPENDED : DaemonStatus.ACTIVE;
+		}
 		return daemonStatus.toString();
 	}
 	
@@ -232,7 +236,11 @@ public class DaemonModel extends Observable {
 	 * @return Number of files tracked by Daemon
 	 */
 	public int getNumTracked() {
-		return getTrackedFileStrings().length;
+		String[] trackedFiles = getTrackedFileStrings();
+		if (trackedFiles == null) {
+			return 0;
+		}
+		return trackedFiles.length;
 	}
 	
 	/**
@@ -242,10 +250,6 @@ public class DaemonModel extends Observable {
 	public void updatePeriod(int newPeriod) {
 		DaemonMessage periodUpdateRequest = new DaemonMessage(DaemonMessageType.SETPERIOD, newPeriod);
 		daemonClient.sendRequest(periodUpdateRequest);
-		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
-		if ((boolean)reply.data) {
-			
-		}
 	}
 	
 	/**

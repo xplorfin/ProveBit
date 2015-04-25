@@ -1,30 +1,33 @@
 package org.provebit.ui.daemon;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.provebit.ui.RunGUI;
+import org.uispec4j.ListBox;
 import org.uispec4j.Panel;
 import org.uispec4j.TabGroup;
+import org.uispec4j.Trigger;
 import org.uispec4j.UISpec4J;
 import org.uispec4j.UISpecTestCase;
 import org.uispec4j.Window;
+import org.uispec4j.interception.FileChooserHandler;
 import org.uispec4j.interception.MainClassAdapter;
+import org.uispec4j.interception.WindowHandler;
+import org.uispec4j.interception.WindowInterceptor;
 
 @RunWith(JUnit4.class)
 public class DaemonViewTest_ extends UISpecTestCase {
 	private Window window;
 	private Panel daemonPane;
-	
-	@Rule
-    public TemporaryFolder emptyFolder = new TemporaryFolder();
-	
-	public File emptyDirPath;
-	
+	private String filePath = System.getProperty("user.dir") + "/src/test/resources/org/provebit/ui/daemon/test.txt";
 	
 	/**
 	 * this function call super.setUp() for some initial setup,
@@ -42,30 +45,33 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		TabGroup tabGroup = window.getTabGroup("Main");
 		tabGroup.selectTab("Daemon");
 		daemonPane = tabGroup.getSelectedTab();
-		
-		emptyDirPath = emptyFolder.getRoot();
 	}
 	
 	/**
 	 * invoke and test the file chooser for adding file to daemon
+	 * @throws InterruptedException 
 	 */
-//	@Test
-//	public void testAddFile() throws IOException{
-//		File tempFile = new File(emptyDirPath.getAbsolutePath() + "/tempFile");
-//    	FileUtils.write(tempFile, "temp data");
-//    	
-//		WindowInterceptor
-//		// set up the trigger to invoke the pop-up dialog
-//		.init(daemonPane.getButton("Add Files to Monitor...").triggerClick())
-//		.process(FileChooserHandler.init()
-//				.titleEquals("Open")
-//				.assertAcceptsFilesAndDirectories()
-////				.select(tempFile.getAbsolutePath()))
-//				.select("/home/qding5/test.txt"))
-//		.run();
-//		
-//		ListBox listBox = daemonPane.getListBox();
-////		assertTrue(listBox.contains((tempFile.getAbsolutePath())));
-//		assertTrue(listBox.contains("/home/qding5/test.txt"));
-//	}
+	@Test
+	public void testAddFile() throws IOException, InterruptedException{
+		WindowInterceptor
+		// set up the trigger to invoke the pop-up dialog
+		.init(daemonPane.getButton("Add Files to Monitor").triggerClick())
+		.process(FileChooserHandler.init()
+				.titleEquals("Open")
+				.assertAcceptsFilesAndDirectories()
+				.select(filePath))
+		.run();
+		
+		ListBox listBox = daemonPane.getListBox();
+		assertTrue(listBox.contains(filePath));
+	}
+	
+	@Test
+	public void testDeleteFile() {
+		ListBox listBox = daemonPane.getListBox();
+		listBox.select(filePath);
+		daemonPane.getButton("Remove Selected Files").click();
+		assertTrue(listBox.isEmpty());
+	}
+	
 }

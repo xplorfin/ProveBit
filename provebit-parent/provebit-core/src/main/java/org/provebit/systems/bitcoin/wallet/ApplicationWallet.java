@@ -83,6 +83,10 @@ public enum ApplicationWallet {
 		return wallet.currentReceiveAddress();
 	}
 	
+	public Wallet getWallet() {
+		return wallet;
+	}
+	
 	/**
 	 * Sends bitcoin
 	 * @param btc - amount of bitcoin to send

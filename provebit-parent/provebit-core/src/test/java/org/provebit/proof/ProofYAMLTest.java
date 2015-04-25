@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -98,7 +100,7 @@ public class ProofYAMLTest {
 	}
 	
 	@Test
-	public void testCompletingProof() throws FileNotFoundException, DecoderException, ParseException{
+	public void testCompletingProof() throws FileNotFoundException, DecoderException, ParseException, UnsupportedEncodingException{
 		File genFile = new File(partialCheckFile);
 		Proof testP = new Proof(genFile);
 		
@@ -113,6 +115,7 @@ public class ProofYAMLTest {
 		testP.completeProof(pTime, path, bID);
 		assertTrue(testP.isFullProof());
 		assertTrue(Arrays.equals(testP.getBlockId(),bID));
+
 	}
 
 }

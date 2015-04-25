@@ -2,7 +2,6 @@ package org.provebit.systems.bitcoin.ui.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Observable;
@@ -10,32 +9,42 @@ import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
+import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.codec.binary.Hex;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.Transaction;
-
-import net.miginfocom.swing.MigLayout;
+import org.provebit.proof.Proof;
 
 public class WalletView extends JPanel implements Observer {
 	private static final long serialVersionUID = -7980344644249889378L;
 	private JButton sendButton;
 	private JButton proveButton;
+	private JButton proveFileButton;
 	private WalletModel model;
 	private JLabel balance;
 	private JLabel addressLabel;
 	private JTextPane address;
+	private JFileChooser fileSelector;
 	
 	public WalletView(WalletModel model){
 		this.model = model;
 		setLayout(new MigLayout("", "[]", "[][]10[]"));
 		setBorder(BorderFactory.createLineBorder(Color.black));
+		
+		// Setup the fileSelector
+		fileSelector = new JFileChooser();
+		fileSelector.setMultiSelectionEnabled(false);
+		fileSelector.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		
 		// Add the name of the wallet
 		JLabel nameField = new JLabel("Bitcoin");
@@ -59,9 +68,13 @@ public class WalletView extends JPanel implements Observer {
 		sendButton = new JButton("Send");
 		sendButton.setActionCommand("send");		
 		add(sendButton, "split 2");
-		proveButton = new JButton("Prove");
-		proveButton.setActionCommand("prove");
+		proveButton = new JButton("Prove Text");
+		proveButton.setActionCommand("proveText");
 		add(proveButton);
+		
+		proveFileButton = new JButton("Prove File");
+		proveFileButton.setActionCommand("proveFile");
+		add(proveFileButton);
 	}
 	
 	private void updateBalance() {
@@ -81,6 +94,9 @@ public class WalletView extends JPanel implements Observer {
 	public void addController(WalletController controller) {
 		sendButton.addActionListener(controller);
 		proveButton.addActionListener(controller);
+		proveFileButton.addActionListener(controller);
+		
+		fileSelector.addActionListener(controller);
 	}
 
 	public void sendPrompt() {
@@ -134,6 +150,33 @@ public class WalletView extends JPanel implements Observer {
 					"Insufficient amount", JOptionPane.ERROR_MESSAGE);
 		}
 		
+	}
+	
+	/**
+	 * Callback to open the file selector
+	 */
+	public void selectFilePrompt(){
+		fileSelector.showOpenDialog(null);
+	}
+	
+	/**
+	 * Give the user information on the proof that is generated
+	 * @param proof
+	 */
+	public void confirmProofGeneration(Proof proof){
+		JPanel txidDialog = new JPanel(new MigLayout());
+		String resultReply = "Proof for file \'" + proof.getFileName() + "\' generated!\n\n";
+		resultReply += "TXID: " + Hex.encodeHexString(proof.getTransactionID()) + "\n";
+		resultReply += "File Hash: " + Hex.encodeHexString(proof.getFileHash()) + "\n";
+			
+		JTextPane txidSelectable = new JTextPane();
+		txidSelectable.setText(resultReply);
+		txidSelectable.setEditable(false);
+		txidSelectable.setBackground(null);
+		txidSelectable.setBorder(null);
+		
+		txidDialog.add(txidSelectable);
+		JOptionPane.showMessageDialog(this, txidDialog, "Proof Sent", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	public void provePrompt() {

@@ -1,42 +1,38 @@
 package org.provebit.systems.bitcoin.ui.gui;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.io.FileUtils;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.InsufficientMoneyException;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.Wallet;
-import org.bitcoinj.core.Wallet.SendResult;
 import org.bitcoinj.core.WalletEventListener;
-import org.bitcoinj.core.WalletExtension;
-import org.bitcoinj.kits.WalletAppKit;
-import org.bitcoinj.params.MainNetParams;
-import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.script.Script;
-import org.bitcoinj.script.ScriptBuilder;
-import org.bitcoinj.script.ScriptOpCodes;
-import org.bitcoinj.utils.Threading;
-import org.bitcoinj.wallet.KeyChain;
-import org.provebit.systems.bitcoin.BitcoinDirectory;
+import org.provebit.proof.Proof;
 import org.provebit.systems.bitcoin.wallet.ApplicationWallet;
 
 public class WalletModel extends Observable {
 
 	private final static ApplicationWallet appwallet = ApplicationWallet.INSTANCE;
+	//TODO: Find a good location for this.
+	private final String PROOF_DIRECTORY = "src/main/resources/org/provebit/proofs/";
 	
 	public WalletModel() {
 		appwallet.addEventListener(new WalletEventHandler());
@@ -50,6 +46,54 @@ public class WalletModel extends Observable {
 	
 	public Transaction proofTX(byte[] hash) throws InsufficientMoneyException {
 		return appwallet.proofTX(hash);
+	}
+	
+	/**
+	 * Note returns null if any exception is caught while trying to generate proof
+	 * @param fileToProve
+	 * @return
+	 */
+	public Proof generateProofFromFile(File fileToProve){
+		MessageDigest md;
+		Proof proof = null;
+		if(fileToProve.isFile()){
+	        try {
+	        	// Hash File
+				md = MessageDigest.getInstance("SHA-256");
+				byte[] fileBytes = FileUtils.readFileToByteArray(fileToProve);
+		        md.update(fileBytes);
+		        byte[] fileHash = (md.digest());
+		        //String fileName, Timestamp iTime, byte[] transID, byte[] merkleRoot, byte[] fileHash
+		        
+		        // Generate current time Timestamp
+		        Calendar cal = Calendar.getInstance();
+		        Date currentTime = cal.getTime();
+		        Timestamp idealTime = new Timestamp(currentTime.getTime());
+		        
+		        // Submit hash to be put into a transaction
+		        Transaction trans = appwallet.proofTX(fileHash);
+		        
+		        //Generate Proof (For one file, the merkle root is the file hash)
+		        proof = new Proof(fileToProve.getName(), idealTime, trans.getHash().getBytes(), fileHash, fileHash);
+		        
+		        //Write proof to a file
+		        String proofFile = PROOF_DIRECTORY + proof.getFileName() + ".proof";
+		        // Touch the file
+		        File pFile = new File(proofFile);
+		        pFile.createNewFile();
+		        
+		        proof.writeProofToFile(proofFile);
+		        
+		        
+			} catch (NoSuchAlgorithmException | IOException | InsufficientMoneyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+        
+        return proof;
+       
+
 	}
 	
 	public Coin getBalance() {

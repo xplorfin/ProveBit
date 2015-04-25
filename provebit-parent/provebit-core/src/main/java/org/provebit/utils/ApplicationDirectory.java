@@ -17,15 +17,14 @@ public enum ApplicationDirectory implements DirectoryAccessor {
 
 		// get system's default application data folder
 		if (OS.contains("WIN")) {
+			// Windows compatibility check
 			workingDirectory = System.getenv("AppData");
-			// TODO check windows works
 			workingDirectory += "\\..\\Local\\ProveBit";
 		} else {
-			// linux
+			// Linux
 			workingDirectory = System.getProperty("user.home");
-			// for mac
 			if (OS.contains("MAC")) {
-				// TODO check mac works
+				// OS X compatibility check
 				workingDirectory += "/Library/Application Support";
 			}
 			workingDirectory += "/.provebit";

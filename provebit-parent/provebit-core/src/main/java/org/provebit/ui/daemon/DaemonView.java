@@ -25,8 +25,8 @@ import org.provebit.ui.daemon.DaemonController.DaemonNotification;
 
 public class DaemonView extends JPanel implements Observer {
 	private static final long serialVersionUID = 5876970360392816111L;
-	private static final String ADDFILESTRING = "Add Files to Monitor...";
-	private static final String REMOVEFILESTRING = "Remove Files...";
+	private static final String ADDFILESTRING = "Add Files to Monitor";
+	private static final String REMOVEFILESTRING = "Remove Selected Files";
 	private static final String[] RECURSIVEOPTIONS = {"No","Yes"};
 	private DaemonModel model;
 	private JButton addFileButton, removeFileButton, startDaemonButton, suspendDaemonButton, updateIntervalButton, showLogButton, refreshLogButton, killDaemonButton;
@@ -48,7 +48,7 @@ public class DaemonView extends JPanel implements Observer {
 	public DaemonView(DaemonModel model) {
 		this.model = model;
 		
-		this.setLayout(new MigLayout("", "[]", "[]20[]5[]20[]5[]5[]"));
+		this.setLayout(new MigLayout("", "[]", "[]15[]5[]5[]20[]10[]"));
 		buttons = new ArrayList<JButton>();
 		
 		setupButtons();
@@ -75,15 +75,15 @@ public class DaemonView extends JPanel implements Observer {
 		add(removeFileButton, "wrap");
 		add(trackedFilesLabel, "wrap");
 		add(listScrollPane, "span, grow, push, wrap");
-		add(new JLabel("Daemon Run Period: "), "split 3");
+		add(new JLabel("Daemon Run Period: "), "split 4");
 		add(runPeriodInput, "width :50");
-		add(new JLabel("sec"), "wrap");
+		add(new JLabel("sec"));
+		add(updateIntervalButton, "wrap");
 		add(startDaemonButton, "split 4");
 		add(suspendDaemonButton);
-		add(updateIntervalButton, "wrap");
 		add(killDaemonButton, "wrap");
-		add(daemonStatusLabel, "wrap");
-		add(showLogButton, "");
+		add(daemonStatusLabel, "split 2");
+		add(showLogButton);
 	}
 	
 	private void setupButtons() {
@@ -132,9 +132,10 @@ public class DaemonView extends JPanel implements Observer {
 	
 	private void setupLogFrame() {
 		logFrame = new JFrame("Daemon Log");
-		logFrame.setSize(500, 800);
+		logFrame.setSize(500, 650);
 		logPanel = new JPanel(new MigLayout());
 		logTextPane = new JTextPane();
+		logTextPane.setEditable(false);
 		logPanel.add(refreshLogButton, "span, wrap");
 		logScrollPane = new JScrollPane(logTextPane);
 		logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);

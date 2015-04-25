@@ -12,7 +12,7 @@ public class DaemonDemo {
 	public static void main(String[] args) throws InterruptedException, IOException {
 		FileMerkle m = new FileMerkle(HashType.SHA256);
     	m.addTracking(liveDir, false);
-		MerkleDaemon daemon = new MerkleDaemon(m, 100);
+		MerkleDaemon daemon = new MerkleDaemon(false, 100);
 		daemon.start();
 		Thread.sleep(1000);
 		new DaemonDemoReconnect().start();

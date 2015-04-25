@@ -1,13 +1,6 @@
 package org.provebit.ui.main;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.provebit.ui.RunGUI;
-import org.uispec4j.Button;
-import org.uispec4j.Panel;
 import org.uispec4j.TabGroup;
 import org.uispec4j.Trigger;
 import org.uispec4j.UISpec4J;
@@ -29,7 +22,7 @@ public class MainViewTest_ extends UISpecTestCase {
 	 */
 	public void setUp() throws Exception {
 		super.setUp();
-		UISpec4J.setWindowInterceptionTimeLimit(100000);
+		UISpec4J.setWindowInterceptionTimeLimit(10000);
 		setAdapter(new MainClassAdapter(RunGUI.class));
 		window = getMainWindow();
 	}

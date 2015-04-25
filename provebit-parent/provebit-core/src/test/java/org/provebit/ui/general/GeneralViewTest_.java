@@ -1,16 +1,13 @@
 package org.provebit.ui.general;
 
-import org.junit.*;
 import org.provebit.ui.RunGUI;
 import org.uispec4j.Panel;
 import org.uispec4j.TabGroup;
-import org.uispec4j.Trigger;
 import org.uispec4j.UISpec4J;
 import org.uispec4j.UISpecTestCase;
 import org.uispec4j.Window;
 import org.uispec4j.interception.FileChooserHandler;
 import org.uispec4j.interception.MainClassAdapter;
-import org.uispec4j.interception.WindowHandler;
 import org.uispec4j.interception.WindowInterceptor;
 
 public class GeneralViewTest_ extends UISpecTestCase {

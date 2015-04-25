@@ -5,6 +5,8 @@ import java.awt.event.ActionListener;
 
 public class GeneralController implements ActionListener {
 	private GeneralView view;
+	// TODO: unused 'model' member variable
+	@SuppressWarnings("unused")
 	private GeneralModel model;
 	
 	public GeneralController(GeneralModel model, GeneralView view) {

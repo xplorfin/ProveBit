@@ -85,14 +85,19 @@ public class Log {
 	 *            - Log output file
 	 * @throws IOException
 	 */
-	public void setLogFile(File output) throws IOException {
-		if (output != null) {
-			this.endLog();
+	public void setLogFile(File output) {
+		try {
+			if (output != null) {
+				this.endLog();
+			}
+			this.output = output;
+			fOut = new FileOutputStream(output);
+			oOut = new ObjectOutputStream(fOut);
+			nextPending = 0;
+		} catch (IOException e) {
+			System.err.println("Log save failed, trace follows");
+			e.printStackTrace();
 		}
-		this.output = output;
-		fOut = new FileOutputStream(output);
-		oOut = new ObjectOutputStream(fOut);
-		nextPending = 0;
 	}
 
 	/**
@@ -182,6 +187,7 @@ public class Log {
 			}
 		}
 		numEntries = entries.size();
+		setLogFile(input);
 		
 		return true;
 	}

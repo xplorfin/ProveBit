@@ -2,12 +2,9 @@ package org.provebit.systems.bitcoin.ui.gui;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -40,7 +37,8 @@ public class WalletModel extends Observable {
 	
 	private Coin lastBalance = null;
 	
-	public void simpleSendCoins(Coin amount, String destAddress) throws AddressFormatException, InsufficientMoneyException {
+	public void simpleSendCoins(Coin amount, String destAddress)
+			throws AddressFormatException, InsufficientMoneyException {
 		appwallet.simpleSendCoins(amount, destAddress);
 	}
 	

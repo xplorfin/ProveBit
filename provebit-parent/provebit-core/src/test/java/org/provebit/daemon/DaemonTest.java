@@ -1,11 +1,6 @@
 package org.provebit.daemon;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -623,5 +618,41 @@ public class DaemonTest {
     	assertFalse(((String)reply.data).contains("FCHANGE"));
     	daemon.interrupt();
     	daemon.join();
+    }
+    
+    
+    @Test
+    public void testDaemonNetworkRecovery() throws InterruptedException, IOException {
+    	MerkleDaemon daemon = new MerkleDaemon(false, DAEMONPERIOD);
+    	daemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	Map<String, Boolean> fileList = new HashMap<String, Boolean>();
+    	fileList.put(daemonDir.getAbsolutePath(), false);
+    	DaemonMessage request = new DaemonMessage(DaemonMessageType.ADDFILES, fileList);
+    	client.sendRequest(request);
+    	assertNotNull(client.getReply());
+    	FileUtils.write(file1, "modified stuff");
+    	Thread.sleep(TESTSLEEP);
+    	DaemonMessage getLog = new DaemonMessage(DaemonMessageType.GETLOG, null);
+    	client.sendRequest(getLog);
+    	DaemonMessage reply = (DaemonMessage) client.getReply();
+    	String logData = (String) reply.data;
+    	assertTrue(logData.contains("FCHANGE : " + file1.getAbsolutePath()));
+    	daemon.interrupt();
+    	daemon.join();
+    	Thread.sleep(TESTSLEEP);
+    	MerkleDaemon recoveredDaemon = new MerkleDaemon(true, DAEMONPERIOD);
+    	Thread.sleep(TESTSLEEP);
+    	recoveredDaemon.start();
+    	Thread.sleep(TESTSLEEP);
+    	DaemonMessage getTrackedFile = new DaemonMessage(DaemonMessageType.ISTRACKED, file1.getAbsolutePath());
+    	client = new SimpleClient(hostname, recoveredDaemon.getPort(), clientProtocol);
+    	client.sendRequest(getTrackedFile);
+    	reply = (DaemonMessage) client.getReply();
+    	assertTrue((boolean) reply.data);
+    	recoveredDaemon.interrupt();
+    	recoveredDaemon.join();
+    	
     }
 }

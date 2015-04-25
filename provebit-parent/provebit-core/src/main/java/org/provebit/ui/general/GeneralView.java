@@ -2,15 +2,21 @@ package org.provebit.ui.general;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 import org.bitcoinj.core.Coin;
@@ -24,7 +30,6 @@ public class GeneralView extends JPanel implements Observer {
 	private GeneralModel model;
 	private JButton certifyFileButton;
 	private JButton verifyFileButton;
-	private JLabel status;
 	private JTable statTable;
 	private String[] columnNames;
 	private StatusTableModel tableModel;
@@ -44,6 +49,12 @@ public class GeneralView extends JPanel implements Observer {
 		new String[] {"thatotherfile.txt", "Complete"},
 	};
 	
+	/**
+	 * GeneralView constructor
+	 * 
+	 * @param model
+	 * TODO: fully implement MVC interaction
+	 */
 	public GeneralView(GeneralModel model) {
 		this.model = model;
 		setLayout(new MigLayout("", "[]5[]", "[]5[]5[]"));
@@ -55,9 +66,6 @@ public class GeneralView extends JPanel implements Observer {
 		verifyFileButton.setEnabled(false); // remove disabling when implemented
 		add(certifyFileButton, "split 2");
 		add(verifyFileButton, "pushx, wrap");
-		
-		status = new JLabel("Status of ProveBit: you have 1 file(s) being proved");
-		add(status, "span");
 		
 		addStatusTable();
 		
@@ -134,6 +142,8 @@ public class GeneralView extends JPanel implements Observer {
 	}
 	
 	private class PostHash implements Runnable {
+		// TODO: unused 'hash' member in PostHash class
+		@SuppressWarnings("unused")
 		private byte[] hash;
 		private boolean success;
 		private Transaction tx;

@@ -10,11 +10,14 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.provebit.ui.AdvancedTab;
 import org.provebit.ui.DaemonTab;
@@ -23,7 +26,10 @@ import org.provebit.ui.WalletsTab;
 
 public class MainView extends JFrame implements Observer {
 	private static final long serialVersionUID = 5472827135842556415L;
+	// TODO implement Main model
+	@SuppressWarnings("unused")
 	private MainModel model;
+	private JLabel status;
 	private JTabbedPane tabbedPane; 
 	private JMenuBar menuBar;
 	private JMenu menuFile;
@@ -36,11 +42,15 @@ public class MainView extends JFrame implements Observer {
 		this.model = model;
 		menuItems = new ArrayList<JMenuItem>();
 		
-		setMinimumSize(new Dimension(500, 400));
+		setLayout(new MigLayout());
+		
+		setSize(800, 600);
+		setMinimumSize(new Dimension(500, 375));
 		setTitle("ProveBit");
 		
 		// set up menu and tabs
 		addMenuBar();
+		addStatus();
 		addTabs();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,6 +78,11 @@ public class MainView extends JFrame implements Observer {
 		setJMenuBar(menuBar);
 	}
 	
+	public void addStatus() {
+		status = new JLabel("Status: you have 1 file(s) being proved");
+		add(status, "wrap");
+	}
+	
 	private void addTabs() {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setName("Main");
@@ -75,7 +90,7 @@ public class MainView extends JFrame implements Observer {
 		tabbedPane.addTab("Wallet", new WalletsTab().getPanel());
 		tabbedPane.addTab("Daemon", new DaemonTab().getPanel());
 		tabbedPane.addTab("Advanced", new AdvancedTab().getPanel());
-		add(tabbedPane);
+		add(tabbedPane, "grow, push, span");
 	}
 	
 	@Override

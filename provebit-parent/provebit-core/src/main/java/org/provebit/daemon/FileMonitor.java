@@ -11,6 +11,7 @@ import org.provebit.merkle.FileMerkle;
 import org.provebit.merkle.HashType;
 import org.provebit.merkle.SerialMerkleUtils;
 import org.provebit.utils.ApplicationDirectory;
+import org.provebit.utils.Log;
 
 public class FileMonitor implements FileAlterationListener {
 	public enum MonitorEvent {

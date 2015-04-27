@@ -14,7 +14,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.provebit.daemon.Log.LogEntry;
+import org.provebit.utils.Log;
+import org.provebit.utils.Log.LogEntry;
 
 public class LogTest {
 	public static final long TIME_DIFF = 3000; // in ms

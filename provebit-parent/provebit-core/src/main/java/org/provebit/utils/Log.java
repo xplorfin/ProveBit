@@ -1,4 +1,4 @@
-package org.provebit.daemon;
+package org.provebit.utils;
 
 import java.io.EOFException;
 import java.io.File;

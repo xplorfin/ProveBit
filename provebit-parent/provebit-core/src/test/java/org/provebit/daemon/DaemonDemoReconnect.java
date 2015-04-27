@@ -3,6 +3,8 @@ package org.provebit.daemon;
 import java.io.IOException;
 import java.util.Set;
 
+import org.provebit.utils.Log;
+
 public class DaemonDemoReconnect extends Thread {
 	public void run() {  
 		MerkleDaemon daemon = null;

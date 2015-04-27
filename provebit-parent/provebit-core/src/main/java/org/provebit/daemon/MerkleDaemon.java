@@ -15,6 +15,7 @@ import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
 import org.provebit.merkle.FileMerkle;
 import org.provebit.merkle.HashType;
 import org.provebit.merkle.Merkle;
+import org.provebit.utils.Log;
 import org.simplesockets.server.SimpleServer;
 
 public class MerkleDaemon extends Thread {

@@ -18,9 +18,10 @@ import org.junit.rules.TemporaryFolder;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
 import org.provebit.daemon.FileMonitor.MonitorEvent;
-import org.provebit.daemon.Log.LogEntry;
 import org.provebit.merkle.FileMerkle;
 import org.provebit.merkle.HashType;
+import org.provebit.utils.Log;
+import org.provebit.utils.Log.LogEntry;
 import org.simplesockets.client.SimpleClient;
 
 public class DaemonTest {

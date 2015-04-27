@@ -22,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.Transaction;
+import org.provebit.proof.ProofManager;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -127,12 +128,12 @@ public class GeneralView extends JPanel implements Observer {
 					digest = org.apache.commons.codec.digest.DigestUtils.sha256(fis);
 					fis.close();
 					Transaction tx = model.proofTX(digest);
-					PostHash postHash = new PostHash(true, digest, tx, null);
+					PostHash postHash = new PostHash(true, certFile, digest, tx, null);
 					SwingUtilities.invokeLater(postHash);
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (InsufficientMoneyException e) {
-					PostHash postHash = new PostHash(false, digest, null, e);
+					PostHash postHash = new PostHash(false, certFile, digest, null, e);
 					SwingUtilities.invokeLater(postHash);
 				}
 
@@ -148,9 +149,11 @@ public class GeneralView extends JPanel implements Observer {
 		private boolean success;
 		private Transaction tx;
 		private InsufficientMoneyException ise;
+		private File file;
 		
-		public PostHash(boolean success, byte[] hash, Transaction tx, InsufficientMoneyException e) {
+		public PostHash(boolean success, File file, byte[] hash, Transaction tx, InsufficientMoneyException e) {
 			this.hash = hash;
+			this.file = file;
 			this.success = success;
 			this.tx = tx;
 			this.ise = e;
@@ -159,6 +162,8 @@ public class GeneralView extends JPanel implements Observer {
 		@Override
 		public void run() {
 			if (success) {
+				ProofManager.INSTANCE.addProof(tx, file, hash);
+				
 				JPanel txidDialog = new JPanel(new MigLayout());
 				txidDialog.add(new JLabel("TXID:"));
 				JTextPane txidSelectable = new JTextPane();

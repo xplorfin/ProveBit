@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,8 +30,8 @@ public class Proof {
 	private String type = "Document Proof";
 	private String fileName;
 	private final String version = "0.1";
-	private Timestamp idealTime;
-	private Timestamp provenTime;
+	private Date idealTime;
+	private Date provenTime;
 	private byte[] transactionPath;
 	private byte[] transactionID;
 	private byte[] merkleRoot;
@@ -49,7 +50,7 @@ public class Proof {
 	 * @param bID
 	 * @param fileHash
 	 */
-	public Proof(String fileName, Timestamp iTime, Timestamp pTime, byte[] path, byte[] transID, byte[] root, byte[] bID, byte[] fileHash){
+	public Proof(String fileName, Date iTime, Date pTime, byte[] path, byte[] transID, byte[] root, byte[] bID, byte[] fileHash){
 		this.fileName = fileName;
 		fullProof = true;
 		idealTime = iTime;
@@ -68,7 +69,7 @@ public class Proof {
 	 * @param merkleRoot
 	 * @param fileHash
 	 */
-	public Proof(String fileName, Timestamp iTime, byte[] transID, byte[] merkleRoot, byte[] fileHash){
+	public Proof(String fileName, Date iTime, byte[] transID, byte[] merkleRoot, byte[] fileHash){
 		this.fileName = fileName;
 		fullProof = false;
 		idealTime = iTime;
@@ -171,12 +172,12 @@ public class Proof {
 		return fileHash;
 	}
 	
-	public Timestamp getIdealTime() {
+	public Date getIdealTime() {
 		return idealTime;
 	}
 
 
-	public Timestamp getProvenTime() {
+	public Date getProvenTime() {
 		return provenTime;
 	}
 

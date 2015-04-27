@@ -104,18 +104,18 @@ public class FileMonitor implements FileAlterationListener {
 	 */
 	private void recoverLog() {
 		if (logFile.exists()) {
-			System.out.println("FOUND LOG, recovering...");
 			log = new Log();
 			log.recoverLog(logFile);
+			log.addEntry("Recovered previous log");
 		} else {
-			System.out.println("Log file not found, creating new one");
 			try {
 				log = new Log(logFile);
+				log.addEntry("No previous log found, creating new log");
 			} catch (IOException e) {
-				System.err.println("Failed to recover log file");
 				e.printStackTrace();
 				log = new Log();
 				logFile = null;
+				log.addEntry("Failed to recover log");
 			}
 		}
 	}
@@ -127,10 +127,10 @@ public class FileMonitor implements FileAlterationListener {
 	private void recoverTree() {
 		if (merkleFile.exists()) {
 			tree = SerialMerkleUtils.readFileMerkleFromFile(merkleFile);
+			log.addEntry("Recovered previous merkle tree");
 		} else {
-			System.err.println(merkleFile.getAbsolutePath() + " does not exist");
-			System.err.println("Failed to recover tree, creating new tree");
 			tree = new FileMerkle(HashType.SHA256);
+			log.addEntry("No previous merkle tree found, creating new tree");
 		}
 	}
 	
@@ -232,9 +232,12 @@ public class FileMonitor implements FileAlterationListener {
 	}
 	
 	public String getLogEntries() {
+		return log.toString();
+		/*
 		if (logFile == null) {
 			return log.toString();
 		}
 		return Log.entriesToString(log.readLogFile(logFile));
+		*/
 	}
 }

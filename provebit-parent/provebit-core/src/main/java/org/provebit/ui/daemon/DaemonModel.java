@@ -59,7 +59,7 @@ public class DaemonModel extends Observable {
 		String separator = System.getProperty("file.separator");
 		String classpath = System.getProperty("java.class.path");
 		String path = System.getProperty("java.home") + separator + "bin" + separator + "java";
-		ProcessBuilder processBuilder =  new ProcessBuilder(path, "-cp", classpath, LaunchDaemon.class.getName());
+		ProcessBuilder processBuilder =  new ProcessBuilder(path, "-cp", classpath, LaunchDaemon.class.getName(), "true");
 		processBuilder.start();
 		waitOnDaemon();
 	}
@@ -147,23 +147,21 @@ public class DaemonModel extends Observable {
 	 * @param period
 	 */
 	public void startDaemon(int period) {
-		if (daemonStatus == DaemonStatus.OFFLINE) {
+		if (!daemonConnected) {
 			try {
 				launchNewDaemon();
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		DaemonMessage setPeriodRequest;
 		DaemonMessage startRequest;
-		setPeriodRequest = new DaemonMessage(DaemonMessageType.SETPERIOD, period);
 		startRequest = new DaemonMessage(DaemonMessageType.START, null);
-		daemonClient.sendRequest(setPeriodRequest);
 		daemonClient.sendRequest(startRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		if (reply != null) {
 			getDaemonStatus();
 			notifyChange(DaemonNotification.DAEMONSTATUS);
+			notifyChange(DaemonNotification.UPDATETRACKING);
 		}
 	}
 	/**
@@ -198,8 +196,10 @@ public class DaemonModel extends Observable {
 	public void killDaemon() {
 		DaemonMessage killRequest = new DaemonMessage(DaemonMessageType.KILL, null);
 		daemonClient.sendRequest(killRequest);
-		getDaemonStatus();
+		daemonStatus = DaemonStatus.OFFLINE;
+		daemonConnected = false;
 		notifyChange(DaemonNotification.DAEMONSTATUS);
+		notifyChange(DaemonNotification.UPDATETRACKING);
 	}
 	/**
 	 * Fetches log from Daemon Process using GETLOG DaemonMessage
@@ -223,7 +223,8 @@ public class DaemonModel extends Observable {
 		DaemonMessage stateRequest = new DaemonMessage(DaemonMessageType.GETSTATE, null);
 		daemonClient.sendRequest(stateRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
-		if (reply == null) {
+		if (reply == null || !daemonConnected) {
+			daemonConnected = false;
 			daemonStatus = DaemonStatus.OFFLINE;
 		} else {
 			daemonStatus = ((int)reply.data == 0) ? DaemonStatus.SUSPENDED : DaemonStatus.ACTIVE;
@@ -258,6 +259,7 @@ public class DaemonModel extends Observable {
 	 */
 	@SuppressWarnings("unchecked")
 	public String[] getTrackedFileStrings() {
+		if (!daemonConnected) return null;
 		DaemonMessage getTrackedRequest = new DaemonMessage(DaemonMessageType.GETTRACKED, null);
 		daemonClient.sendRequest(getTrackedRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();

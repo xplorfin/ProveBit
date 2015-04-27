@@ -6,6 +6,11 @@ public class LaunchDaemon {
 	private static int defaultPeriod = 1000;
 	
 	public static void main(String[] args) {
-		new MerkleDaemon(true, defaultPeriod).start(); 
+		if (args.length < 1) {
+			System.out.println("Missing argument");
+			return;
+		}
+		boolean recover = (args[0].equals("true")) ? true : false;
+		new MerkleDaemon(recover, defaultPeriod).start();
 	}
 }

@@ -96,12 +96,6 @@ public class MerkleDaemon extends Thread {
 					case KILL:
 						killDaemon();
 						break;
-					/**
-					 * Add/RemoveFiles events are currently an extremely naive implementation until we have more
-					 * time to revisit this major refactoring
-					 * 
-					 * Currently we are updating tree tracking and completely rebuilding all observers
-					 */
 					case ADDFILES:
 						Map<File, Boolean> pathFileMap = getPathFileMap((Map<String, Boolean>) request.data);
 						suspendMonitoring();

@@ -92,6 +92,9 @@ public class FileMonitor implements FileAlterationListener {
 		});
 	}
 	
+	/**
+	 * Force save all state to disk
+	 */
 	public void save() {
 		System.out.println("Monitor saving state");
 		log.setLogFile(logFile);
@@ -232,13 +235,11 @@ public class FileMonitor implements FileAlterationListener {
 		log.addEntry("Hash update: " + oldRoot + " -> " + newRoot);
 	}
 	
+	/**
+	 * Get readable string representation of all log entries
+	 * @return String of log entries
+	 */
 	public String getLogEntries() {
 		return log.toString();
-		/*
-		if (logFile == null) {
-			return log.toString();
-		}
-		return Log.entriesToString(log.readLogFile(logFile));
-		*/
 	}
 }

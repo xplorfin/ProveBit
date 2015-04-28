@@ -35,10 +35,8 @@ public class MerkleDaemon extends Thread {
 	/**
 	 * Daemon constructor,
 	 * 
-	 * @param dir
-	 *            - Directory to run daemon on
-	 * @param period
-	 *            - Daemon polling period (msec)
+	 * @param dir - Directory to run daemon on
+	 * @param period - Daemon polling period (msec)
 	 */
 	public MerkleDaemon(FileMerkle mTree, int period) {
 		observers = new ArrayList<FileAlterationObserver>();
@@ -56,10 +54,8 @@ public class MerkleDaemon extends Thread {
 	/**
 	 * Daemon constructor,
 	 * 
-	 * @param recover
-	 *            - whether or not to recover existing log/tree from filesystem
-	 * @param period
-	 *            - Daemon polling period (msec)
+	 * @param recover - whether or not to recover existing log/tree from filesystem
+	 * @param period - Daemon polling period (msec)
 	 */
 	public MerkleDaemon(boolean recover, int period) {
 		observers = new ArrayList<FileAlterationObserver>();
@@ -119,7 +115,7 @@ public class MerkleDaemon extends Thread {
 						period = (int) request.data;
 						break;
 					case GETLOG:
-						reply = new DaemonMessage(DaemonMessageType.REPLY, getLog());
+						reply = new DaemonMessage(DaemonMessageType.REPLY, getLogEntries());
 						break;
 					case HEARTBEAT:
 						reply = new DaemonMessage(DaemonMessageType.REPLY, null);
@@ -228,6 +224,9 @@ public class MerkleDaemon extends Thread {
 		monitorDirectory();
 	}
 	
+	/**
+	 * Launch each observer that was created
+	 */
 	private void launchObservers() {
 		for (FileAlterationObserver observer : observers) {
 			observer.addListener(listener);
@@ -306,8 +305,9 @@ public class MerkleDaemon extends Thread {
 		}
 	}
 	
-	
-	
+	/**
+	 * Completely kill daemon and all resources
+	 */
 	private void killDaemon() {
 		shouldRun = false;
 		listener.save();
@@ -317,6 +317,9 @@ public class MerkleDaemon extends Thread {
 		destroyObservers();
 	}
 	
+	/**
+	 * Destroy all currently running observers
+	 */
 	private void destroyObservers() {
 		for (FileAlterationObserver observer : observers) {
 			try {
@@ -347,10 +350,14 @@ public class MerkleDaemon extends Thread {
 		return listener.getNumEvents();
 	}
 
-	public String getLog() {
+	public String getLogEntries() {
 		return listener.getLogEntries();
 	}
 	
+	/**
+	 * Retrieve the actual log object from the listener
+	 * @return Log being used by listener
+	 */
 	public Log getLogActual() {
 		return listener.log;
 	}
@@ -369,6 +376,10 @@ public class MerkleDaemon extends Thread {
 		state = DaemonStatus.ACTIVE;
 	}
 	
+	/**
+	 * Get the port that the internal SimpleSockets Server is runnign on
+	 * @return - port currently bound by server
+	 */
 	public int getPort() {
 		return server.getPort();
 	}

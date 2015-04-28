@@ -156,7 +156,7 @@ public class DaemonTest {
         Thread.sleep(TESTSLEEP);
         FileUtils.forceMkdir(daemonSubDir);
         Thread.sleep(TESTSLEEP);
-        assertTrue(daemon.getLog().toString().contains(MonitorEvent.DCREATE.toString()));
+        assertTrue(daemon.getLogEntries().toString().contains(MonitorEvent.DCREATE.toString()));
         daemon.interrupt();
         daemon.join();
     }
@@ -171,7 +171,7 @@ public class DaemonTest {
         Thread.sleep(TESTSLEEP);
         FileUtils.deleteQuietly(daemonSubDir);
         Thread.sleep(TESTSLEEP);
-        assertTrue(daemon.getLog().toString().contains(MonitorEvent.DDELETE.toString()));
+        assertTrue(daemon.getLogEntries().toString().contains(MonitorEvent.DDELETE.toString()));
         assertEquals(1, daemon.getEvents());
         daemon.interrupt();
         daemon.join();

@@ -46,14 +46,27 @@ public interface DaemonProtocol extends SimpleSocketsProtocol {
 		}
 	}
 	
+	/**
+	 * Protocol receieve callback
+	 * Convert to DaemonMessage and call message handler
+	 * @return DaemonMessage to send back or null if no reply required
+	 */
 	public default Object receive(Object data) {
 		DaemonMessage request = (DaemonMessage) data;
 		return handleMessage(request);
 	}
 
+	/**
+	 * Protocol send callback
+	 */
 	public default Object send(Object data) {
 		return data;
 	}
 	
+	/**
+	 * Message handler for DaemonMessage objects
+	 * @param request - DaemonMessage received
+	 * @return - DameonMessage reply for event or null if no reply required
+	 */
 	abstract DaemonMessage handleMessage(DaemonMessage request);
 }

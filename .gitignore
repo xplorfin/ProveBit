@@ -12,3 +12,4 @@ bin/
 .classpath
 target
 .recommenders
+.attach*

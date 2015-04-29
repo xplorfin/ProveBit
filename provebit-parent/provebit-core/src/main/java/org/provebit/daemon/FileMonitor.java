@@ -87,7 +87,9 @@ public class FileMonitor implements FileAlterationListener {
 	private void setShutdownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				save();
+				if (allowRecovery) {
+					save();
+				}
 			}
 		});
 	}
@@ -96,12 +98,10 @@ public class FileMonitor implements FileAlterationListener {
 	 * Force save all state to disk
 	 */
 	public void save() {
-		if (allowRecovery) {
-			System.out.println("Monitor saving state");
-			log.setLogFile(logFile);
-			log.writeToFile();
-			SerialMerkleUtils.writeToFile(tree, merkleFile);
-		}
+		System.out.println("Monitor saving state");
+		log.setLogFile(logFile);
+		log.writeToFile();
+		SerialMerkleUtils.writeToFile(tree, merkleFile);
 	}
 	
 	/**

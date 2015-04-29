@@ -624,7 +624,7 @@ public class DaemonTest {
     
     @Test
     public void testDaemonNetworkRecovery() throws InterruptedException, IOException {
-    	MerkleDaemon daemon = new MerkleDaemon(false, DAEMONPERIOD);
+    	MerkleDaemon daemon = new MerkleDaemon(true, DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
     	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
@@ -640,6 +640,7 @@ public class DaemonTest {
     	DaemonMessage reply = (DaemonMessage) client.getReply();
     	String logData = (String) reply.data;
     	assertTrue(logData.contains("FCHANGE : " + file1.getAbsolutePath()));
+    	daemon.forceSave();
     	daemon.interrupt();
     	daemon.join();
     	Thread.sleep(TESTSLEEP);

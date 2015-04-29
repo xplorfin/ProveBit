@@ -385,6 +385,13 @@ public class MerkleDaemon extends Thread {
 	}
 	
 	/**
+	 * Force save daemon state
+	 */
+	public void forceSave() {
+		listener.save();
+	}
+	
+	/**
 	 * Changes the refresh period
 	 * @param newPeriod - New refresh period to use
 	 */

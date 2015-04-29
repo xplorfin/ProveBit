@@ -78,16 +78,6 @@ public class FileMerkle extends Merkle {
     	}
     }
     
-    public void removeDir(File file) {
-    	System.out.println("REMOVING " + file.getAbsolutePath());
-    	trackedDirectories.remove(file);
-    }
-    
-    public void removeFile(File file) {
-    	System.out.println("REMOVING " + file.getAbsolutePath());
-    	trackedFiles.remove(file);
-    }
-    
     /**
      * Wrapper that accepts a list of files and removes all from tracking
      * @param fileList - List of files to remove from tracking

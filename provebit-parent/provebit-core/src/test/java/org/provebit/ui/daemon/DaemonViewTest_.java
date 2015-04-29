@@ -3,6 +3,7 @@ package org.provebit.ui.daemon;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -39,6 +40,7 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	private final String hostname = "localhost";
 	private DaemonProtocol clientProtocol;
 	private boolean daemonConnected;
+	private DaemonMessage killDaemon = new DaemonMessage(DaemonMessageType.KILL, null);
 	// test file path
 	private String filePath = System.getProperty("user.dir") + "/src/test/resources/org/provebit/ui/daemon/test.txt";
 	
@@ -58,8 +60,7 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		TabGroup tabGroup = window.getTabGroup("Main");
 		tabGroup.selectTab("Daemon");
 		daemonPane = tabGroup.getSelectedTab();
-		
-		// set up a simple client to get message from log
+
 		clientProtocol = getProtocol();
 		connectToDaemon();
 		
@@ -71,14 +72,17 @@ public class DaemonViewTest_ extends UISpecTestCase {
 				e.printStackTrace();
 			}
 			System.out.println("LAUNCHED");
-			//connectToDaemon();
 		}
-		
-		if (daemonConnected) {
-			daemonClient = new SimpleClient(hostname, port, clientProtocol);
-			daemonStatus = DaemonStatus.ACTIVE;
-		} else {
-			throw new RuntimeException("Cannot connect to local daemon server!");
+	}
+	
+	@After
+	public void tearDown() throws Exception {
+		// Kill the daemon after every launch to ensure a clean daemon
+		// is launched
+		if (daemonClient != null) {
+			daemonClient.sendRequest(killDaemon);
+			daemonConnected = false;
+			Thread.sleep(1500);
 		}
 	}
 	
@@ -104,7 +108,23 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	
 	@Test
 	public void bTestDeleteFile() throws InterruptedException {
+		/**
+		 * Need to add a file first, then try to delete it, tests cannot be
+		 */
+		WindowInterceptor
+		// set up the trigger to invoke the file chooser dialog
+		.init(daemonPane.getButton("Add Files to Monitor").triggerClick())
+		.process(FileChooserHandler.init()
+				.titleEquals("Open")
+				.assertAcceptsFilesAndDirectories()
+				.select(filePath))
+		.run();
+		
 		ListBox listBox = daemonPane.getListBox();
+		assertTrue(listBox.contains(filePath));
+		
+		listBox = daemonPane.getListBox();
+		assertFalse(listBox.isEmpty());
 		listBox.select(filePath);
 		daemonPane.getButton("Remove Selected Files").click();
 		Thread.sleep(500);
@@ -126,7 +146,6 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		DaemonMessage logRequest = new DaemonMessage(DaemonMessageType.GETLOG, null);
 		daemonClient.sendRequest(logRequest);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
-		System.out.println(reply);
 		String[] testStrings = ((String) reply.data).split(" ");
 		assertTrue(Arrays.asList(testStrings).contains("'GETTRACKED'"));
 	}
@@ -150,9 +169,10 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		// TODO check log from log frame after add file
 	}
 	
+	private void createDaemonClient() {
+		daemonClient = new SimpleClient(hostname, port, clientProtocol);
+	}
 	
-	// below are functions from DaemonModel used to connect the server
-	// it doesn't really make sense to create a DaemonModel in this test case
 	private void connectToDaemon() {
 		// Get last known port form well known (application folder config file) location
 		// For now the daemon starts the server on a known port (9999)
@@ -167,6 +187,7 @@ public class DaemonViewTest_ extends UISpecTestCase {
 				System.out.println("Daemon server found on port " + testPort);
 				port = testPort;
 				connected = true;
+				createDaemonClient();
 			}
 			attempts--;
 		}
@@ -186,7 +207,7 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		String separator = System.getProperty("file.separator");
 		String classpath = System.getProperty("java.class.path");
 		String path = System.getProperty("java.home") + separator + "bin" + separator + "java";
-		ProcessBuilder processBuilder =  new ProcessBuilder(path, "-cp", classpath, LaunchDaemon.class.getName());
+		ProcessBuilder processBuilder =  new ProcessBuilder(path, "-cp", classpath, LaunchDaemon.class.getName(), "false");
 		processBuilder.start();
 		waitOnDaemon();
 	}
@@ -195,5 +216,6 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		while(!daemonConnected) {
 			connectToDaemon();
 		}
+		createDaemonClient();
 	}
 }

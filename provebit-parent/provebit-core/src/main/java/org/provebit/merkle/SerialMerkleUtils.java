@@ -53,6 +53,20 @@ public class SerialMerkleUtils {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
 			merkle = (FileMerkle) ois.readObject();
 			ois.close();
+			
+			for (File oldFile : merkle.getTrackedFiles()) {
+				if (!oldFile.exists()){
+					System.err.println("Recovered tree contained file: " + oldFile.getAbsolutePath() + " which no longer exists, removing...");
+					merkle.removeTracking(oldFile);
+				}
+			}
+			
+			for (File oldDir : merkle.getTrackedDirs()) {
+				if (!oldDir.exists() || !oldDir.isDirectory()) {
+					System.err.println("Recovered tree contained directory: " + oldDir.getAbsolutePath() + " which is invalid, removing");
+					merkle.removeTracking(oldDir);
+				}
+			}
 		} catch (IOException | ClassNotFoundException e) {
 			System.err.println("Merkle recovery failed, stack trace follows");
 			e.printStackTrace();

@@ -645,7 +645,6 @@ public class DaemonTest {
     	daemon.join();
     	Thread.sleep(TESTSLEEP);
     	MerkleDaemon recoveredDaemon = new MerkleDaemon(true, DAEMONPERIOD);
-    	Thread.sleep(TESTSLEEP);
     	recoveredDaemon.start();
     	Thread.sleep(TESTSLEEP);
     	DaemonMessage getTrackedFile = new DaemonMessage(DaemonMessageType.ISTRACKED, file1.getAbsolutePath());
@@ -653,6 +652,7 @@ public class DaemonTest {
     	client.sendRequest(getTrackedFile);
     	reply = (DaemonMessage) client.getReply();
     	assertTrue((boolean) reply.data);
+    	Thread.sleep(TESTSLEEP);
     	recoveredDaemon.interrupt();
     	recoveredDaemon.join();
     	

@@ -38,7 +38,9 @@ public class DaemonModel extends Observable {
 		}
 		
 		if (!daemonConnected) {
+			System.exit(0);
 			throw new RuntimeException("Cannot connect to local daemon server!");
+			
 		}
 	}
 	

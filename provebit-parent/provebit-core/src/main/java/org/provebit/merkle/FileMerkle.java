@@ -71,11 +71,21 @@ public class FileMerkle extends Merkle {
      * @param file - file/directory to remove from tracking
      */
     public void removeTracking(File file) {
-    	if (file.isDirectory()) {
+    	if (trackedDirectories.containsKey(file)) {
     		trackedDirectories.remove(file);
-    	} else {
+    	} else if (trackedFiles.contains(file)) {
     		trackedFiles.remove(file);
     	}
+    }
+    
+    public void removeDir(File file) {
+    	System.out.println("REMOVING " + file.getAbsolutePath());
+    	trackedDirectories.remove(file);
+    }
+    
+    public void removeFile(File file) {
+    	System.out.println("REMOVING " + file.getAbsolutePath());
+    	trackedFiles.remove(file);
     }
     
     /**

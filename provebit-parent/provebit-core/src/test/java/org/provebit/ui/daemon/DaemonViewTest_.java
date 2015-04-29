@@ -5,11 +5,9 @@ import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.junit.runners.MethodSorters;
 import org.provebit.daemon.DaemonProtocol;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
@@ -25,11 +23,7 @@ import org.uispec4j.interception.FileChooserHandler;
 import org.uispec4j.interception.MainClassAdapter;
 import org.uispec4j.interception.WindowInterceptor;
 
-// test cases are designed to run in order, so they will clean
-// up their trace in GUI
-// every test case name has a prefix to ensure the running order
 @RunWith(JUnit4.class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DaemonViewTest_ extends UISpecTestCase {
 	private Window window;
 	private Panel daemonPane;
@@ -52,7 +46,7 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		UISpec4J.setWindowInterceptionTimeLimit(10000);
+		UISpec4J.setWindowInterceptionTimeLimit(100000);
 		setAdapter(new MainClassAdapter(RunGUI.class, new String[0]));
 		window = getMainWindow();
 		
@@ -97,13 +91,13 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		}
 	}
 	
-	
 	/**
 	 * invoke and test the file chooser for adding file to daemon
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
 	@Test
-	public void aTestAddFile() throws IOException{
+	public void testAddFile() throws IOException, InterruptedException{
 		WindowInterceptor
 		// set up the trigger to invoke the file chooser dialog
 		.init(daemonPane.getButton("Add Files to Monitor").triggerClick())
@@ -114,13 +108,14 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		.run();
 		
 		ListBox listBox = daemonPane.getListBox();
+		Thread.sleep(500);
 		assertTrue(listBox.contains(filePath));
 	}
 	
 	@Test
-	public void bTestDeleteFile() throws InterruptedException {
+	public void testDeleteFile() throws InterruptedException {
 		/**
-		 * Need to add a file first, then try to delete it, tests cannot be
+		 * Need to add a file first, then try to delete it, tests cannot be dependent
 		 */
 		WindowInterceptor
 		// set up the trigger to invoke the file chooser dialog
@@ -143,7 +138,7 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	}
 	
 	@Test
-	public void cTestLogAfterAdd() {
+	public void testLogAfterAdd() throws InterruptedException {
 		WindowInterceptor
 		// set up the trigger to invoke the file chooser dialog
 		.init(daemonPane.getButton("Add Files to Monitor").triggerClick())
@@ -156,13 +151,23 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		// check message
 		DaemonMessage logRequest = new DaemonMessage(DaemonMessageType.GETLOG, null);
 		daemonClient.sendRequest(logRequest);
+		Thread.sleep(500);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		String[] testStrings = ((String) reply.data).split(" ");
-		assertTrue(Arrays.asList(testStrings).contains("'GETTRACKED'"));
+		assertTrue(Arrays.asList(testStrings).contains("'ADDFILES'"));
 	}
 	
 	@Test
-	public void dTestLogAfterDelete() {
+	public void testLogAfterDelete() throws InterruptedException {
+		WindowInterceptor
+		// set up the trigger to invoke the file chooser dialog
+		.init(daemonPane.getButton("Add Files to Monitor").triggerClick())
+		.process(FileChooserHandler.init()
+				.titleEquals("Open")
+				.assertAcceptsFilesAndDirectories()
+				.select(filePath))
+		.run();
+		
 		ListBox listBox = daemonPane.getListBox();
 		listBox.select(filePath);
 		daemonPane.getButton("Remove Selected Files").click();
@@ -170,15 +175,12 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		// check message
 		DaemonMessage logRequest = new DaemonMessage(DaemonMessageType.GETLOG, null);
 		daemonClient.sendRequest(logRequest);
+		Thread.sleep(500);
 		DaemonMessage reply = (DaemonMessage) daemonClient.getReply();
 		String[] testStrings = ((String) reply.data).split(" ");
-		assertTrue(Arrays.asList(testStrings).contains("'GETLOG'"));
+		assertTrue(Arrays.asList(testStrings).contains("'REMOVEFILES'"));
 	}
 	
-	@Test
-	public void eTestLogFrameAfterAdd() {
-		// TODO check log from log frame after add file
-	}
 	
 	private void createDaemonClient() {
 		daemonClient = new SimpleClient(hostname, port, clientProtocol);

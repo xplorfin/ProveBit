@@ -62,6 +62,17 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		daemonPane = tabGroup.getSelectedTab();
 
 		clientProtocol = getProtocol();
+		/**
+		 * Since the GUI launches the actual application, the actual application
+		 * launches a standard application daemon (that has recovery mode enabled)
+		 * 
+		 * Thus we need to kill that daemon, and launch our own daemon from this test case
+		 * This is an extremely silly solution, and a better solution should be researched
+		 * the future
+		 */
+		connectToDaemon();
+		daemonClient.sendRequest(killDaemon);
+		Thread.sleep(1500);
 		connectToDaemon();
 		
 		if (!daemonConnected) { // No daemon running, start a new one

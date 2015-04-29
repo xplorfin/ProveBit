@@ -10,7 +10,7 @@ public class LaunchDaemon {
 			System.out.println("Missing argument");
 			return;
 		}
-		boolean recover = (args[0].equals("true")) ? true : false;
+		boolean recover = Boolean.parseBoolean(args[0]);
 		new MerkleDaemon(recover, defaultPeriod).start();
 	}
 }

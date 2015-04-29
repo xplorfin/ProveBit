@@ -96,10 +96,12 @@ public class FileMonitor implements FileAlterationListener {
 	 * Force save all state to disk
 	 */
 	public void save() {
-		System.out.println("Monitor saving state");
-		log.setLogFile(logFile);
-		log.writeToFile();
-		SerialMerkleUtils.writeToFile(tree, merkleFile);
+		if (allowRecovery) {
+			System.out.println("Monitor saving state");
+			log.setLogFile(logFile);
+			log.writeToFile();
+			SerialMerkleUtils.writeToFile(tree, merkleFile);
+		}
 	}
 	
 	/**

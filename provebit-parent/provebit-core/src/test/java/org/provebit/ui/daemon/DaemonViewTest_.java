@@ -29,7 +29,7 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	private Panel daemonPane;
 	private DaemonStatus daemonStatus;
 	private enum DaemonStatus{ACTIVE, SUSPENDED, TRACKING};
-	private SimpleClient daemonClient;
+	private SimpleClient daemonClient = null;
 	private int port;
 	private final String hostname = "localhost";
 	private DaemonProtocol clientProtocol;

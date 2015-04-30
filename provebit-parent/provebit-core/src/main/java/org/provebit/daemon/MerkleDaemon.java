@@ -16,14 +16,15 @@ import org.provebit.merkle.FileMerkle;
 import org.provebit.merkle.HashType;
 import org.provebit.merkle.Merkle;
 import org.provebit.utils.Log;
+import org.provebit.utils.ServerUtils;
 import org.simplesockets.server.SimpleServer;
 
 public class MerkleDaemon extends Thread {
 	private enum DaemonStatus {ACTIVE, SUSPENDED};
 	
 	// TODO: Decide on port connection implementation
-	//private int maxPort = 65535, minPort = 1024;
-	private static final int TEMPORARYPORT = 9999;
+	private int maxPort = 65535, minPort = 1024;
+	//private static final int TEMPORARYPORT = 9999;
 	private int period;
 	private List<FileAlterationObserver> observers;
 	private FileMonitor listener;
@@ -45,9 +46,9 @@ public class MerkleDaemon extends Thread {
 		this.mTree = mTree;
 		setDaemon(false);
 		setName("MerkleDaemon");
-		//int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1)); // Should this be random or static?
+		int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1)); // Should this be random or static?
 		DaemonProtocol protocol = setupProtocol();
-		server = new SimpleServer(TEMPORARYPORT, protocol);
+		server = new SimpleServer(serverPort, protocol);
 		state = DaemonStatus.SUSPENDED;
 	}
 	
@@ -64,9 +65,9 @@ public class MerkleDaemon extends Thread {
 		this.period = period;
 		setDaemon(false);
 		setName("MerkleDaemon");
-		//int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1)); // Should this be random or static?
+		int serverPort = minPort + (int)(Math.random() * ((maxPort - minPort) + 1)); // Should this be random or static?
 		DaemonProtocol protocol = setupProtocol();
-		server = new SimpleServer(TEMPORARYPORT, protocol);
+		server = new SimpleServer(serverPort, protocol);
 		state = DaemonStatus.SUSPENDED;
 	}
 	
@@ -163,7 +164,7 @@ public class MerkleDaemon extends Thread {
 	 */
 	private void reset() {
 		observers = new ArrayList<FileAlterationObserver>();
-		listener = new FileMonitor(mTree);
+		listener.reset();
 		this.mTree = new FileMerkle(HashType.SHA256);
 		state = DaemonStatus.SUSPENDED;
 	}
@@ -220,6 +221,7 @@ public class MerkleDaemon extends Thread {
 		launchObservers();
 		
 		server.startServer();
+		ServerUtils.writePort(server.getPort());
 		
 		monitorDirectory();
 	}
@@ -377,9 +379,12 @@ public class MerkleDaemon extends Thread {
 	}
 	
 	/**
-	 * Get the port that the internal SimpleSockets Server is runnign on
+	 * Get the port that the internal SimpleSockets Server is running on
 	 * @return - port currently bound by server
+	 * 
+	 * DEPRECATED - User ServerUtils.getPort() to retrieve currenet port
 	 */
+	@Deprecated
 	public int getPort() {
 		return server.getPort();
 	}

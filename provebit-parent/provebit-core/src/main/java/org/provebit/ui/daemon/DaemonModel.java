@@ -12,6 +12,7 @@ import org.provebit.daemon.DaemonProtocol;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
 import org.provebit.ui.daemon.DaemonController.DaemonNotification;
+import org.provebit.utils.ServerUtils;
 import org.simplesockets.client.SimpleClient;
 
 public class DaemonModel extends Observable {
@@ -86,7 +87,7 @@ public class DaemonModel extends Observable {
 		// Get last known port form well known (application folder config file) location
 		// For now the daemon starts the server on a known port (9999)
 		/** @TODO Remove hardcoded port */
-		int testPort = 9999, attempts = 10;
+		int testPort = ServerUtils.getPort(), attempts = 10;
 		SimpleClient heartbeat = new SimpleClient(hostname, testPort, clientProtocol);
 		boolean connected = false;
 		while (!connected && attempts > 0) {

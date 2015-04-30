@@ -21,6 +21,7 @@ import org.provebit.daemon.FileMonitor.MonitorEvent;
 import org.provebit.merkle.FileMerkle;
 import org.provebit.merkle.HashType;
 import org.provebit.utils.Log;
+import org.provebit.utils.ServerUtils;
 import org.provebit.utils.Log.LogEntry;
 import org.simplesockets.client.SimpleClient;
 
@@ -355,7 +356,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	DaemonMessage heartbeat = new DaemonMessage(DaemonMessageType.HEARTBEAT, null);
     	client.sendRequest(heartbeat);
     	Thread.sleep(TESTSLEEP);
@@ -370,7 +371,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	DaemonMessage request = new DaemonMessage(DaemonMessageType.START, null);
     	client.sendRequest(request);
     	Thread.sleep(TESTSLEEP);
@@ -390,7 +391,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	DaemonMessage heartbeat = new DaemonMessage(DaemonMessageType.HEARTBEAT, null);
     	client.sendRequest(heartbeat);
     	Thread.sleep(TESTSLEEP);
@@ -408,7 +409,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	Map<String, Boolean> fileList = new HashMap<String, Boolean>();
     	fileList.put(daemonDir.getAbsolutePath(), false);
     	DaemonMessage request = new DaemonMessage(DaemonMessageType.ADDFILES, fileList);
@@ -430,7 +431,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
     	fileMap.put(file1.getAbsolutePath(), false);
     	DaemonMessage request = new DaemonMessage(DaemonMessageType.ADDFILES, fileMap);
@@ -463,7 +464,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
     	fileMap.put(daemonDir.getAbsolutePath(), true);
     	DaemonMessage addFilesRequest = new DaemonMessage(DaemonMessageType.ADDFILES, fileMap);
@@ -492,7 +493,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	Map<String,Boolean> addFileMap = new HashMap<String, Boolean>();
     	addFileMap.put(daemonDir.getAbsolutePath(), true);
     	DaemonMessage addFileRequest = new DaemonMessage(DaemonMessageType.ADDFILES, addFileMap);
@@ -523,7 +524,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	Map<String, Boolean> fileList = new HashMap<String, Boolean>();
     	fileList.put(file1.getAbsolutePath(), false);
     	fileList.put(file2.getAbsolutePath(), false);
@@ -556,7 +557,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
     	fileMap.put(file1.getAbsolutePath(), true);
     	DaemonMessage addFileRequest = new DaemonMessage(DaemonMessageType.ADDFILES, fileMap);
@@ -578,7 +579,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	DaemonMessage getStateRequest = new DaemonMessage(DaemonMessageType.GETSTATE, null);
     	client.sendRequest(getStateRequest);
     	DaemonMessage reply = (DaemonMessage) client.getReply();
@@ -598,7 +599,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	Map<String, Boolean> fileMap = new HashMap<String, Boolean>();
     	fileMap.put(file1.getAbsolutePath(), true);
     	DaemonMessage addFileRequest = new DaemonMessage(DaemonMessageType.ADDFILES, fileMap);
@@ -627,7 +628,7 @@ public class DaemonTest {
     	MerkleDaemon daemon = new MerkleDaemon(true, DAEMONPERIOD);
     	daemon.start();
     	Thread.sleep(TESTSLEEP);
-    	SimpleClient client = new SimpleClient(hostname, daemon.getPort(), clientProtocol);
+    	SimpleClient client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	Map<String, Boolean> fileList = new HashMap<String, Boolean>();
     	fileList.put(daemonDir.getAbsolutePath(), false);
     	DaemonMessage request = new DaemonMessage(DaemonMessageType.ADDFILES, fileList);
@@ -648,7 +649,7 @@ public class DaemonTest {
     	recoveredDaemon.start();
     	Thread.sleep(TESTSLEEP);
     	DaemonMessage getTrackedFile = new DaemonMessage(DaemonMessageType.ISTRACKED, file1.getAbsolutePath());
-    	client = new SimpleClient(hostname, recoveredDaemon.getPort(), clientProtocol);
+    	client = new SimpleClient(hostname, ServerUtils.getPort(), clientProtocol);
     	client.sendRequest(getTrackedFile);
     	reply = (DaemonMessage) client.getReply();
     	assertTrue((boolean) reply.data);

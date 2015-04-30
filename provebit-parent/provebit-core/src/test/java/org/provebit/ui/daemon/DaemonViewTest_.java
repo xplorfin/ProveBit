@@ -12,6 +12,7 @@ import org.provebit.daemon.DaemonProtocol;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
 import org.provebit.ui.RunGUI;
+import org.provebit.utils.ServerUtils;
 import org.simplesockets.client.SimpleClient;
 import org.uispec4j.ListBox;
 import org.uispec4j.Panel;
@@ -33,8 +34,9 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	private int port;
 	private final String hostname = "localhost";
 	private DaemonProtocol clientProtocol;
-	private boolean daemonConnected;
+	private boolean daemonConnected = false;
 	private DaemonMessage killDaemon = new DaemonMessage(DaemonMessageType.KILL, null);
+	private DaemonMessage resetDaemon = new DaemonMessage(DaemonMessageType.RESET, null);
 	// test file path
 	private String filePath = System.getProperty("user.dir") + "/src/test/resources/org/provebit/ui/daemon/test.txt";
 	
@@ -45,6 +47,12 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		clientProtocol = getProtocol();
+		if (daemonConnected) {
+			tearDown();
+			launchTestDaemon();
+		}
+		
 		super.setUp();
 		UISpec4J.setWindowInterceptionTimeLimit(100000);
 		setAdapter(new MainClassAdapter(RunGUI.class, new String[0]));
@@ -54,30 +62,18 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		TabGroup tabGroup = window.getTabGroup("Main");
 		tabGroup.selectTab("Daemon");
 		daemonPane = tabGroup.getSelectedTab();
-
-		clientProtocol = getProtocol();
-		/**
-		 * Since the GUI launches the actual application, the actual application
-		 * launches a standard application daemon (that has recovery mode enabled)
-		 * 
-		 * Thus we need to kill that daemon, and launch our own daemon from this test case
-		 * This is an extremely silly solution, and a better solution should be researched
-		 * the future
-		 */
-		connectToDaemon();
-		daemonClient.sendRequest(killDaemon);
-		Thread.sleep(1500);
-		connectToDaemon();
 		
-		if (!daemonConnected) { // No daemon running, start a new one
-			try {
-				launchNewDaemon();
-			} catch (IOException | InterruptedException e) {
-				System.out.println("Failed to launch new JVM with daemon");
-				e.printStackTrace();
-			}
-			System.out.println("LAUNCHED");
+		connectToDaemon();
+	}
+	
+	private void launchTestDaemon() throws InterruptedException {		
+		try {
+			launchNewDaemon();
+		} catch (IOException | InterruptedException e) {
+			System.out.println("Failed to launch new JVM with daemon");
+			e.printStackTrace();
 		}
+		System.out.println("LAUNCHED");
 	}
 	
 	@After
@@ -85,6 +81,8 @@ public class DaemonViewTest_ extends UISpecTestCase {
 		// Kill the daemon after every launch to ensure a clean daemon
 		// is launched
 		if (daemonClient != null) {
+			daemonClient.sendRequest(resetDaemon);
+			Thread.sleep(500);
 			daemonClient.sendRequest(killDaemon);
 			daemonConnected = false;
 			Thread.sleep(1500);
@@ -98,6 +96,7 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	 */
 	@Test
 	public void testAddFile() throws IOException, InterruptedException{
+		connectToDaemon();
 		WindowInterceptor
 		// set up the trigger to invoke the file chooser dialog
 		.init(daemonPane.getButton("Add Files to Monitor").triggerClick())
@@ -187,10 +186,7 @@ public class DaemonViewTest_ extends UISpecTestCase {
 	}
 	
 	private void connectToDaemon() {
-		// Get last known port form well known (application folder config file) location
-		// For now the daemon starts the server on a known port (9999)
-		/** @TODO Remove hardcoded port */
-		int testPort = 9999, attempts = 10;
+		int testPort = ServerUtils.getPort(), attempts = 10;
 		SimpleClient heartbeat = new SimpleClient(hostname, testPort, clientProtocol);
 		boolean connected = false;
 		while (!connected && attempts > 0) {

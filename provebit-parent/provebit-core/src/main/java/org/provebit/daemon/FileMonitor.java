@@ -79,6 +79,19 @@ public class FileMonitor implements FileAlterationListener {
 	}
 	
 	/**
+	 * Reset to default settings
+	 */
+	public void reset() {
+		tree = new FileMerkle(tree.getHashAlgorithm());
+		try {
+			log = new Log(logFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		events = 0;
+	}
+	
+	/**
 	 * If running in recovery mode set up shutdown hook that will dump
 	 * merkle tree and log to the application directory in the event that the
 	 * daemon is closed, allows daemon to recover and pickup where it left off

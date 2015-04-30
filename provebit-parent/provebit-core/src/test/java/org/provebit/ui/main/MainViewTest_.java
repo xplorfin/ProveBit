@@ -1,5 +1,6 @@
 package org.provebit.ui.main;
 
+import org.junit.AfterClass;
 import org.provebit.ui.RunGUI;
 import org.uispec4j.TabGroup;
 import org.uispec4j.Trigger;

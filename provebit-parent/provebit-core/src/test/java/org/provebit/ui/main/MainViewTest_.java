@@ -1,6 +1,15 @@
 package org.provebit.ui.main;
 
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.provebit.daemon.DaemonProtocol;
+import org.provebit.daemon.DaemonProtocol.DaemonMessage;
+import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
 import org.provebit.ui.RunGUI;
+import org.simplesockets.client.SimpleClient;
 import org.uispec4j.TabGroup;
 import org.uispec4j.Trigger;
 import org.uispec4j.UISpec4J;
@@ -10,26 +19,47 @@ import org.uispec4j.interception.MainClassAdapter;
 import org.uispec4j.interception.WindowHandler;
 import org.uispec4j.interception.WindowInterceptor;
 
+@RunWith(JUnit4.class)
 public class MainViewTest_ extends UISpecTestCase {
 	
 	private Window window;
 	private TabGroup tabGroup;
+	
+	private static SimpleClient daemonClient = null;
+	private int port;
+	private final String hostname = "localhost";
+	private static DaemonProtocol clientProtocol;
+	private boolean daemonConnected;
+	private DaemonMessage killDaemon = new DaemonMessage(DaemonMessageType.KILL, null);
+	
+//	@AfterClass
+//	public static void tearDown() {
+//		clientProtocol = getProtocol();
+//		connectToDaemon();
+//		daemonClient.sendRequest(killDaemon);
+//	}
 	
 	/**
 	 * this function call super.setUp() for some initial setup,
 	 * and then set the adaptation between test case and main class
 	 * to intercept the main window of the application
 	 */
+	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		UISpec4J.setWindowInterceptionTimeLimit(10000);
+		UISpec4J.setWindowInterceptionTimeLimit(100000);
 		setAdapter(new MainClassAdapter(RunGUI.class));
 		window = getMainWindow();
+		
+		clientProtocol = getProtocol();
+		connectToDaemon();
+		daemonClient.sendRequest(killDaemon);
 	}
 	
 	/**
 	 * test the menu bar options
 	 */
+	@Test
 	public void testMenuBarContent() {
 		assertTrue(window.getMenuBar().contentEquals(new String[]{"File", "About"}));
 	}
@@ -42,6 +72,7 @@ public class MainViewTest_ extends UISpecTestCase {
 	 * need to close the close this pop-up dialog by return the close
 	 * trigger in .process
 	 */
+	@Test
 	public void testAboutUs() {	
 		WindowInterceptor
 		// set up the trigger to invoke the pop-up dialog
@@ -59,6 +90,7 @@ public class MainViewTest_ extends UISpecTestCase {
 	/**
 	 * test all the tab name in main TabbedPane
 	 */
+	@Test
 	public void testAllTabNameInTabGroup() {
 		// get a new TabGroup for every test case
 		tabGroup = window.getTabGroup("Main");
@@ -69,6 +101,7 @@ public class MainViewTest_ extends UISpecTestCase {
 	/**
 	 * test default tab when the application starts up
 	 */
+	@Test
 	public void testDefaultTabIsGeneral() {
 		tabGroup = window.getTabGroup("Main");
 		// default tab is General
@@ -77,11 +110,38 @@ public class MainViewTest_ extends UISpecTestCase {
 		assertFalse(tabGroup.selectedTabEquals("Wallet"));
 	}
 	
-	/**
-	 * test every panel in TabbedPane is initialized
-	 */
-	public void testTabPanelIsInitilized() {
-		// TODO test panels are initialized
+	private void createDaemonClient() {
+		daemonClient = new SimpleClient(hostname, port, clientProtocol);
+	}
+	
+	private void connectToDaemon() {
+		// Get last known port form well known (application folder config file) location
+		// For now the daemon starts the server on a known port (9999)
+		/** @TODO Remove hardcoded port */
+		int testPort = 9999, attempts = 10;
+		SimpleClient heartbeat = new SimpleClient(hostname, testPort, clientProtocol);
+		boolean connected = false;
+		while (!connected && attempts > 0) {
+			heartbeat.sendRequest(new DaemonMessage(DaemonMessageType.HEARTBEAT, null));
+			DaemonMessage reply = (DaemonMessage) heartbeat.getReply();
+			if (reply != null) {
+				System.out.println("Daemon server found on port " + testPort);
+				port = testPort;
+				connected = true;
+				createDaemonClient();
+			}
+			attempts--;
+		}
+		daemonConnected = connected;
+	}
+	
+	private DaemonProtocol getProtocol() {
+		return new DaemonProtocol() {
+			@Override
+			public DaemonMessage handleMessage(DaemonMessage request) {
+				return request;
+			}
+		};
 	}
 	
 }

@@ -1,5 +1,6 @@
 package org.provebit.ui.general;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,6 +9,7 @@ import org.provebit.daemon.DaemonProtocol;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage;
 import org.provebit.daemon.DaemonProtocol.DaemonMessage.DaemonMessageType;
 import org.provebit.ui.RunGUI;
+import org.provebit.utils.ServerUtils;
 import org.simplesockets.client.SimpleClient;
 import org.uispec4j.Panel;
 import org.uispec4j.TabGroup;
@@ -29,6 +31,7 @@ public class GeneralViewTest_ extends UISpecTestCase {
 	private static DaemonProtocol clientProtocol;
 	private boolean daemonConnected;
 	private DaemonMessage killDaemon = new DaemonMessage(DaemonMessageType.KILL, null);
+	private DaemonMessage resetDaemon = new DaemonMessage(DaemonMessageType.RESET, null);
 	
 	/**
 	 * this function call super.setUp() for some initial setup,
@@ -44,12 +47,24 @@ public class GeneralViewTest_ extends UISpecTestCase {
 		
 		clientProtocol = getProtocol();
 		connectToDaemon();
-		daemonClient.sendRequest(killDaemon);
 		
 		// retrieve general panel from the main window
 		TabGroup tabGroup = window.getTabGroup("Main");
 		tabGroup.selectTab("General");
 		generalPane = tabGroup.getSelectedTab();
+	}
+	
+	@After
+	public void tearDown() throws Exception {
+		// Kill the daemon after every launch to ensure a clean daemon
+		// is launched
+		if (daemonClient != null) {
+			daemonClient.sendRequest(resetDaemon);
+			Thread.sleep(500);
+			daemonClient.sendRequest(killDaemon);
+			daemonConnected = false;
+			Thread.sleep(1500);
+		}
 	}
 	
 	/**
@@ -81,10 +96,7 @@ public class GeneralViewTest_ extends UISpecTestCase {
 	}
 	
 	private void connectToDaemon() {
-		// Get last known port form well known (application folder config file) location
-		// For now the daemon starts the server on a known port (9999)
-		/** @TODO Remove hardcoded port */
-		int testPort = 9999, attempts = 10;
+		int testPort = ServerUtils.getPort(), attempts = 10;
 		SimpleClient heartbeat = new SimpleClient(hostname, testPort, clientProtocol);
 		boolean connected = false;
 		while (!connected && attempts > 0) {
@@ -110,3 +122,5 @@ public class GeneralViewTest_ extends UISpecTestCase {
 		};
 	}
 }
+	
+	

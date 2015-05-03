@@ -30,13 +30,15 @@ public class ServerUtils {
 	
 	/**
 	 * Returns last known port bound by daemon server
-	 * @return port of daemon server or -1 if file read fails
+	 * @return port of daemon server or default value if file doens't exist
 	 */
 	public static int getPort() {
-		int port = -1;
+		int port = 1024;
 		getLock();
 		try {
-			port = Integer.parseInt(FileUtils.readFileToString(portFile));
+			if (portFile.exists()) {
+				port = Integer.parseInt(FileUtils.readFileToString(portFile));
+			}
 		} catch (NumberFormatException | IOException e) {
 			System.err.println("Failed to read port from file");
 			e.printStackTrace();

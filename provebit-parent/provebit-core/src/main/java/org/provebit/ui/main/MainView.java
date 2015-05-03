@@ -38,6 +38,10 @@ public class MainView extends JFrame implements Observer {
 	private JMenuItem menuItemAboutUs;
 	private List<JMenuItem> menuItems;
 	
+	/**
+	 * Main view model
+	 * @param model 
+	 */
 	public MainView(MainModel model) {
 		this.model = model;
 		menuItems = new ArrayList<JMenuItem>();
@@ -57,6 +61,9 @@ public class MainView extends JFrame implements Observer {
         setVisible(true);
 	}
 	
+	/**
+	 * Adds the top menu bar to the main view
+	 */
 	private void addMenuBar() {
 		menuBar = new JMenuBar();
 		
@@ -78,11 +85,17 @@ public class MainView extends JFrame implements Observer {
 		setJMenuBar(menuBar);
 	}
 	
+	/**
+	 * Adds status label, currently placeholder
+	 */
 	public void addStatus() {
 		status = new JLabel("Status: you have 1 file(s) being proved");
 		add(status, "wrap");
 	}
 	
+	/**
+	 * Adds the tab pane and instantiates all the tab MVC's
+	 */
 	private void addTabs() {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setName("Main");

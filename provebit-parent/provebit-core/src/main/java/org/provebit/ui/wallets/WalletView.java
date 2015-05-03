@@ -16,13 +16,10 @@ public class WalletView extends JPanel implements Observer {
 	private WalletController controller;
 	private ArrayList<JPanel> walletsViews;
 	
-	private WithdrawFrame withdraw;
-	
 	/**
 	 * WalletView constructor
 	 * 
 	 * @param model
-	 * TODO: integrate model and controller interaction
 	 */
 	public WalletView(WalletModel model) {
 		this.model = model;
@@ -47,14 +44,6 @@ public class WalletView extends JPanel implements Observer {
 	
 	@Override
 	public void update(Observable o, Object arg) {
-		if(arg instanceof String){
-			if (arg.equals("OpenSend")){
-				withdraw.setVisible(true);
-				withdraw.setLocationRelativeTo(this);
-			} else if(arg.equals("CloseWithdraw")){
-				withdraw.setVisible(false);
-			}
-		}
 		
 	}
 

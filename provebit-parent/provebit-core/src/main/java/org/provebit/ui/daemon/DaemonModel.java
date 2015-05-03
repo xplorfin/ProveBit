@@ -84,9 +84,6 @@ public class DaemonModel extends Observable {
 	 * @return true if connection succeeds, false o/w
 	 */
 	private void connectToDaemon() {
-		// Get last known port form well known (application folder config file) location
-		// For now the daemon starts the server on a known port (9999)
-		/** @TODO Remove hardcoded port */
 		int testPort = ServerUtils.getPort(), attempts = 10;
 		SimpleClient heartbeat = new SimpleClient(hostname, testPort, clientProtocol);
 		boolean connected = false;

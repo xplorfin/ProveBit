@@ -86,16 +86,6 @@ public class DaemonController implements ActionListener, ListSelectionListener {
 			}
 		}
 		
-		// TODO refactor
-		// when I debug the the Gui testing, I found that if an event only has a single
-		// file, getSelectedFiles() will return null, and this fails the Gui test case
-		// I'm not sure why it works when we actually use Gui though
-		//
-		// below fixed the problem of test case not adding file to deamon
-		// however, the log (view) is not being updated during the test. When you actually 
-		// run the program and check the log, the refresh button doesn't work either. 
-		// but, if you manually add another file, the log gets refreshed, and you can 
-		// actually see the log made by the previous test case.
 		if (e.getSource() instanceof JFileChooser) {
 			boolean recursive = false;
 			JFileChooser fileSelector = (JFileChooser) e.getSource();

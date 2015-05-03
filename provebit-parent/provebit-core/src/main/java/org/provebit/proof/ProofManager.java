@@ -46,6 +46,7 @@ public enum ProofManager implements WalletEventListener {
 			}
 		} else {
 			state = new ProofManagerState();
+			log.info("New proof tracker");
 		}
 
 		// auto save on shutdown !
@@ -80,6 +81,7 @@ public enum ProofManager implements WalletEventListener {
 		ProofInProgress pp = new ProofInProgress(file, tx.getHash(), fileHash);
 		state.proofs.add(pp);
 		state.lookup.put(tx, pp);
+		log.info("Tracking proof TX {} for file {}", tx.getHashAsString(), file.getAbsolutePath());
 	}
 	
 	public synchronized void completeProof(Transaction tx, ProofInProgress proof) {
@@ -90,7 +92,7 @@ public enum ProofManager implements WalletEventListener {
 		Map<Sha256Hash, Integer> blocksin = tx.getAppearsInHashes();
 		
 		if (blocksin.size() == 0) {
-			log.warn("TX %s is in no blocks, but is should be.\n", Hex.encodeHexString(txid));
+			log.warn("TX {} is in no blocks, but is should be.\n", Hex.encodeHexString(txid));
 			return;
 		}
 		
@@ -116,7 +118,7 @@ public enum ProofManager implements WalletEventListener {
 		byte[] path = tms.SerializedPathUpMerkle(txid, optimalBlockHash.getBytes());
 		
 		if (path == null) {
-			log.error("requested path failure %s %s\n", 
+			log.error("requested path failure {} {}\n", 
 					Hex.encodeHexString(txid), optimalBlockHash.toString());
 			return;
 		}
@@ -128,6 +130,9 @@ public enum ProofManager implements WalletEventListener {
 		completeProof.writeProofToFile(proof.fileToProve.getAbsolutePath() + ".dproof");
 		
 		state.lookup.remove(tx);
+		state.proofs.remove(proof);
+		
+		log.info("Proof is complete for file {}", proof.fileToProve.getAbsolutePath());
 	}
 	
 	/**
@@ -139,15 +144,19 @@ public enum ProofManager implements WalletEventListener {
 		if (confirmations < 1) {
 			return;
 		}
+		
+		log.info("Trying to look up confirmed TX: {}", tx.getHashAsString());
+		
 		ProofInProgress proof = state.lookup.get(tx);
 		if (proof == null) {
 			return;
 		}
 		
+		log.info("Trying to complete proof for TX: {}", tx.getHashAsString());
 		completeProof(tx, proof);
 	}
 
-	private class ProofManagerState implements Serializable {
+	private static class ProofManagerState implements Serializable {
 
 		/**
 		 * 
@@ -155,13 +164,23 @@ public enum ProofManager implements WalletEventListener {
 		private static final long serialVersionUID = -2507079320356349621L;
 
 		private List<ProofInProgress> proofs;
-		transient private Map<Transaction, ProofInProgress> lookup = new HashMap<Transaction, ProofInProgress>();
-
+		transient private Map<Transaction, ProofInProgress> lookup;
+		transient private ApplicationWallet appwallet;
+		transient private Logger log;
+		
 		public ProofManagerState() {
 			proofs = new ArrayList<ProofInProgress>();
+			prepareTransient();
+		}
+		
+		private void prepareTransient() {
+			lookup = new HashMap<Transaction, ProofInProgress>();
+		    appwallet = ApplicationWallet.INSTANCE;
+			log = LoggerFactory.getLogger(CompleteHeaderStore.class);
 		}
 
 		private void initialize() {
+			prepareTransient();
 			Wallet w = appwallet.getWallet();
 			for (ProofInProgress proof : proofs) {
 				Transaction reftx = w.getTransaction(proof.txid);
@@ -171,6 +190,7 @@ public enum ProofManager implements WalletEventListener {
 					log.error("File " + proof.fileToProve.getAbsolutePath() + " to be proved not found.");
 				} else  {
 					lookup.put(reftx, proof);
+					log.info("Tracking progress of proof for {} : {}", reftx.getHashAsString(), proof.fileToProve.getAbsolutePath());
 				}
 			}
 		}

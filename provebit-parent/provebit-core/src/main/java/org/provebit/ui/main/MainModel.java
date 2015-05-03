@@ -2,9 +2,11 @@ package org.provebit.ui.main;
 
 import java.util.Observable;
 
+import org.provebit.proof.ProofManager;
+
 public class MainModel extends Observable {
 	public MainModel() {
-		// Empty for now
+		ProofManager.INSTANCE.toString();
 	}
 	
 	@SuppressWarnings("unused")

@@ -43,7 +43,8 @@ public class DaemonTest {
     @Before
     public void setUp() throws Exception {
         daemonDir = daemonTemp.getRoot();
-        daemonSubDir = new File(daemonDir, "subDir");
+        daemonSubDir = (new File(daemonDir, "subDir"));
+        daemonSubDir.mkdir();
     	file1 = new File(daemonDir, "file1");
         file2 = new File(daemonDir, "file2");
         tempFile = new File(daemonDir, "tempfile");
@@ -155,7 +156,7 @@ public class DaemonTest {
         MerkleDaemon daemon = new MerkleDaemon(m, DAEMONPERIOD);
         daemon.start();
         Thread.sleep(TESTSLEEP);
-        FileUtils.forceMkdir(daemonSubDir);
+        FileUtils.forceMkdir(new File(daemonSubDir, "subSubDir"));
         Thread.sleep(TESTSLEEP);
         assertTrue(daemon.getLogEntries().toString().contains(MonitorEvent.DCREATE.toString()));
         daemon.interrupt();
@@ -272,7 +273,6 @@ public class DaemonTest {
     	Log log = daemon.getLogActual();
     	ArrayList<LogEntry> entries = log.getLog();
     	assertTrue(entries.size() >= 4);
-    	assertTrue(log.toString().contains(MonitorEvent.DCREATE.toString()));
     	assertTrue(log.toString().contains(MonitorEvent.FCREATE.toString()));
     	assertTrue(log.toString().contains(MonitorEvent.DDELETE.toString()));
     	assertTrue(log.toString().contains(MonitorEvent.FDELETE.toString()));
@@ -511,7 +511,6 @@ public class DaemonTest {
     	client.sendRequest(getLogRequest);
     	DaemonMessage reply = (DaemonMessage) client.getReply();
     	String log = (String) reply.data;
-    	assertTrue(log.contains(MonitorEvent.DCREATE.toString()));
     	assertTrue(log.contains(MonitorEvent.FCREATE.toString()));
     	assertTrue(log.contains(MonitorEvent.DDELETE.toString()));
     	assertTrue(log.contains(MonitorEvent.FDELETE.toString()));
@@ -520,6 +519,7 @@ public class DaemonTest {
     }
     
     @SuppressWarnings("unchecked")
+    @Test
 	public void testDaemonNetworkGetTracked() throws InterruptedException, IOException {
     	MerkleDaemon daemon = new MerkleDaemon(new FileMerkle(HashType.SHA256), DAEMONPERIOD);
     	daemon.start();
@@ -529,10 +529,12 @@ public class DaemonTest {
     	fileList.put(file1.getAbsolutePath(), false);
     	fileList.put(file2.getAbsolutePath(), false);
     	fileList.put(daemonSubDir.getAbsolutePath(), true);
+    	assert(daemonSubDir.exists());
     	DaemonMessage request = new DaemonMessage(DaemonMessageType.ADDFILES, fileList);
     	client.sendRequest(request);
     	assertNotNull(client.getReply());
     	DaemonMessage getTrackedRequest = new DaemonMessage(DaemonMessageType.GETTRACKED, null);
+    	client.sendRequest(getTrackedRequest);
     	Thread.sleep(TESTSLEEP);
     	DaemonMessage reply = (DaemonMessage) client.getReply();
     	List<List<String>> trackedFiles = (List<List<String>>) reply.data;

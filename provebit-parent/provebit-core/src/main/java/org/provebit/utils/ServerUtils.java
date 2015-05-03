@@ -50,7 +50,7 @@ public class ServerUtils {
 		return port;
 	}
 	
-	private static void getLock() {
+	private synchronized static void getLock() {
 		try {
 			channel = new RandomAccessFile(portFile, "rw").getChannel();
 			lock = channel.lock();
@@ -60,7 +60,7 @@ public class ServerUtils {
 		}
 	}
 	
-	private static void releaseLock() {
+	private synchronized static void releaseLock() {
 		try {
 			lock.release();
 			channel.close();

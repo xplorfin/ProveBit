@@ -11,6 +11,11 @@ import java.util.List;
 
 public class MerkleStepSerializer {
     
+	/**
+	 * Static function that serializes a list of MerklePathSteps
+	 * @param path
+	 * @return
+	 */
     public static byte[] serialize(List<MerklePathStep> path){
         int list_size = path.size()*33;
         byte[] output = new byte[list_size];        

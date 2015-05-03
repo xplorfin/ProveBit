@@ -16,7 +16,6 @@ import org.apache.commons.codec.binary.Hex;
  * @organization ProveBit
  * @version 0.1
  * 
- * TODO:[DONE] Add method to flip the endian-ness of the hashes (to conform to Bitcoin)
  * TODO: Add saving/loading trees from files
  * TODO: Figure out fancy indexing scheme for last two levels so tree doesn't have
  *        to be allocated as if it were complete

@@ -10,6 +10,11 @@ public class MerklePathStep {
 	private boolean onLeft;
 	private byte[] hash;
 	
+	/**
+	 * Parameterized constructor, sets paramter values to class values
+	 * @param onLeft
+	 * @param fullHash
+	 */
 	public MerklePathStep(boolean onLeft, byte[] fullHash){
 		this.onLeft = onLeft;
 		this.hash = fullHash;

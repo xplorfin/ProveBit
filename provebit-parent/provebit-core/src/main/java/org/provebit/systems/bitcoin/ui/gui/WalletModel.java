@@ -30,18 +30,35 @@ public class WalletModel extends Observable {
 	private final static ApplicationWallet appwallet = ApplicationWallet.INSTANCE;
 	//TODO: Find a good location for this.
 	private final String PROOF_DIRECTORY = "src/main/resources/org/provebit/proofs/";
+	private Coin lastBalance = null;
+	private Address lastAddress = null;
 	
+	/**
+	 * Default constructor: instantiates the application wallet with the controller
+	 */
 	public WalletModel() {
 		appwallet.addEventListener(new WalletEventHandler());
 	}
+
 	
-	private Coin lastBalance = null;
-	
+	/**
+	 * Wrapper function to send coins using the application wallet
+	 * @param amount
+	 * @param destAddress
+	 * @throws AddressFormatException
+	 * @throws InsufficientMoneyException
+	 */
 	public void simpleSendCoins(Coin amount, String destAddress)
 			throws AddressFormatException, InsufficientMoneyException {
 		appwallet.simpleSendCoins(amount, destAddress);
 	}
 	
+	/**
+	 * Wrapper function to put a hash into a transaction and send the transaction
+	 * @param hash
+	 * @return
+	 * @throws InsufficientMoneyException
+	 */
 	public Transaction proofTX(byte[] hash) throws InsufficientMoneyException {
 		return appwallet.proofTX(hash);
 	}
@@ -98,12 +115,15 @@ public class WalletModel extends Observable {
 		return appwallet.getBalance();
 	}
 	
-	private Address lastAddress = null;
-	
 	public Address getReceivingAddress() {
 		return appwallet.getReceivingAddress();
 	}
 	
+	/**
+	 * Small class to handle Wallet events
+	 * @author noahmalmed
+	 *
+	 */
 	private class WalletEventHandler implements WalletEventListener {
 
 		@Override

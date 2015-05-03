@@ -13,6 +13,11 @@ import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.provebit.systems.bitcoin.BitcoinDirectory;
 
+/**
+ * Singleton class to handle retrieving and storing the block header chain
+ * @author Steve Halm
+ *
+ */
 public enum BlockchainManager {
 	INSTANCE;
 	
@@ -65,7 +70,10 @@ public enum BlockchainManager {
 		return chain;
 	}
 	
-	//New stuff:
+	/**
+	 * Function that returns a single peer to download from
+	 * @return
+	 */
 	public Peer getPeer(){
 		return peers.getDownloadPeer();
 	}

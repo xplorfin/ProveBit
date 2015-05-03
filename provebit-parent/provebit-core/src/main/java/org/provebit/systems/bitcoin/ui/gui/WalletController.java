@@ -8,6 +8,11 @@ import javax.swing.JFileChooser;
 
 import org.provebit.proof.Proof;
 
+/**
+ * Controller class that controls all functionality related to the Wallet
+ * @author noahmalmed
+ *
+ */
 public class WalletController implements ActionListener {
 
 	WalletModel model;
@@ -35,6 +40,8 @@ public class WalletController implements ActionListener {
 			default:
 				break;
 		}
+		
+		// Opens the file chooser for user to select a file to prove
 		if(e.getSource() instanceof JFileChooser){
 			JFileChooser fileSelector = (JFileChooser) e.getSource();
 			File fileToHash = fileSelector.getSelectedFile();

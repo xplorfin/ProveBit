@@ -40,8 +40,11 @@ public class ServerUtils {
 				port = Integer.parseInt(FileUtils.readFileToString(portFile));
 			}
 		} catch (NumberFormatException | IOException e) {
-			System.err.println("Failed to read port from file");
-			e.printStackTrace();
+			if (!(e instanceof NumberFormatException)) {
+				System.err.println("Failed to read port from file");
+				e.printStackTrace();
+			}
+			// Ignore, means file was empty when checked
 		}
 		releaseLock();
 		return port;

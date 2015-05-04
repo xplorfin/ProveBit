@@ -9,6 +9,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.Sha256Hash;
+import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.Wallet;
 import org.bitcoinj.core.WalletEventListener;
@@ -31,6 +32,7 @@ public enum ProofManager implements WalletEventListener {
 	private File loc;
 	private final String FILENAME = "proofstate.bin";
 	private ApplicationWallet appwallet = ApplicationWallet.INSTANCE;
+	private List<ProofManagerEventHandler> eventh = new ArrayList<ProofManagerEventHandler>();
 
 	private ProofManager() {
 		loc = new File(ApplicationDirectory.INSTANCE.getRoot(), FILENAME);
@@ -82,6 +84,8 @@ public enum ProofManager implements WalletEventListener {
 		state.proofs.add(pp);
 		state.lookup.put(tx, pp);
 		log.info("Tracking proof TX {} for file {}", tx.getHashAsString(), file.getAbsolutePath());
+		saveState();
+		updated();
 	}
 	
 	public synchronized void completeProof(Transaction tx, ProofInProgress proof) {
@@ -106,6 +110,7 @@ public enum ProofManager implements WalletEventListener {
 			} catch (BlockStoreException e1) {
 				log.error("Block store problem");
 				e1.printStackTrace();
+				return;
 			}
 		}
 		if (optimalBlockHash == null) {
@@ -113,6 +118,13 @@ public enum ProofManager implements WalletEventListener {
 			optimalBlockHash = blocksin.keySet().iterator().next();
 		}
 		
+		StoredBlock optblock = null;
+		try {
+			optblock = store.get(optimalBlockHash);
+		} catch (BlockStoreException e1) {
+			e1.printStackTrace();
+			return;
+		}
 		
 		TransactionMerkleSerializer tms = new TransactionMerkleSerializer();
 		byte[] path = tms.SerializedPathUpMerkle(txid, optimalBlockHash.getBytes());
@@ -123,16 +135,17 @@ public enum ProofManager implements WalletEventListener {
 			return;
 		}
 		
-		Proof completeProof = new Proof(proof.fileToProve.getName(), proof.time, tx.getUpdateTime(),
+		Proof completeProof = new Proof(proof.fileToProve.getName(), proof.time, optblock.getHeader().getTime(),
 				path, txid, proof.fileHash, optimalBlockHash.getBytes(), proof.fileHash);
 		
 		
 		completeProof.writeProofToFile(proof.fileToProve.getAbsolutePath() + ".dproof");
 		
 		state.lookup.remove(tx);
-		state.proofs.remove(proof);
-		
+		proof.isDone = true;
+		saveState();
 		log.info("Proof is complete for file {}", proof.fileToProve.getAbsolutePath());
+		updated();
 	}
 	
 	/**
@@ -149,6 +162,10 @@ public enum ProofManager implements WalletEventListener {
 		
 		ProofInProgress proof = state.lookup.get(tx);
 		if (proof == null) {
+			return;
+		}
+		
+		if (proof.isDone) {
 			return;
 		}
 		
@@ -197,6 +214,28 @@ public enum ProofManager implements WalletEventListener {
 
 	}
 
+	private void updated() {
+		for (ProofManagerEventHandler e : eventh) {
+			e.updated();
+		}
+	}
+	
+	public class ProofManagerEventHandler extends Observable {
+		
+		public ProofManagerEventHandler() {
+			eventh.add(this);
+		}
+		
+		public List<ProofInProgress> getProofs() {
+			return new ArrayList<ProofInProgress>(state.proofs);
+		}
+		
+		public void updated() {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	
 	@Override
 	public void onKeysAdded(List<ECKey> keys) {
 		// do nothing

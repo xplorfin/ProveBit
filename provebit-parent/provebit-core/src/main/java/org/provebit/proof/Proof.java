@@ -33,7 +33,7 @@ public class Proof {
 	private Date idealTime;
 	private Date provenTime;
 	private byte[] transactionPath;
-	private byte[] transactionID;
+	private byte[] transactionData;
 	private byte[] merkleRoot;
 	private byte[] blockID;
 	private byte[] fileHash;
@@ -45,18 +45,18 @@ public class Proof {
 	 * @param iTime
 	 * @param pTime
 	 * @param path
-	 * @param transID
+	 * @param transData
 	 * @param root
 	 * @param bID
 	 * @param fileHash
 	 */
-	public Proof(String fileName, Date iTime, Date pTime, byte[] path, byte[] transID, byte[] root, byte[] bID, byte[] fileHash){
+	public Proof(String fileName, Date iTime, Date pTime, byte[] path, byte[] transData, byte[] root, byte[] bID, byte[] fileHash){
 		this.fileName = fileName;
 		fullProof = true;
 		idealTime = iTime;
 		provenTime = pTime;
 		transactionPath = path;
-		transactionID = transID;
+		transactionData = transData;
 		merkleRoot = root;
 		blockID = bID;
 		this.fileHash = fileHash;
@@ -65,15 +65,15 @@ public class Proof {
 	/**
 	 * Partial proof constructor: Takes parameters for only partial proof values
 	 * @param iTime
-	 * @param transID
+	 * @param transData
 	 * @param merkleRoot
 	 * @param fileHash
 	 */
-	public Proof(String fileName, Date iTime, byte[] transID, byte[] merkleRoot, byte[] fileHash){
+	public Proof(String fileName, Date iTime, byte[] transData, byte[] merkleRoot, byte[] fileHash){
 		this.fileName = fileName;
 		fullProof = false;
 		idealTime = iTime;
-		transactionID = transID;
+		transactionData = transData;
 		this.merkleRoot = merkleRoot;
 		this.fileHash= fileHash;
 	}
@@ -111,7 +111,7 @@ public class Proof {
 		}
 		fileName = yamlMap.get("File Name");
 		idealTime = Timestamp.valueOf(yamlMap.get("Ideal Time"));		
-		transactionID = Hex.decodeHex(yamlMap.get("Transaction ID").toCharArray());
+		transactionData = Hex.decodeHex(yamlMap.get("Transaction ID").toCharArray());
 		merkleRoot = Hex.decodeHex(yamlMap.get("Merkle Root").toCharArray());		
 		fileHash = Hex.decodeHex(yamlMap.get("File Hash").toCharArray());
 }
@@ -140,15 +140,15 @@ public class Proof {
 	/**
 	 * @return the transaction_path
 	 */
-	public byte[] getTransaction_path() {
+	public byte[] getTransactionPath() {
 		return transactionPath;
 	}
 
 	/**
-	 * @return the transactionID
+	 * @return the transactionData
 	 */
-	public byte[] getTransactionID() {
-		return transactionID;
+	public byte[] getTransactionData() {
+		return transactionData;
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class Proof {
 		mapRep.put("Type", type);
 		mapRep.put("Version", version);
 		mapRep.put("Ideal Time", idealTime.toString());		
-		mapRep.put("Transaction ID", Hex.encodeHexString(transactionID));
+		mapRep.put("Transaction Data", Hex.encodeHexString(transactionData));
 		mapRep.put("Merkle Root", Hex.encodeHexString(merkleRoot));		
 		mapRep.put("File Hash", Hex.encodeHexString(fileHash));
 		

@@ -32,7 +32,7 @@ public class GeneralView extends JPanel implements Observer {
 	private JButton certifyFileButton;
 	private JButton verifyFileButton;
 	private JTable statTable;
-	private String[] columnNames;
+	private String[] columnNames = new String[] {"File","Status"};;
 	private StatusTableModel tableModel;
 	
 	private final static String[][] TEST_DATA = { 
@@ -73,8 +73,7 @@ public class GeneralView extends JPanel implements Observer {
 	}
 	
 	private void addStatusTable() {
-		columnNames = new String[] {"File","Status"};
-		Object[][] data = TEST_DATA;
+		Object[][] data = model.getStatusList(); // TEST_DATA;
 		tableModel = new StatusTableModel();
 		tableModel.setDataVector(data, columnNames);
 		statTable = new JTable(tableModel);
@@ -93,8 +92,11 @@ public class GeneralView extends JPanel implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
+		redrawStatus();
+	}
+	
+	private void redrawStatus() {
+		tableModel.setDataVector(model.getStatusList(), columnNames);
 	}
 	
 	private class StatusTableModel extends DefaultTableModel {

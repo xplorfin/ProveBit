@@ -36,11 +36,11 @@ public class ProofYAMLTest {
 
 		
 		byte [] path = Hex.decodeHex("00000000".toCharArray());
-		byte [] transID = Hex.decodeHex("11111111".toCharArray());
+		byte [] transData = Hex.decodeHex("11111111".toCharArray());
 		byte [] root = Hex.decodeHex("22222222".toCharArray());
 		byte [] bID = Hex.decodeHex("33333333".toCharArray());
 		byte [] fileHash = Hex.decodeHex("44444444".toCharArray());
-		Proof testP = new Proof("testFile.txt", iTime, pTime, path, transID, root, bID, fileHash );
+		Proof testP = new Proof("testFile.txt", iTime, pTime, path, transData, root, bID, fileHash );
 		testP.writeProofToFile(writeFile);
 		
 		File write = new File(writeFile);
@@ -69,11 +69,11 @@ public class ProofYAMLTest {
 		Date jan1 = dateFormat.parse("2007-01-01 10:11:12.123"); 
 		Timestamp iTime = new Timestamp(jan1.getTime());
 
-		byte [] transID = Hex.decodeHex("11111111".toCharArray());
+		byte [] transData = Hex.decodeHex("11111111".toCharArray());
 		byte [] root = Hex.decodeHex("22222222".toCharArray());
 		byte [] fileHash = Hex.decodeHex("44444444".toCharArray());
 		
-		Proof testP = new Proof("testFile.txt", iTime, transID, root, fileHash);
+		Proof testP = new Proof("testFile.txt", iTime, transData, root, fileHash);
 		testP.writeProofToFile(writeFile);
 		
 		File write = new File(writeFile);
@@ -82,7 +82,7 @@ public class ProofYAMLTest {
 		assertFalse(writeStr.contains("Transaction Path: '00000000'"));
 		assertFalse(writeStr.contains("Proven Time: '2007-01-02 10:11:15.111'"));
 		assertFalse(writeStr.contains("Block ID: '33333333'"));
-		assertTrue(writeStr.contains("Transaction ID: '11111111'"));
+		assertTrue(writeStr.contains("Transaction Data: '11111111'"));
 	}
 	
 	@Test

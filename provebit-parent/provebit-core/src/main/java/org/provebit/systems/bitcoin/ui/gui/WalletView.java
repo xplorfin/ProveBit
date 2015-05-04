@@ -166,7 +166,7 @@ public class WalletView extends JPanel implements Observer {
 	public void confirmProofGeneration(Proof proof){
 		JPanel txidDialog = new JPanel(new MigLayout());
 		String resultReply = "Proof for file \'" + proof.getFileName() + "\' generated!\n\n";
-		resultReply += "TXID: " + Hex.encodeHexString(proof.getTransactionID()) + "\n";
+		resultReply += "TXID: " + Hex.encodeHexString(proof.getTransactionData()) + "\n";
 		resultReply += "File Hash: " + Hex.encodeHexString(proof.getFileHash()) + "\n";
 			
 		JTextPane txidSelectable = new JTextPane();

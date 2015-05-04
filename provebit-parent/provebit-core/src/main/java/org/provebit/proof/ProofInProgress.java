@@ -18,6 +18,7 @@ public class ProofInProgress implements Serializable {
 	public Sha256Hash txid;
 	public Date time = new Date();
 	public byte[] fileHash;
+	public boolean isDone = false;
 	
 	public ProofInProgress(File fileToProve, Sha256Hash txid, byte[] fileHash) {
 		this.fileToProve = fileToProve;

@@ -70,8 +70,8 @@ public class MainView extends JFrame implements Observer {
 		menuItemFileQuit = new JMenuItem("Quit");
 		menuItemFileQuit.setActionCommand("File-Quit");
 		
-		menuAbout = new JMenu("About");
-		menuItemAboutUs = new JMenuItem("About Us");
+		menuAbout = new JMenu("Help");
+		menuItemAboutUs = new JMenuItem("About");
 		menuItemAboutUs.setActionCommand("About-About Us");
 		
 		menuItems.add(menuItemAboutUs);
@@ -103,6 +103,8 @@ public class MainView extends JFrame implements Observer {
 		tabbedPane.addTab("Wallet", new WalletsTab().getPanel());
 		tabbedPane.addTab("Daemon", new DaemonTab().getPanel());
 		tabbedPane.addTab("Advanced", new AdvancedTab().getPanel());
+		// disable advanced
+		tabbedPane.setEnabledAt(3, false);
 		add(tabbedPane, "grow, push, span");
 	}
 	
@@ -112,7 +114,7 @@ public class MainView extends JFrame implements Observer {
 			if ("showAbout".compareTo((String) arg) == 0) {
 				JOptionPane.showMessageDialog(this, 
 						"ProveBit - Trusted Timestamp System Using Bitcoin Network", 
-						"About Us", 
+						"About", 
 						JOptionPane.PLAIN_MESSAGE);
 			}
 		}

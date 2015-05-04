@@ -17,7 +17,7 @@ public class ServerUtils {
 	 * Write daemon port to application directory file
 	 * @param port - port to write to file
 	 */
-	public static void writePort(int port) {
+	public synchronized static void writePort(int port) {
 		getLock();
 		try {
 			FileUtils.write(portFile, String.valueOf(port));
@@ -32,7 +32,7 @@ public class ServerUtils {
 	 * Returns last known port bound by daemon server
 	 * @return port of daemon server or default value if file doens't exist
 	 */
-	public static int getPort() {
+	public synchronized static int getPort() {
 		int port = 1024;
 		getLock();
 		try {
@@ -50,7 +50,7 @@ public class ServerUtils {
 		return port;
 	}
 	
-	private synchronized static void getLock() {
+	private static void getLock() {
 		try {
 			channel = new RandomAccessFile(portFile, "rw").getChannel();
 			lock = channel.lock();
@@ -60,7 +60,7 @@ public class ServerUtils {
 		}
 	}
 	
-	private synchronized static void releaseLock() {
+	private static void releaseLock() {
 		try {
 			lock.release();
 			channel.close();

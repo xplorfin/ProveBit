@@ -23,6 +23,13 @@ import org.provebit.utils.ApplicationDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The ProofManager creates and tracks in progress proofs.
+ * When the proofs are completed the are written to disk with file name of the 
+ * original file, plus the .dproof extension.
+ * 
+ * @author Steve Halm
+ */
 public enum ProofManager implements WalletEventListener {
 	INSTANCE;
 
@@ -62,6 +69,9 @@ public enum ProofManager implements WalletEventListener {
 		appwallet.getWallet().addEventListener(this, Executors.newSingleThreadExecutor());
 	}
 
+	/**
+	 * Persist the status to disk
+	 */
 	private void saveState() {
 		try (OutputStream file = new FileOutputStream(loc);
 				OutputStream buffer = new BufferedOutputStream(file);
@@ -88,6 +98,11 @@ public enum ProofManager implements WalletEventListener {
 		updated();
 	}
 	
+	/**
+	 * Write a completed proof to disk
+	 * @param tx - transaction involved in the proof
+	 * @param proof - proof to complete
+	 */
 	public synchronized void completeProof(Transaction tx, ProofInProgress proof) {
 		
 		byte[] txid = tx.getHash().getBytes();
@@ -136,7 +151,7 @@ public enum ProofManager implements WalletEventListener {
 		}
 		
 		Proof completeProof = new Proof(proof.fileToProve.getName(), proof.time, optblock.getHeader().getTime(),
-				path, txid, proof.fileHash, optimalBlockHash.getBytes(), proof.fileHash);
+				path, tx.bitcoinSerialize(), proof.fileHash, optimalBlockHash.getBytes(), proof.fileHash);
 		
 		
 		completeProof.writeProofToFile(proof.fileToProve.getAbsolutePath() + ".dproof");
@@ -173,6 +188,9 @@ public enum ProofManager implements WalletEventListener {
 		completeProof(tx, proof);
 	}
 
+	/**
+	 * Container for the serializable state
+	 */
 	private static class ProofManagerState implements Serializable {
 
 		/**
@@ -214,18 +232,28 @@ public enum ProofManager implements WalletEventListener {
 
 	}
 
+	/**
+	 * Mark an update to the proof manager state, and broadcast the event
+	 */
 	private void updated() {
 		for (ProofManagerEventHandler e : eventh) {
 			e.updated();
 		}
 	}
-	
+
+	/**
+	 * Observable component for tracking ProofManager events
+	 */
 	public class ProofManagerEventHandler extends Observable {
 		
 		public ProofManagerEventHandler() {
 			eventh.add(this);
 		}
 		
+		/**
+		 * Get all the managed proofs
+		 * @return list of the proofs (safe to modify)
+		 */
 		public List<ProofInProgress> getProofs() {
 			return new ArrayList<ProofInProgress>(state.proofs);
 		}

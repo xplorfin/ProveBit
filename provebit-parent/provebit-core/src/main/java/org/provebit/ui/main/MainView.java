@@ -89,7 +89,8 @@ public class MainView extends JFrame implements Observer {
 	 * Adds status label, currently placeholder
 	 */
 	public void addStatus() {
-		status = new JLabel("Status: you have 1 file(s) being proved");
+		status = new JLabel();
+		drawProvingCount();
 		add(status, "wrap");
 	}
 	
@@ -116,6 +117,13 @@ public class MainView extends JFrame implements Observer {
 						JOptionPane.PLAIN_MESSAGE);
 			}
 		}
+		drawProvingCount();
+	}
+	
+	private void drawProvingCount() {
+		int count = model.getStatusCount();
+		String newtext = "Status: you have " +  count + " file" + (count==1?"":"s")  +   " being proved";
+		status.setText(newtext);
 	}
 	
 	public void addController(ActionListener controller) {

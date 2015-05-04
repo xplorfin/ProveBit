@@ -45,17 +45,6 @@ public class GeneralModel extends Observable implements Observer {
 		return out;
 	}
 	
-	public int getStatusCount() {
-		List<ProofInProgress> proofs = eventh.getProofs();
-		int ip = 0;
-		for (ProofInProgress p : proofs) {
-			if (!p.isDone) {
-				ip++;
-			}
-		}
-		return ip;
-	}
-	
 	private static class ProofStartComparator implements Comparator<ProofInProgress> {
 		@Override
 		public int compare(ProofInProgress arg0, ProofInProgress arg1) {

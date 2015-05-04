@@ -1,6 +1,5 @@
 package org.provebit.ui.general;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Observable;
@@ -53,7 +52,6 @@ public class GeneralModel extends Observable implements Observer {
 		}
 	}
 	
-	@SuppressWarnings("unused")
 	private void notifyChange() {
 		setChanged();
 		notifyObservers();

@@ -28,8 +28,8 @@ import org.uispec4j.interception.WindowInterceptor;
 public class DaemonViewTest_ extends UISpecTestCase {
 	private Window window;
 	private Panel daemonPane;
-	private DaemonStatus daemonStatus;
-	private enum DaemonStatus{ACTIVE, SUSPENDED, TRACKING};
+	//private DaemonStatus daemonStatus;
+	//private enum DaemonStatus{ACTIVE, SUSPENDED, TRACKING};
 	private SimpleClient daemonClient = null;
 	private int port;
 	private final String hostname = "localhost";

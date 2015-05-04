@@ -17,7 +17,6 @@ public class MainModel extends Observable implements Observer {
 		eventh.addObserver(this);
 	}
 	
-	@SuppressWarnings("unused")
 	private void notifyChange() {
 		setChanged();
 		notifyObservers();

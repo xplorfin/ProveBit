@@ -1,6 +1,5 @@
 package org.provebit.proof;
 
-import java.io.PrintWriter;
 
 public class ProofGenerator {
 	/*
@@ -8,6 +7,7 @@ public class ProofGenerator {
 		writer.close();
 	 */
 	
+	@SuppressWarnings("unused")
 	private final String WORKING_DIRECTORY = "src/main/resources/";
 
 }

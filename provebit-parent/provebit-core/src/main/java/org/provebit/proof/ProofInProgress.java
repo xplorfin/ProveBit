@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.bitcoinj.core.Sha256Hash;
-import org.bitcoinj.core.Transaction;
 
 public class ProofInProgress implements Serializable {
 

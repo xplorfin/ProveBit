@@ -27,7 +27,6 @@ import org.provebit.ui.WalletsTab;
 public class MainView extends JFrame implements Observer {
 	private static final long serialVersionUID = 5472827135842556415L;
 	// TODO implement Main model
-	@SuppressWarnings("unused")
 	private MainModel model;
 	private JLabel status;
 	private JTabbedPane tabbedPane; 

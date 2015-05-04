@@ -35,21 +35,6 @@ public class GeneralView extends JPanel implements Observer {
 	private String[] columnNames = new String[] {"File","Status"};;
 	private StatusTableModel tableModel;
 	
-	private final static String[][] TEST_DATA = { 
-		new String[] {"alphabet.png", "In progress"}, 
-		new String[] {"juice.txt", "Complete"},
-		new String[] {"secrets.txt", "Complete"}, 
-		new String[] {"insurenceInfo.txt", "Complete"}, 
-		new String[] {"ipsumlorum.png", "Complete"},
-		new String[] {"funds.wallet", "Complete"}, 
-		new String[] {"escapePlan.tiff", "Complete"}, 
-		new String[] {"cowlevel.wav", "Complete"}, 
-		new String[] {"ZAP.app", "Complete"},
-		new String[] {"file1.txt", "Complete"}, 
-		new String[] {"file34.txt", "Complete"}, 
-		new String[] {"thatotherfile.txt", "Complete"},
-	};
-	
 	/**
 	 * GeneralView constructor
 	 * 
@@ -145,8 +130,6 @@ public class GeneralView extends JPanel implements Observer {
 	}
 	
 	private class PostHash implements Runnable {
-		// TODO: unused 'hash' member in PostHash class
-		@SuppressWarnings("unused")
 		private byte[] hash;
 		private boolean success;
 		private Transaction tx;

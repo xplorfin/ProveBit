@@ -30,6 +30,7 @@ public class MainViewTest_ extends UISpecTestCase {
 	private int port;
 	private final String hostname = "localhost";
 	private static DaemonProtocol clientProtocol;
+	@SuppressWarnings("unused")
 	private boolean daemonConnected;
 	private DaemonMessage killDaemon = new DaemonMessage(DaemonMessageType.KILL, null);
 	private DaemonMessage resetDaemon = new DaemonMessage(DaemonMessageType.RESET, null);
